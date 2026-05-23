@@ -886,7 +886,7 @@ function Index() {
             className="font-cinzel font-bold mt-6 leading-[1.05]"
             style={{ fontSize: "clamp(2.1rem,7vw,4.2rem)" }}
           >
-            Tu Mente No Para. Ni <span style={{ color: "#D4AF37" }}>Noche ni de Día</span>. Este Sistema <span style={{ color: "#9B5DE5" }}>la Apaga en 7 Minutos</span>.
+            Tu Mente No Para, Ni <span style={{ color: "#D4AF37" }}>Noche ni de Día</span>, Este Sistema <span style={{ color: "#9B5DE5" }}>la Apaga en 7 Minutos</span>.
           </h1>
           <p
             className="mt-6 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed"
