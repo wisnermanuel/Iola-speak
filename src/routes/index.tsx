@@ -886,13 +886,13 @@ function Index() {
             className="font-cinzel font-bold mt-6 leading-[1.05]"
             style={{ fontSize: "clamp(2.1rem,7vw,4.2rem)" }}
           >
-            Tu Mente No Para, Ni <span style={{ color: "#D4AF37" }}>Noche ni de Día</span>, Este Sistema <span style={{ color: "#9B5DE5" }}>la Apaga en 7 Minutos</span>.
+            Libérate de la <span className="gold-grad">tensión, la angustia</span> y los <span style={{ color: "#9B5DE5" }}>Bloqueos Mentales</span> en Solo 7 Minutos al Día
           </h1>
           <p
             className="mt-6 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed"
             style={{ color: "#9090B8", animation: "fadeUp .6s ease-out both", animationDelay: ".4s" }}
           >
-            El mismo protocolo de audio que usan miles de personas en México para apagar el ruido mental en 7 minutos — <span style={{ color: "#D4AF37" }}>sin meditación, sin pastillas, sin esfuerzo.</span>
+            Descubre el sistema de <strong style={{ color: "#EEE8FF" }}>+100 audios de autohipnosis profesional</strong> que ha ayudado a miles de personas a reprogramar su mente mientras descansan — <span style={{ color: "#D4AF37" }}>sin esfuerzo, sin meditaciones complicadas, sin años de terapia.</span>
           </p>
           <div
             className="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center"
@@ -1133,70 +1133,6 @@ function Index() {
         </div>
       </section>
 
-      {/* SECTION 10: BONOS */}
-      <section>
-        <div className="container-x">
-          <Reveal className="text-center"><span className="badge">🎁 Bonos Exclusivos</span></Reveal>
-          <Reveal delay={0.1}><h2 className="h mt-4">Pero Espera, Hay Más... ¡<span className="gold-grad">GRATIS</span>!</h2></Reveal>
-          <Reveal delay={0.15}><p className="sub">Cuando actúes hoy recibirás estos bonos valorados en más de $141… completamente gratis.</p></Reveal>
-          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-            {[
-              ["⚡", "BONO 1 — Guía de Inicio Rápido", "Plan paso a paso desde el día 1.", "$47"],
-              ["📖", "BONO 2 — Diario de Reprogramación", "Plantilla PDF para registrar tu progreso.", "$27"],
-              ["🎧", "BONO 3 — Sesión de Emergencia", "Audio 10 min para crisis de ansiedad aguda.", "$67"],
-              ["⭐", "BONO 4 — Actualizaciones de por Vida", "Nuevos audios automáticamente, sin costo.", "Sin precio"],
-            ].map(([ic, t, d, v], i) => (
-              <Reveal key={t} delay={i * 0.06}>
-                <div className="card h-full relative">
-                  <span className="absolute top-3 right-3 px-2 py-1 rounded-full text-[10px] font-bold"
-                    style={{ background: "#22C55E", color: "#06060F" }}>GRATIS</span>
-                  <div className="text-3xl">{ic}</div>
-                  <h3 className="font-bold mt-2">{t}</h3>
-                  <p className="text-sm mt-1" style={{ color: "#9090B8" }}>{d}</p>
-                  <div className="text-sm mt-3">
-                    <s style={{ color: "#9090B8" }}>{v}</s> <strong style={{ color: "#22C55E" }}>$0</strong>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={0.2}>
-            <div className="card max-w-md mx-auto mt-10" style={{ background: "#0D0D20", borderColor: "rgba(212,175,55,0.4)" }}>
-              <table className="w-full text-sm">
-                <tbody>
-                  {[
-                    ["Pulso 369", "$1,065"],
-                    ["Bono 1", "$47"],
-                    ["Bono 2", "$27"],
-                    ["Bono 3", "$67"],
-                    ["Bono 4", "Sin precio"],
-                  ].map(([k, v]) => (
-                    <tr key={k} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                      <td className="py-2" style={{ color: "#9090B8" }}>{k}</td>
-                      <td className="py-2 text-right">{v}</td>
-                    </tr>
-                  ))}
-                  <tr>
-                    <td className="py-3 font-bold">VALOR TOTAL</td>
-                    <td className="py-3 text-right font-bold" style={{ color: "#D4AF37" }}>$1,206+</td>
-                  </tr>
-                  <tr style={{ borderTop: "1px solid rgba(212,175,55,0.4)" }}>
-                    <td className="py-3 font-bold">Tu Inversión Hoy</td>
-                    <td className="py-3 text-right font-cinzel font-bold text-xl" style={{ color: "#D4AF37" }}>$11.11</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="max-w-md mx-auto mt-5">
-              <button onClick={() => openPayment(PAY_MAIN)} className="btn-primary pulse-btn w-full">
-                QUIERO TODO ESTO POR $11.11 →
-              </button>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
       {/* SECTION 7: QUÉ INCLUYE */}
       <section style={{ background: "#0D0D20" }}>
         <div className="container-x">
@@ -1417,6 +1353,69 @@ function Index() {
         </div>
       </section>
 
+      {/* SECTION 10: BONOS */}
+      <section>
+        <div className="container-x">
+          <Reveal className="text-center"><span className="badge">🎁 Bonos Exclusivos</span></Reveal>
+          <Reveal delay={0.1}><h2 className="h mt-4">Pero Espera, Hay Más... ¡<span className="gold-grad">GRATIS</span>!</h2></Reveal>
+          <Reveal delay={0.15}><p className="sub">Cuando actúes hoy recibirás estos bonos valorados en más de $141… completamente gratis.</p></Reveal>
+          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+            {[
+              ["⚡", "BONO 1 — Guía de Inicio Rápido", "Plan paso a paso desde el día 1.", "$47"],
+              ["📖", "BONO 2 — Diario de Reprogramación", "Plantilla PDF para registrar tu progreso.", "$27"],
+              ["🎧", "BONO 3 — Sesión de Emergencia", "Audio 10 min para crisis de ansiedad aguda.", "$67"],
+              ["⭐", "BONO 4 — Actualizaciones de por Vida", "Nuevos audios automáticamente, sin costo.", "Sin precio"],
+            ].map(([ic, t, d, v], i) => (
+              <Reveal key={t} delay={i * 0.06}>
+                <div className="card h-full relative">
+                  <span className="absolute top-3 right-3 px-2 py-1 rounded-full text-[10px] font-bold"
+                    style={{ background: "#22C55E", color: "#06060F" }}>GRATIS</span>
+                  <div className="text-3xl">{ic}</div>
+                  <h3 className="font-bold mt-2">{t}</h3>
+                  <p className="text-sm mt-1" style={{ color: "#9090B8" }}>{d}</p>
+                  <div className="text-sm mt-3">
+                    <s style={{ color: "#9090B8" }}>{v}</s> <strong style={{ color: "#22C55E" }}>$0</strong>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.2}>
+            <div className="card max-w-md mx-auto mt-10" style={{ background: "#0D0D20", borderColor: "rgba(212,175,55,0.4)" }}>
+              <table className="w-full text-sm">
+                <tbody>
+                  {[
+                    ["Pulso 369", "$1,065"],
+                    ["Bono 1", "$47"],
+                    ["Bono 2", "$27"],
+                    ["Bono 3", "$67"],
+                    ["Bono 4", "Sin precio"],
+                  ].map(([k, v]) => (
+                    <tr key={k} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                      <td className="py-2" style={{ color: "#9090B8" }}>{k}</td>
+                      <td className="py-2 text-right">{v}</td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="py-3 font-bold">VALOR TOTAL</td>
+                    <td className="py-3 text-right font-bold" style={{ color: "#D4AF37" }}>$1,206+</td>
+                  </tr>
+                  <tr style={{ borderTop: "1px solid rgba(212,175,55,0.4)" }}>
+                    <td className="py-3 font-bold">Tu Inversión Hoy</td>
+                    <td className="py-3 text-right font-cinzel font-bold text-xl" style={{ color: "#D4AF37" }}>$11.11</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="max-w-md mx-auto mt-5">
+              <button onClick={() => openPayment(PAY_MAIN)} className="btn-primary pulse-btn w-full">
+                QUIERO TODO ESTO POR $11.11 →
+              </button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       {/* SECTION 12: GARANTÍA */}
       <section>
@@ -1482,8 +1481,8 @@ function Index() {
             </div>
           </Reveal>
           <Reveal delay={0.25}>
-            <p className="mt-10">Esta noche puedes dormir diferente.</p>
-            <p className="font-cinzel mt-1" style={{ color: "#D4AF37" }}>O cerrar esta página y seguir igual.</p>
+            <p className="mt-10">Tu mente merece esta inversión.</p>
+            <p className="font-cinzel mt-1" style={{ color: "#D4AF37" }}>Tú mereces sentirte bien.</p>
           </Reveal>
         </div>
       </section>
