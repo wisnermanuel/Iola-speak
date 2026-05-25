@@ -1139,6 +1139,37 @@ function Index() {
         </div>
       </section>
 
+      {/* SECTION 11: AUDIO PREVIEW */}
+      <section id="audio-preview" style={{ background: "#0D0D20" }}>
+        <div className="container-x">
+          <Reveal className="text-center"><span className="badge">🎧 Pruébalo Antes de Decidir</span></Reveal>
+          <Reveal delay={0.1}><h2 className="h mt-4">Escucha Una Muestra Real</h2></Reveal>
+          <Reveal delay={0.15}>
+            <div
+              className="max-w-xl mx-auto"
+              style={{
+                border: "1px solid rgba(212,175,55,0.4)",
+                padding: 28,
+                borderRadius: 20,
+                boxShadow: "0 0 40px rgba(212,175,55,0.12), 0 0 80px rgba(212,175,55,0.06)",
+                background: "rgba(212,175,55,0.04)",
+              }}
+            >
+              <div className="font-cormorant italic" style={{ color: "#D4AF37", fontSize: 22 }}>
+                Escucha esto antes de decidir
+              </div>
+              <div className="font-dm" style={{ color: "#EEE8FF", fontWeight: 300, fontSize: 13, marginBottom: 20 }}>
+                Los primeros minutos del Pulso — el audio que cambia todo
+              </div>
+              <AudioPreview />
+              <div className="font-dm mt-4" style={{ fontWeight: 300, fontSize: 12, color: "#9090B8" }}>
+                Esta es solo una muestra de los +150 audios del sistema completo.
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* SECTION 7: QUÉ INCLUYE */}
       <section style={{ background: "#0D0D20" }}>
         <div className="container-x">
@@ -1321,36 +1352,6 @@ function Index() {
         </div>
       </section>
 
-      {/* SECTION 11: AUDIO PREVIEW (movida arriba de la oferta) */}
-      <section id="audio-preview" style={{ background: "#0D0D20" }}>
-        <div className="container-x">
-          <Reveal className="text-center"><span className="badge">🎧 Pruébalo Antes de Decidir</span></Reveal>
-          <Reveal delay={0.1}><h2 className="h mt-4">Escucha Una Muestra Real</h2></Reveal>
-          <Reveal delay={0.15}>
-            <div
-              className="max-w-xl mx-auto"
-              style={{
-                border: "1px solid rgba(212,175,55,0.4)",
-                padding: 28,
-                borderRadius: 20,
-                boxShadow: "0 0 40px rgba(212,175,55,0.12), 0 0 80px rgba(212,175,55,0.06)",
-                background: "rgba(212,175,55,0.04)",
-              }}
-            >
-              <div className="font-cormorant italic" style={{ color: "#D4AF37", fontSize: 22 }}>
-                Escucha esto antes de decidir
-              </div>
-              <div className="font-dm" style={{ color: "#EEE8FF", fontWeight: 300, fontSize: 13, marginBottom: 20 }}>
-                Los primeros minutos del Pulso — el audio que cambia todo
-              </div>
-              <AudioPreview />
-              <div className="font-dm mt-4" style={{ fontWeight: 300, fontSize: 12, color: "#9090B8" }}>
-                Esta es solo una muestra de los +150 audios del sistema completo.
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
 
       {/* SECTION 9: COUNTDOWN + PRECIO */}
       <section id="oferta" style={{ background: "#0D0D20" }}>
