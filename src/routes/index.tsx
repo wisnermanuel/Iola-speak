@@ -1139,6 +1139,56 @@ function Index() {
         </div>
       </section>
 
+      {/* SECTION 7: QUÉ INCLUYE */}
+      <section style={{ background: "#0D0D20" }}>
+        <div className="container-x">
+          <Reveal className="text-center"><span className="badge">📦 Todo Incluido</span></Reveal>
+          <Reveal delay={0.1}><h2 className="h mt-4">Todo Lo Que Recibes en el <span className="gold-grad">Pulso 369™</span></h2></Reveal>
+          <Reveal delay={0.15}><p className="sub">Un sistema completo de transformación mental valorado en más de $1,000… a una fracción del precio.</p></Reveal>
+          <Reveal delay={0.2}>
+            <img
+              src={programaPulso369}
+              alt="Programa Digital Completo Pulso 369 + Acceso a la App"
+              loading="lazy"
+              decoding="async"
+              width={1568}
+              height={628}
+              className="mx-auto mb-10 rounded-2xl w-full h-auto"
+              style={{ maxWidth: 960 }}
+            />
+          </Reveal>
+          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+            {[
+              ["🎧", "+100 Audios de Autohipnosis", "Sesiones para cada área de vida.", "$397"],
+              ["🎵", "Música Terapéutica Exclusiva", "Frecuencias binaurales.", "$97"],
+              ["🧠", "Frecuencias Mentales de Creación de realidad 369 Hrz", "Ondas calibradas para receptividad máxima.", "$147"],
+              ["🎤", "Guía por Voz Profesional", "Narración hipnótica clínica.", "$297"],
+              ["📚", "7 Libros PDF de Apoyo", "PNL, hipnosis, sanación, reprogramación.", "$127"],
+              ["📱", "Accede a los 150 audios desde tu teléfono en cualquier momento.", "App Exclusiva Pulso 369", "Acceso Permanente"],
+            ].map(([ic, t, d, v], i) => (
+              <Reveal key={t} delay={i * 0.06}>
+                <div className="card h-full flex gap-4">
+                  <div className="text-3xl">{ic}</div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-[15px] mb-1">{t}</h3>
+                    <p className="text-sm" style={{ color: "#9090B8" }}>{d}</p>
+                    <div className="mt-2 text-xs font-bold" style={{ color: "#D4AF37" }}>Valor {v}</div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal delay={0.2}>
+            <a href="#oferta" className="block max-w-2xl mx-auto mt-10 rounded-2xl text-center p-5"
+              style={{ background: "linear-gradient(135deg,rgba(212,175,55,0.15),rgba(107,33,200,0.15))", border: "1px solid rgba(212,175,55,0.4)" }}>
+              <span className="text-base sm:text-lg">
+                Valor Total: <s style={{ color: "#9090B8" }}>$1,065</s> · <strong style={{ color: "#D4AF37" }}>Hoy por mucho menos ↓</strong>
+              </span>
+            </a>
+          </Reveal>
+        </div>
+      </section>
+
       {/* SECTION 10: BONOS */}
       <section>
         <div className="container-x">
@@ -1199,56 +1249,6 @@ function Index() {
                 QUIERO TODO ESTO POR $11.11 →
               </button>
             </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* SECTION 7: QUÉ INCLUYE */}
-      <section style={{ background: "#0D0D20" }}>
-        <div className="container-x">
-          <Reveal className="text-center"><span className="badge">📦 Todo Incluido</span></Reveal>
-          <Reveal delay={0.1}><h2 className="h mt-4">Todo Lo Que Recibes en el <span className="gold-grad">Pulso 369™</span></h2></Reveal>
-          <Reveal delay={0.15}><p className="sub">Un sistema completo de transformación mental valorado en más de $1,000… a una fracción del precio.</p></Reveal>
-          <Reveal delay={0.2}>
-            <img
-              src={programaPulso369}
-              alt="Programa Digital Completo Pulso 369 + Acceso a la App"
-              loading="lazy"
-              decoding="async"
-              width={1568}
-              height={628}
-              className="mx-auto mb-10 rounded-2xl w-full h-auto"
-              style={{ maxWidth: 960 }}
-            />
-          </Reveal>
-          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-            {[
-              ["🎧", "+100 Audios de Autohipnosis", "Sesiones para cada área de vida.", "$397"],
-              ["🎵", "Música Terapéutica Exclusiva", "Frecuencias binaurales.", "$97"],
-              ["🧠", "Frecuencias Mentales de Creación de realidad 369 Hrz", "Ondas calibradas para receptividad máxima.", "$147"],
-              ["🎤", "Guía por Voz Profesional", "Narración hipnótica clínica.", "$297"],
-              ["📚", "7 Libros PDF de Apoyo", "PNL, hipnosis, sanación, reprogramación.", "$127"],
-              ["📱", "Accede a los 150 audios desde tu teléfono en cualquier momento.", "App Exclusiva Pulso 369", "Acceso Permanente"],
-            ].map(([ic, t, d, v], i) => (
-              <Reveal key={t} delay={i * 0.06}>
-                <div className="card h-full flex gap-4">
-                  <div className="text-3xl">{ic}</div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-[15px] mb-1">{t}</h3>
-                    <p className="text-sm" style={{ color: "#9090B8" }}>{d}</p>
-                    <div className="mt-2 text-xs font-bold" style={{ color: "#D4AF37" }}>Valor {v}</div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-          <Reveal delay={0.2}>
-            <a href="#oferta" className="block max-w-2xl mx-auto mt-10 rounded-2xl text-center p-5"
-              style={{ background: "linear-gradient(135deg,rgba(212,175,55,0.15),rgba(107,33,200,0.15))", border: "1px solid rgba(212,175,55,0.4)" }}>
-              <span className="text-base sm:text-lg">
-                Valor Total: <s style={{ color: "#9090B8" }}>$1,065</s> · <strong style={{ color: "#D4AF37" }}>Hoy por mucho menos ↓</strong>
-              </span>
-            </a>
           </Reveal>
         </div>
       </section>
