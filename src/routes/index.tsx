@@ -1500,7 +1500,7 @@ function Index() {
         style={{ background: "#06060F", borderTop: "1px solid rgba(212,175,55,0.15)", padding: "40px 20px 100px" }}
       >
         <div className="container-x text-center text-xs leading-relaxed" style={{ color: "#9090B8" }}>
-          <p>© 2018 Pulso 369™. Todos los derechos reservados.</p>
+          <p>© 2025 Pulso 369™. Todos los derechos reservados.</p>
           <p className="mt-3 max-w-2xl mx-auto">
             Los resultados pueden variar. Este producto es material educativo y de bienestar. No pretende diagnosticar, tratar, curar ni prevenir ninguna enfermedad. Consulta con un profesional antes de comenzar. Los testimonios son experiencias individuales y no garantizan resultados similares.
           </p>
