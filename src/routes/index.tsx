@@ -1489,8 +1489,8 @@ function Index() {
             </div>
           </Reveal>
           <Reveal delay={0.25}>
-            <p className="mt-10">Tu mente merece esta inversión.</p>
-            <p className="font-cinzel mt-1" style={{ color: "#D4AF37" }}>Tú mereces sentirte bien.</p>
+            <p className="mt-10">Llevas demasiado tiempo cargando esto solo.</p>
+            <p className="font-cinzel mt-1" style={{ color: "#D4AF37" }}>HOY PUEDES CAMBIAR ESO.</p>
           </Reveal>
         </div>
       </section>
