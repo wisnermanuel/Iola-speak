@@ -892,7 +892,7 @@ function Index() {
             className="font-cinzel font-bold mt-6 leading-[1.05]"
             style={{ fontSize: "clamp(2.1rem,7vw,4.2rem)" }}
           >
-            ¿Tu mente no para cuando intentas dormir? esto trabaja mientras duermes.
+            ¿Tu mente no para <span className="gold-grad">cuando intentas dormir?</span> esto trabaja mientras duermes.
           </h1>
           <p
             className="mt-6 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed"
