@@ -1223,13 +1223,13 @@ function Index() {
       {/* SECTION 10: BONOS */}
       <section>
         <div className="container-x">
-          <Reveal className="text-center"><span className="badge">🎁 Bonos Exclusivos</span></Reveal>
+          <Reveal className="text-center"><span className="badge">🎁 Incluido Hoy Sin Costo Extra</span></Reveal>
           <Reveal delay={0.1}><h2 className="h mt-4">Pero Espera, Hay Más... ¡<span className="gold-grad">GRATIS</span>!</h2></Reveal>
           <Reveal delay={0.15}><p className="sub">Cuando actúes hoy recibirás estos bonos valorados en más de $141… completamente gratis.</p></Reveal>
           <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
             {[
-              ["⚡", "BONO 1 — Guía de Inicio Rápido", "Plan paso a paso desde el día 1.", "$47"],
-              ["📖", "BONO 2 — Diario de Reprogramación", "Plantilla PDF para registrar tu progreso.", "$27"],
+              ["⚡", "ACTIVADOR INMEDIATO — Protocolo de Inicio en 24 Horas", "Plan paso a paso desde el día 1.", "$47"],
+              ["📖", "REGISTRO DE TRANSFORMACIÓN — Diario de Reprogramación Mental", "Plantilla PDF para registrar tu progreso.", "$27"],
               ["🎧", "BONO 3 — Sesión de Emergencia", "Audio 10 min para crisis de ansiedad aguda.", "$67"],
               ["⭐", "BONO 4 — Actualizaciones de por Vida", "Nuevos audios automáticamente, sin costo.", "Sin precio"],
             ].map(([ic, t, d, v], i) => (
@@ -1489,8 +1489,8 @@ function Index() {
             </div>
           </Reveal>
           <Reveal delay={0.25}>
-            <p className="mt-10">Tu mente merece esta inversión.</p>
-            <p className="font-cinzel mt-1" style={{ color: "#D4AF37" }}>Tú mereces sentirte bien.</p>
+            <p className="mt-10">Llevas demasiado tiempo cargando esto solo.</p>
+            <p className="font-cinzel mt-1" style={{ color: "#D4AF37" }}>HOY PUEDES CAMBIAR ESO.</p>
           </Reveal>
         </div>
       </section>
@@ -1500,7 +1500,7 @@ function Index() {
         style={{ background: "#06060F", borderTop: "1px solid rgba(212,175,55,0.15)", padding: "40px 20px 100px" }}
       >
         <div className="container-x text-center text-xs leading-relaxed" style={{ color: "#9090B8" }}>
-          <p>© 2018 Pulso 369™. Todos los derechos reservados.</p>
+          <p>© 2025 Pulso 369™. Todos los derechos reservados.</p>
           <p className="mt-3 max-w-2xl mx-auto">
             Los resultados pueden variar. Este producto es material educativo y de bienestar. No pretende diagnosticar, tratar, curar ni prevenir ninguna enfermedad. Consulta con un profesional antes de comenzar. Los testimonios son experiencias individuales y no garantizan resultados similares.
           </p>
