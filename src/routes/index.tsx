@@ -1224,7 +1224,10 @@ function Index() {
       <section>
         <div className="container-x">
           <Reveal className="text-center"><span className="badge">🎁 Incluido Hoy Sin Costo Extra</span></Reveal>
-...
+          <Reveal delay={0.1}><h2 className="h mt-4">Pero Espera, Hay Más... ¡<span className="gold-grad">GRATIS</span>!</h2></Reveal>
+          <Reveal delay={0.15}><p className="sub">Cuando actúes hoy recibirás estos bonos valorados en más de $141… completamente gratis.</p></Reveal>
+          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+            {[
               ["⚡", "ACTIVADOR INMEDIATO — Protocolo de Inicio en 24 Horas", "Plan paso a paso desde el día 1.", "$47"],
               ["📖", "REGISTRO DE TRANSFORMACIÓN — Diario de Reprogramación Mental", "Plantilla PDF para registrar tu progreso.", "$27"],
               ["🎧", "BONO 3 — Sesión de Emergencia", "Audio 10 min para crisis de ansiedad aguda.", "$67"],
