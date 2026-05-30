@@ -1230,8 +1230,8 @@ function Index() {
             {[
               ["⚡", "ACTIVADOR INMEDIATO — Protocolo de Inicio en 24 Horas", "Plan paso a paso desde el día 1.", "$47"],
               ["📖", "REGISTRO DE TRANSFORMACIÓN — Diario de Reprogramación Mental", "Plantilla PDF para registrar tu progreso.", "$27"],
-              ["🎧", "BONO 3 — Sesión de Emergencia", "Audio 10 min para crisis de ansiedad aguda.", "$67"],
-              ["⭐", "BONO 4 — Actualizaciones de por Vida", "Nuevos audios automáticamente, sin costo.", "Sin precio"],
+              ["🎧", "ESCUDO ANTI-CRISIS — Sesión de Emergencia para Ansiedad Aguda", "Audio 10 min para crisis de ansiedad aguda.", "$67"],
+              ["⭐", "BIBLIOTECA VIVA — Nuevos Audios Automáticos Sin Costo Extra", "Nuevos audios automáticamente, sin costo.", "Sin precio"],
             ].map(([ic, t, d, v], i) => (
               <Reveal key={t} delay={i * 0.06}>
                 <div className="card h-full relative">
