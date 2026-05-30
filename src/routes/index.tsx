@@ -1231,7 +1231,7 @@ function Index() {
               ["⚡", "ACTIVADOR INMEDIATO — Protocolo de Inicio en 24 Horas", "Plan paso a paso desde el día 1.", "$47"],
               ["📖", "REGISTRO DE TRANSFORMACIÓN — Diario de Reprogramación Mental", "Plantilla PDF para registrar tu progreso.", "$27"],
               ["🎧", "ANTI-CRISIS — Sesión de Emergencia para Ansiedad Aguda", "Audio 10 min para crisis de ansiedad aguda.", "$67"],
-              ["⭐", "BIBLIOTECA VIVA — Nuevos Audios Automáticos Sin Costo Extra", "Nuevos audios automáticamente, sin costo.", "Sin precio"],
+              ["⭐", "BIBLIOTECA VIVA — Nuevos Audios Automáticos Sin Costo Extra", "Nuevos audios automáticamente, sin costo.", "Invaluable"],
             ].map(([ic, t, d, v], i) => (
               <Reveal key={t} delay={i * 0.06}>
                 <div className="card h-full relative">
@@ -1254,10 +1254,10 @@ function Index() {
                 <tbody>
                   {[
                     ["Pulso 369", "$1,065"],
-                    ["Bono 1", "$47"],
-                    ["Bono 2", "$27"],
-                    ["Bono 3", "$67"],
-                    ["Bono 4", "Sin precio"],
+                    ["Activador", "$47"],
+                    ["Registro", "$27"],
+                    ["Anti-crisis", "$67"],
+                    ["Biblioteca", "Invaluable"],
                   ].map(([k, v]) => (
                     <tr key={k} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                       <td className="py-2" style={{ color: "#9090B8" }}>{k}</td>
