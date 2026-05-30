@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
         src: "https://cdn.utmify.com.br/scripts/utms/latest.js",
         async: true,
         defer: true,
-        "data-utmify-prevent-subids": true,
+        
       },
     ],
   }),
