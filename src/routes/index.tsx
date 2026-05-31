@@ -876,7 +876,7 @@ function Index() {
             src={meditationSilhouette}
             alt=""
             decoding="async"
-            loading="lazy"
+            fetchPriority="high"
             width={600}
             height={600}
             style={{ maxWidth: "min(80vw, 600px)", filter: "blur(1px)" }}
