@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import meditationSilhouette from "@/assets/meditation-silhouette.webp";
-import programaPulso369 from "@/assets/programa-pulso369.png";
+import programaPulso369 from "@/assets/programa-pulso369.webp";
 
 export const Route = createFileRoute("/")({
   component: Index,
