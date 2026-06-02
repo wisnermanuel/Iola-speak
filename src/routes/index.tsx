@@ -72,7 +72,7 @@ function openPayment(rawUrl: string) {
     window.fbq?.("track", "InitiateCheckout");
   } catch {}
   // Detect abandoned main checkout → trigger downsell immediately
-  if (url === PAY_MAIN) {
+  if (rawUrl === PAY_MAIN) {
     let timer: ReturnType<typeof setInterval>;
     const fire = () => {
       if (abandoned) return;
