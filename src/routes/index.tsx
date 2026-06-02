@@ -41,7 +41,19 @@ declare global {
   }
 }
 
-function openPayment(url: string) {
+function appendCurrentParams(url: string) {
+  try {
+    const search = window.location.search;
+    if (!search || search.length <= 1) return url;
+    const extra = search.startsWith("?") ? search.slice(1) : search;
+    return url + (url.includes("?") ? "&" : "?") + extra;
+  } catch {
+    return url;
+  }
+}
+
+function openPayment(rawUrl: string) {
+  const url = appendCurrentParams(rawUrl);
   const width = Math.min(480, window.innerWidth - 40);
   const height = Math.min(700, window.innerHeight - 40);
   const left = (window.innerWidth - width) / 2;
