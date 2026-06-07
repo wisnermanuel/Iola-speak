@@ -787,6 +787,35 @@ function Index() {
   const [showStickyBottom, setShowStickyBottom] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
 
+  // Fire Meta Pixel ViewContent on first page load (waits for lazy fbq)
+  useEffect(() => {
+    let fired = false;
+    const fire = () => {
+      if (fired) return;
+      if (typeof window.fbq === "function") {
+        fired = true;
+        try {
+          window.fbq("track", "ViewContent", {
+            content_name: "Programa Pulso 369",
+            content_category: "Landing",
+            content_type: "product",
+          });
+        } catch {}
+        return true;
+      }
+      return false;
+    };
+    if (fire()) return;
+    const interval = setInterval(() => {
+      if (fire()) clearInterval(interval);
+    }, 300);
+    const timeout = setTimeout(() => clearInterval(interval), 15000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
+
   // Sticky bottom after hero
   useEffect(() => {
     const el = heroRef.current;
