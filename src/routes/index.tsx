@@ -612,7 +612,7 @@ function StickyBottomBar({ visible }: { visible: boolean }) {
             Precio hoy
           </div>
           <div className="font-cinzel font-bold text-[22px]" style={{ color: "#D4AF37" }}>
-            $11.11
+            $13.97
           </div>
         </div>
         <button
@@ -1311,14 +1311,14 @@ function Index() {
                   </tr>
                   <tr style={{ borderTop: "1px solid rgba(212,175,55,0.4)" }}>
                     <td className="py-3 font-bold">Tu Inversión Hoy</td>
-                    <td className="py-3 text-right font-cinzel font-bold text-xl" style={{ color: "#D4AF37" }}>$11.11</td>
+                    <td className="py-3 text-right font-cinzel font-bold text-xl" style={{ color: "#D4AF37" }}>$13.97</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div className="max-w-md mx-auto mt-5">
               <button onClick={() => openPayment(PAY_MAIN)} className="btn-primary pulse-btn w-full">
-                QUIERO TODO ESTO POR $11.11 →
+                QUIERO TODO ESTO POR $13.97 →
               </button>
             </div>
           </Reveal>
@@ -1434,7 +1434,7 @@ function Index() {
                 <div className="text-sm" style={{ color: "#9090B8" }}>Valor real: <s>$1,065 USD</s></div>
                 <div className="text-xs mt-3" style={{ color: "#9090B8" }}>Tu inversión hoy:</div>
                 <div className="font-cinzel font-bold gold-grad" style={{ fontSize: "clamp(3.5rem,14vw,5.5rem)", lineHeight: 1 }}>
-                  $11.11
+                  $13.97
                 </div>
                 <div className="font-bold mt-1" style={{ color: "#D4AF37" }}>¡Ahorras más de $1,000!</div>
                 <p className="text-xs mt-2" style={{ color: "#9090B8" }}>✦ Pago único. Acceso de por vida. Sin suscripciones.</p>
@@ -1508,7 +1508,7 @@ function Index() {
           </Reveal>
           <Reveal delay={0.15}>
             <p className="font-bold max-w-xl mx-auto">
-              Una pequeña inversión de <span style={{ color: "#D4AF37" }}>$11.11</span> para un sistema que puede cambiar literalmente cada área de tu vida.
+              Una pequeña inversión de <span style={{ color: "#D4AF37" }}>$13.97</span> para un sistema que puede cambiar literalmente cada área de tu vida.
             </p>
           </Reveal>
           <Reveal delay={0.2}>
