@@ -751,11 +751,11 @@ function ExitPopup({ open, onClose }: { open: boolean; onClose: () => void }) {
           Espera un momento.
         </h3>
         <p className="text-sm leading-relaxed mb-5" style={{ color: "#9090B8" }}>
-          Está bien. Entendemos que $11.11 puede ser mucho ahora mismo.
+          Está bien. Entendemos que $13.97 puede ser mucho ahora mismo.
           <br /><br />
           Por eso tenemos una última opción para ti.
           <br /><br />
-          Todo este ecosistema por tan solo <span style={{ color: "#D4AF37", fontWeight: 700 }}>$9.99</span> — precio mínimo, sin recortar nada del programa.
+          Todo este ecosistema por tan solo <span style={{ color: "#D4AF37", fontWeight: 700 }}>$11.97</span> — precio mínimo, sin recortar nada del programa.
           <br /><br />
           Pero seamos honestos: Esta noche vas a acostarte y mañana todo volverá a empezar y vas a recordar esta pantalla.
         </p>
@@ -771,7 +771,7 @@ function ExitPopup({ open, onClose }: { open: boolean; onClose: () => void }) {
             minHeight: 48,
           }}
         >
-          Acceder por $9.99 →
+          Acceder por $11.97 →
         </button>
         <button onClick={onClose} className="text-xs underline" style={{ color: "#9090B8" }}>
           No, prefiero seguir igual por ahora
