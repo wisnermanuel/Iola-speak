@@ -20,54 +20,69 @@ const CARD2 = "#16161F";
 const MUTED = "#6B6B80";
 const TEXT = "#FFFFFF";
 
-// ─── Unsplash photo URLs ───────────────────────────────────────────────────────
+// ─── Imágenes del CDN de Lola Speak (mismas que usan ellos) ───────────────────
+const CDN = "https://cdn-eu.lolaenglish.com/web-images%2F";
 const IMG = {
-  // Hero — pareja estudiando inglés juntos
-  hero:        "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=85&fit=crop",
-  // Brain science
-  brain:       "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&q=80&fit=crop",
-  // Social proof — grupo diverso riendo
-  friends:     "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80&fit=crop",
-  // What to expect slide 1 — mujer con laptop aprendiendo
-  expect1:     "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80&fit=crop",
-  // What to expect slide 2 — restaurante elegante
-  expect2:     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80&fit=crop",
-  // What to expect slide 3 — persona hablando con confianza
-  expect3:     "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80&fit=crop",
-  // AI tutor avatar — mujer sonriente
-  tutor:       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&fit=crop&crop=face",
-  // Video thumbnail — persona en clase online
-  videoThumb:  "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=700&q=80&fit=crop",
-  // Trust pillars
-  trustAI:     "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=300&q=80&fit=crop",
-  trustVideo:  "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=300&q=80&fit=crop",
-  trustSci:    "https://images.unsplash.com/photo-1532094349884-543559059b62?w=300&q=80&fit=crop",
-  // Dificultades
-  diffHablar:  "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=500&q=80&fit=crop",
-  diffPronun:  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=80&fit=crop",
-  diffPractica:"https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&q=80&fit=crop",
-  diffEscucha: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=500&q=80&fit=crop",
-  diffVocab:   "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&q=80&fit=crop",
-  // Topics — una imagen única por tema
-  topAdventura:"https://images.unsplash.com/photo-1533130061792-64b345e4a833?w=200&q=75&fit=crop",
-  topArte:     "https://images.unsplash.com/photo-1547826039-bdbebb989f68?w=200&q=75&fit=crop",
-  topSocial:   "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=200&q=75&fit=crop",
-  topNegocios: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=75&fit=crop",
-  topCarrera:  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=75&fit=crop",
-  topDiario:   "https://images.unsplash.com/photo-1484627147104-f5197bcd6651?w=200&q=75&fit=crop",
-  topMedicina: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=75&fit=crop",
-  topViajes:   "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=200&q=75&fit=crop",
-  topComida:   "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=75&fit=crop",
-  topDeporte:  "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=200&q=75&fit=crop",
-  topRedes:    "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&q=75&fit=crop",
-  topDigital:  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&q=75&fit=crop",
-  // Avatars — personas reales diversas
-  av1: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face",
-  av2: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&fit=crop&crop=face",
-  av3: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face",
-  av4: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&fit=crop&crop=face",
-  av5: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=100&q=80&fit=crop&crop=face",
-  av6: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&fit=crop&crop=face",
+  hero:         CDN + "hero.webp",
+  brain:        CDN + "startBrain.webp",
+  brains:       CDN + "Brains.webp",
+  lamp:         CDN + "Lamp.webp",
+  twoX:         CDN + "2x.webp",
+  remember:     CDN + "remember.webp",
+  hands:        CDN + "hands.webp",
+  imgPlan:      CDN + "img-plan.webp",
+  finding:      CDN + "finding.svg",
+  creating:     CDN + "creating.svg",
+  // Level icons
+  beginner:     CDN + "Beginner.svg",
+  intermediate: CDN + "Intermediate.svg",
+  advanced:     CDN + "Advansed.svg",
+  // Practice time
+  time30:       CDN + "30.webp",
+  time15:       CDN + "15.webp",
+  time5:        CDN + "5.webp",
+  // What to expect
+  week1:        CDN + "week1.webp",
+  week4:        CDN + "week4.webp",
+  month12:      CDN + "month12.webp",
+  // AI / features
+  aiImg:        CDN + "ai.webp",
+  pronunciation:CDN + "pronunciation.webp",
+  watch:        CDN + "watch.webp",
+  fluency:      CDN + "fluency.webp",
+  vocab:        CDN + "vocab.webp",
+  pickUp:       CDN + "pickUp.webp",
+  situations:   CDN + "situations.webp",
+  // Progress steps (paywall)
+  prog1:        CDN + "prog_step_1.webp",
+  prog2:        CDN + "prog_step_2.webp",
+  prog3:        CDN + "prog_step_3.webp",
+  prog4:        CDN + "prog_step_4.webp",
+  prog5:        CDN + "prog_step_5.webp",
+  prog6:        CDN + "prog_step_6.webp",
+  // Avatars personas reales (Unsplash — Lola no expone las suyas)
+  tutor: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&fit=crop&crop=face",
+  av1:   "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face",
+  av2:   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&fit=crop&crop=face",
+  av3:   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face",
+  av4:   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&fit=crop&crop=face",
+  av5:   "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=100&q=80&fit=crop&crop=face",
+  av6:   "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&fit=crop&crop=face",
+  // Topics (Unsplash — Lola tampoco expone estas)
+  topAdventura: "https://images.unsplash.com/photo-1533130061792-64b345e4a833?w=200&q=75&fit=crop",
+  topArte:      "https://images.unsplash.com/photo-1547826039-bdbebb989f68?w=200&q=75&fit=crop",
+  topSocial:    "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=200&q=75&fit=crop",
+  topNegocios:  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=75&fit=crop",
+  topCarrera:   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=75&fit=crop",
+  topDiario:    "https://images.unsplash.com/photo-1484627147104-f5197bcd6651?w=200&q=75&fit=crop",
+  topMedicina:  "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=75&fit=crop",
+  topViajes:    "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=200&q=75&fit=crop",
+  topComida:    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=75&fit=crop",
+  topDeporte:   "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=200&q=75&fit=crop",
+  topRedes:     "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&q=75&fit=crop",
+  topDigital:   "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&q=75&fit=crop",
+  // Video thumbnail
+  videoThumb:   "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=700&q=80&fit=crop",
 };
 
 // Cloudflare Stream video ID (mismo video que usa Lola Speak)
@@ -253,7 +268,7 @@ function ScreenIntro({ onNext }: { onNext: ()=>void }) {
         position:"relative",width:"100%",height:260,borderRadius:24,overflow:"hidden",
         marginBottom:24,
       }}>
-        <img src={IMG.hero} alt="People learning English" style={{
+        <img src={IMG.hero} alt="iola Speak" style={{
           width:"100%",height:"100%",objectFit:"cover",
         }}/>
         {/* Dark overlay */}
@@ -445,9 +460,9 @@ function ScreenTransition({ name, onNext }: { name:string; onNext:()=>void }) {
 
 function ScreenLevel({ selected, onSelect }: { selected:string; onSelect:(v:string)=>void }) {
   const opts = [
-    { value:"beginner",     icon:"🔴", label:"Principiante",    sub:"Sé muy poco inglés" },
-    { value:"intermediate", icon:"🟡", label:"Intermedio",      sub:"Puedo mantener conversaciones básicas" },
-    { value:"advanced",     icon:"🟢", label:"Avanzado",        sub:"Hablo con bastante confianza" },
+    { value:"beginner",     img:IMG.beginner,     label:"Principiante",  sub:"Sé muy poco inglés" },
+    { value:"intermediate", img:IMG.intermediate, label:"Intermedio",    sub:"Puedo mantener conversaciones básicas" },
+    { value:"advanced",     img:IMG.advanced,     label:"Avanzado",      sub:"Hablo con bastante confianza" },
   ];
   return (
     <div>
@@ -462,7 +477,7 @@ function ScreenLevel({ selected, onSelect }: { selected:string; onSelect:(v:stri
             background:selected===o.value?"rgba(174,234,0,0.07)":CARD,
             transition:"all .15s",display:"flex",alignItems:"center",gap:14,
           }}>
-            <span style={{fontSize:28}}>{o.icon}</span>
+            <img src={o.img} alt={o.label} style={{width:40,height:40,objectFit:"contain",flexShrink:0}}/>
             <div>
               <div style={{fontWeight:700,fontSize:15,color:TEXT}}>{o.label}</div>
               <div style={{fontSize:12,color:MUTED,marginTop:2}}>{o.sub}</div>
@@ -520,7 +535,7 @@ function ScreenBrainScience({ onNext }: { onNext:()=>void }) {
 
       {/* Brain photo with stats overlay */}
       <div style={{position:"relative",borderRadius:20,overflow:"hidden",marginBottom:20}}>
-        <img src={IMG.brain} alt="Brain" style={{width:"100%",height:200,objectFit:"cover"}}/>
+        <img src={IMG.brains} alt="Brain" style={{width:"100%",height:200,objectFit:"cover"}}/>
         <div style={{
           position:"absolute",inset:0,
           background:"linear-gradient(to bottom, rgba(9,9,15,0.1) 0%, rgba(9,9,15,0.85) 100%)",
@@ -593,9 +608,9 @@ function ScreenTrust({ onNext }: { onNext:()=>void }) {
       {/* 3 pillars with images */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}}>
         {[
-          { img:IMG.trustAI,    icon:"🤖", label:"IA en tiempo real" },
-          { img:IMG.trustVideo, icon:"🎬", label:"Videos nativos" },
-          { img:IMG.trustSci,   icon:"🧪", label:"Método científico" },
+          { img:IMG.aiImg,       icon:"🤖", label:"IA en tiempo real" },
+          { img:IMG.watch,      icon:"🎬", label:"Videos nativos" },
+          { img:IMG.remember,   icon:"🧪", label:"Método científico" },
         ].map(p=>(
           <div key={p.label} style={{borderRadius:14,overflow:"hidden",border:"1px solid #1e1e2e"}}>
             <div style={{position:"relative",height:80}}>
@@ -663,13 +678,13 @@ function ScreenDifficulties({ selected, onToggle, onNext }: {
 
 function ScreenDifficultyExplanation({ difficulty, onNext }: { difficulty:string; onNext:()=>void }) {
   const map: Record<string, { emoji:string; title:string; body:string; img:string }> = {
-    "Miedo a hablar":        { emoji:"🎙️", img:IMG.diffHablar,   title:"Habla sin miedo",            body:"Practica con nuestra IA en cualquier momento, sin juicios. Cada conversación te da retroalimentación instantánea para ganar confianza rápidamente." },
-    "Pronunciación":          { emoji:"👄", img:IMG.diffPronun,   title:"Pronunciación perfecta",     body:"La IA analiza cada sonido que produces y te compara con hablantes nativos en tiempo real. Mejoras fonema por fonema." },
-    "Falta de práctica":      { emoji:"⏱️", img:IMG.diffPractica, title:"15 min al día es suficiente",body:"Con solo 15 minutos diarios, iola te mantiene en constante progreso. Lecciones cortas diseñadas para tu agenda real." },
-    "Comprensión auditiva":   { emoji:"🎧", img:IMG.diffEscucha,  title:"Entrena tu oído",            body:"Videos auténticos de hablantes nativos en diferentes contextos. Tu cerebro aprende el inglés real, no el de los libros." },
-    "Vocabulario limitado":   { emoji:"📖", img:IMG.diffVocab,    title:"Más de 8.500 palabras",      body:"Repetición espaciada científicamente probada. El sistema recuerda qué palabras necesitas y las presenta en el momento perfecto." },
+    "Miedo a hablar":      { emoji:"🎙️", img:IMG.fluency,      title:"Habla sin miedo",            body:"Practica con nuestra IA en cualquier momento, sin juicios. Cada conversación te da retroalimentación instantánea para ganar confianza rápidamente." },
+    "Pronunciación":        { emoji:"👄", img:IMG.pronunciation, title:"Pronunciación perfecta",     body:"La IA analiza cada sonido que produces y te compara con hablantes nativos en tiempo real. Mejoras fonema por fonema." },
+    "Falta de práctica":    { emoji:"⏱️", img:IMG.pickUp,       title:"15 min al día es suficiente",body:"Con solo 15 minutos diarios, iola te mantiene en constante progreso. Lecciones cortas diseñadas para tu agenda real." },
+    "Comprensión auditiva": { emoji:"🎧", img:IMG.watch,        title:"Entrena tu oído",            body:"Videos auténticos de hablantes nativos en diferentes contextos. Tu cerebro aprende el inglés real, no el de los libros." },
+    "Vocabulario limitado": { emoji:"📖", img:IMG.vocab,        title:"Más de 8.500 palabras",      body:"Repetición espaciada científicamente probada. El sistema recuerda qué palabras necesitas y las presenta en el momento perfecto." },
   };
-  const exp = map[difficulty] || { emoji:"🤖", img:IMG.hero, title:difficulty, body:"iola Speak te ayuda a superar este obstáculo con ejercicios de IA personalizados." };
+  const exp = map[difficulty] || { emoji:"🤖", img:IMG.situations, title:difficulty, body:"iola Speak te ayuda a superar este obstáculo con ejercicios de IA personalizados." };
   return (
     <div>
       <ProgressBar pct={58}/>
@@ -740,7 +755,7 @@ function ScreenSocialProof({ onNext }: { onNext:()=>void }) {
 
       {/* Group photo */}
       <div style={{position:"relative",borderRadius:20,overflow:"hidden",marginBottom:20,height:160}}>
-        <img src={IMG.friends} alt="Students" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+        <img src={IMG.hands} alt="Students" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
         <div style={{position:"absolute",inset:0,background:"rgba(9,9,15,0.5)"}}/>
         <div style={{
           position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"space-around",
@@ -780,9 +795,9 @@ function ScreenSocialProof({ onNext }: { onNext:()=>void }) {
 
 function ScreenPracticeTime({ selected, onSelect }: { selected:string; onSelect:(v:string)=>void }) {
   const opts = [
-    { value:"30", label:"30 minutos al día", sub:"Progreso intensivo", recommended:false },
-    { value:"15", label:"15 minutos al día", sub:"Recomendado para comenzar ⭐", recommended:true },
-    { value:"5",  label:"5 minutos al día",  sub:"Progreso gradual", recommended:false },
+    { value:"30", img:IMG.time30, label:"30 minutos al día", sub:"Progreso intensivo",           recommended:false },
+    { value:"15", img:IMG.time15, label:"15 minutos al día", sub:"Recomendado para comenzar ⭐", recommended:true  },
+    { value:"5",  img:IMG.time5,  label:"5 minutos al día",  sub:"Progreso gradual",             recommended:false },
   ];
   return (
     <div>
@@ -797,7 +812,7 @@ function ScreenPracticeTime({ selected, onSelect }: { selected:string; onSelect:
             background:selected===o.value?"rgba(174,234,0,0.07)":CARD,
             transition:"all .15s",display:"flex",alignItems:"center",gap:14,
           }}>
-            <span style={{fontSize:24}}>⏱️</span>
+            <img src={o.img} alt={o.label} style={{width:44,height:44,objectFit:"contain",flexShrink:0}}/>
             <div style={{flex:1}}>
               <div style={{fontWeight:700,fontSize:14,color:TEXT}}>{o.label}</div>
               <div style={{fontSize:12,color:o.recommended?G:MUTED,marginTop:2}}>{o.sub}</div>
@@ -962,9 +977,9 @@ function ScreenTestComplete({ level, onNext }: { level:string; onNext:()=>void }
 
 function ScreenWhatToExpect({ slide, onNext }: { slide:number; onNext:()=>void }) {
   const slides = [
-    { period:"Semana 1", value:"120", unit:"nuevas palabras",      scenario:"Presentarte en inglés",               img:IMG.expect1 },
-    { period:"Semana 4", value:"24",  unit:"situaciones dominadas", scenario:"Hacer un pedido en un restaurante",   img:IMG.expect2 },
-    { period:"Mes 12",   value:"",    unit:"Fluidez natural",       scenario:"Hablar con confianza en cualquier situación", img:IMG.expect3 },
+    { period:"Semana 1", value:"120", unit:"nuevas palabras",       scenario:"Presentarte en inglés",                     img:IMG.week1   },
+    { period:"Semana 4", value:"24",  unit:"situaciones dominadas", scenario:"Hacer un pedido en un restaurante",          img:IMG.week4   },
+    { period:"Mes 12",   value:"",    unit:"Fluidez natural",       scenario:"Hablar con confianza en cualquier situación",img:IMG.month12 },
   ];
   const s = slides[slide];
   return (
