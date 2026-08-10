@@ -38,8 +38,8 @@ const IMG = {
   videoThumb: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=700&q=80&fit=crop",
 };
 
-// YouTube video ID for the testimonial (English learning video on YouTube)
-const YT_VIDEO_ID = "aXoKNMCnr2Q";
+// Cloudflare Stream video ID (mismo video que usa Lola Speak)
+const CF_VIDEO_ID = "75b2bc08bf7b942ba7c1d5582f937ab0";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface QuizState {
@@ -1013,8 +1013,8 @@ function ScreenVideoTestimonial({ onNext }: { onNext:()=>void }) {
           </>
         ):(
           <iframe
-            src={`https://www.youtube-nocookie.com/embed/${YT_VIDEO_ID}?autoplay=1&rel=0`}
-            allow="autoplay; encrypted-media"
+            src={`https://iframe.cloudflarestream.com/${CF_VIDEO_ID}?autoplay=true&muted=false`}
+            allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
             style={{width:"100%",height:"100%",border:"none"}}
           />
