@@ -20,22 +20,54 @@ const CARD2 = "#16161F";
 const MUTED = "#6B6B80";
 const TEXT = "#FFFFFF";
 
-// ─── Unsplash photo URLs (free, no auth required) ─────────────────────────────
+// ─── Unsplash photo URLs ───────────────────────────────────────────────────────
 const IMG = {
-  hero:    "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=85&fit=crop",
-  brain:   "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&q=80&fit=crop",
-  friends: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80&fit=crop",
-  cafe:    "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&q=80&fit=crop",
-  travel:  "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=600&q=80&fit=crop",
-  business:"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80&fit=crop",
-  tutor:   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&fit=crop&crop=face",
-  av1:     "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face",
-  av2:     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&fit=crop&crop=face",
-  av3:     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face",
-  av4:     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&fit=crop&crop=face",
-  av5:     "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=100&q=80&fit=crop&crop=face",
-  av6:     "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&fit=crop&crop=face",
-  videoThumb: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=700&q=80&fit=crop",
+  // Hero — pareja estudiando inglés juntos
+  hero:        "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=85&fit=crop",
+  // Brain science
+  brain:       "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&q=80&fit=crop",
+  // Social proof — grupo diverso riendo
+  friends:     "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80&fit=crop",
+  // What to expect slide 1 — mujer con laptop aprendiendo
+  expect1:     "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80&fit=crop",
+  // What to expect slide 2 — restaurante elegante
+  expect2:     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80&fit=crop",
+  // What to expect slide 3 — persona hablando con confianza
+  expect3:     "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80&fit=crop",
+  // AI tutor avatar — mujer sonriente
+  tutor:       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&fit=crop&crop=face",
+  // Video thumbnail — persona en clase online
+  videoThumb:  "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=700&q=80&fit=crop",
+  // Trust pillars
+  trustAI:     "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=300&q=80&fit=crop",
+  trustVideo:  "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=300&q=80&fit=crop",
+  trustSci:    "https://images.unsplash.com/photo-1532094349884-543559059b62?w=300&q=80&fit=crop",
+  // Dificultades
+  diffHablar:  "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=500&q=80&fit=crop",
+  diffPronun:  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=80&fit=crop",
+  diffPractica:"https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&q=80&fit=crop",
+  diffEscucha: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=500&q=80&fit=crop",
+  diffVocab:   "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&q=80&fit=crop",
+  // Topics — una imagen única por tema
+  topAdventura:"https://images.unsplash.com/photo-1533130061792-64b345e4a833?w=200&q=75&fit=crop",
+  topArte:     "https://images.unsplash.com/photo-1547826039-bdbebb989f68?w=200&q=75&fit=crop",
+  topSocial:   "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=200&q=75&fit=crop",
+  topNegocios: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=75&fit=crop",
+  topCarrera:  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=75&fit=crop",
+  topDiario:   "https://images.unsplash.com/photo-1484627147104-f5197bcd6651?w=200&q=75&fit=crop",
+  topMedicina: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=75&fit=crop",
+  topViajes:   "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=200&q=75&fit=crop",
+  topComida:   "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=75&fit=crop",
+  topDeporte:  "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=200&q=75&fit=crop",
+  topRedes:    "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&q=75&fit=crop",
+  topDigital:  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&q=75&fit=crop",
+  // Avatars — personas reales diversas
+  av1: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face",
+  av2: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&fit=crop&crop=face",
+  av3: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face",
+  av4: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&fit=crop&crop=face",
+  av5: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=100&q=80&fit=crop&crop=face",
+  av6: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&fit=crop&crop=face",
 };
 
 // Cloudflare Stream video ID (mismo video que usa Lola Speak)
@@ -75,18 +107,18 @@ const LANGUAGES = [
 ];
 
 const TOPICS = [
-  { img: IMG.travel,   label: "Aventura" },
-  { img: IMG.cafe,     label: "Arte & Cultura" },
-  { img: IMG.friends,  label: "Vida social" },
-  { img: IMG.business, label: "Negocios" },
-  { img: IMG.business, label: "Carrera" },
-  { img: IMG.cafe,     label: "Vida diaria" },
-  { img: IMG.friends,  label: "Medicina" },
-  { img: IMG.travel,   label: "Viajes" },
-  { img: IMG.cafe,     label: "Comida" },
-  { img: IMG.friends,  label: "Deporte" },
-  { img: IMG.cafe,     label: "Redes sociales" },
-  { img: IMG.business, label: "Negocios digitales" },
+  { img: IMG.topAdventura, label: "Aventura" },
+  { img: IMG.topArte,      label: "Arte & Cultura" },
+  { img: IMG.topSocial,    label: "Vida social" },
+  { img: IMG.topNegocios,  label: "Negocios" },
+  { img: IMG.topCarrera,   label: "Carrera" },
+  { img: IMG.topDiario,    label: "Vida diaria" },
+  { img: IMG.topMedicina,  label: "Medicina" },
+  { img: IMG.topViajes,    label: "Viajes" },
+  { img: IMG.topComida,    label: "Comida" },
+  { img: IMG.topDeporte,   label: "Deporte" },
+  { img: IMG.topRedes,     label: "Redes sociales" },
+  { img: IMG.topDigital,   label: "Negocios digitales" },
 ];
 
 const VOCAB_A1 = ["because","booking","excellent","pay","strawberry","usual","wife","yesterday"];
@@ -561,9 +593,9 @@ function ScreenTrust({ onNext }: { onNext:()=>void }) {
       {/* 3 pillars with images */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}}>
         {[
-          { img:IMG.business, icon:"🤖", label:"IA en tiempo real" },
-          { img:IMG.cafe,     icon:"🎬", label:"Videos nativos" },
-          { img:IMG.friends,  icon:"🧪", label:"Método científico" },
+          { img:IMG.trustAI,    icon:"🤖", label:"IA en tiempo real" },
+          { img:IMG.trustVideo, icon:"🎬", label:"Videos nativos" },
+          { img:IMG.trustSci,   icon:"🧪", label:"Método científico" },
         ].map(p=>(
           <div key={p.label} style={{borderRadius:14,overflow:"hidden",border:"1px solid #1e1e2e"}}>
             <div style={{position:"relative",height:80}}>
@@ -631,11 +663,11 @@ function ScreenDifficulties({ selected, onToggle, onNext }: {
 
 function ScreenDifficultyExplanation({ difficulty, onNext }: { difficulty:string; onNext:()=>void }) {
   const map: Record<string, { emoji:string; title:string; body:string; img:string }> = {
-    "Miedo a hablar":        { emoji:"🎙️", img:IMG.cafe,     title:"Habla sin miedo",           body:"Practica con nuestra IA en cualquier momento, sin juicios. Cada conversación te da retroalimentación instantánea para ganar confianza rápidamente." },
-    "Pronunciación":          { emoji:"👄", img:IMG.friends,  title:"Pronunciación perfecta",    body:"La IA analiza cada sonido que produces y te compara con hablantes nativos en tiempo real. Mejoras fonema por fonema." },
-    "Falta de práctica":      { emoji:"⏱️", img:IMG.business, title:"15 min al día es suficiente",body:"Con solo 15 minutos diarios, iola te mantiene en constante progreso. Lecciones cortas diseñadas para tu agenda real." },
-    "Comprensión auditiva":   { emoji:"🎧", img:IMG.travel,   title:"Entrena tu oído",           body:"Videos auténticos de hablantes nativos en diferentes contextos. Tu cerebro aprende el inglés real, no el de los libros." },
-    "Vocabulario limitado":   { emoji:"📖", img:IMG.cafe,     title:"Más de 8.500 palabras",     body:"Repetición espaciada científicamente probada. El sistema recuerda qué palabras necesitas y las presenta en el momento perfecto." },
+    "Miedo a hablar":        { emoji:"🎙️", img:IMG.diffHablar,   title:"Habla sin miedo",            body:"Practica con nuestra IA en cualquier momento, sin juicios. Cada conversación te da retroalimentación instantánea para ganar confianza rápidamente." },
+    "Pronunciación":          { emoji:"👄", img:IMG.diffPronun,   title:"Pronunciación perfecta",     body:"La IA analiza cada sonido que produces y te compara con hablantes nativos en tiempo real. Mejoras fonema por fonema." },
+    "Falta de práctica":      { emoji:"⏱️", img:IMG.diffPractica, title:"15 min al día es suficiente",body:"Con solo 15 minutos diarios, iola te mantiene en constante progreso. Lecciones cortas diseñadas para tu agenda real." },
+    "Comprensión auditiva":   { emoji:"🎧", img:IMG.diffEscucha,  title:"Entrena tu oído",            body:"Videos auténticos de hablantes nativos en diferentes contextos. Tu cerebro aprende el inglés real, no el de los libros." },
+    "Vocabulario limitado":   { emoji:"📖", img:IMG.diffVocab,    title:"Más de 8.500 palabras",      body:"Repetición espaciada científicamente probada. El sistema recuerda qué palabras necesitas y las presenta en el momento perfecto." },
   };
   const exp = map[difficulty] || { emoji:"🤖", img:IMG.hero, title:difficulty, body:"iola Speak te ayuda a superar este obstáculo con ejercicios de IA personalizados." };
   return (
@@ -930,9 +962,9 @@ function ScreenTestComplete({ level, onNext }: { level:string; onNext:()=>void }
 
 function ScreenWhatToExpect({ slide, onNext }: { slide:number; onNext:()=>void }) {
   const slides = [
-    { period:"Semana 1", value:"120", unit:"nuevas palabras", scenario:"Presentarte en inglés", img:IMG.cafe },
-    { period:"Semana 4", value:"24",  unit:"situaciones dominadas", scenario:"Hacer un pedido en un restaurante", img:IMG.travel },
-    { period:"Mes 12",   value:"",    unit:"Fluidez natural",        scenario:"Hablar en cualquier situación", img:IMG.friends },
+    { period:"Semana 1", value:"120", unit:"nuevas palabras",      scenario:"Presentarte en inglés",               img:IMG.expect1 },
+    { period:"Semana 4", value:"24",  unit:"situaciones dominadas", scenario:"Hacer un pedido en un restaurante",   img:IMG.expect2 },
+    { period:"Mes 12",   value:"",    unit:"Fluidez natural",       scenario:"Hablar con confianza en cualquier situación", img:IMG.expect3 },
   ];
   const s = slides[slide];
   return (
