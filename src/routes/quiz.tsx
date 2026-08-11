@@ -527,6 +527,148 @@ function SGoodHands2({ next, iso }: { next:()=>void; iso:string }) {
   );
 }
 
+function SGender({ next, iso }: { next:()=>void; iso:string }) {
+  const GENDER_LABELS: Record<string,{m:string;f:string}> = {
+    es:{m:"Soy hombre",f:"Soy mujer"},en:{m:"I'm male",f:"I'm female"},de:{m:"Ich bin männlich",f:"Ich bin weiblich"},
+    fr:{m:"Je suis un homme",f:"Je suis une femme"},it:{m:"Sono un uomo",f:"Sono una donna"},pt:{m:"Sou homem",f:"Sou mulher"},
+    ru:{m:"Я мужчина",f:"Я женщина"},uk:{m:"Я чоловік",f:"Я жінка"},bg:{m:"Аз съм мъж",f:"Аз съм жена"},
+    zh:{m:"我是男性",f:"我是女性"},cs:{m:"Jsem muž",f:"Jsem žena"},fi:{m:"Olen mies",f:"Olen nainen"},
+    el:{m:"Είμαι άντρας",f:"Είμαι γυναίκα"},id:{m:"Saya laki-laki",f:"Saya perempuan"},ja:{m:"男性です",f:"女性です"},
+    ko:{m:"남성입니다",f:"여성입니다"},pl:{m:"Jestem mężczyzną",f:"Jestem kobietą"},sv:{m:"Jag är man",f:"Jag är kvinna"},tr:{m:"Erkek",f:"Kadın"},
+  };
+  const labels = GENDER_LABELS[iso] ?? GENDER_LABELS.es;
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"32px 20px 100px" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:0 }}>{tr(iso,"unlock")}</h1>
+      <p style={{ color:"#8899aa", textAlign:"center", fontSize:14, margin:"8px 0 0" }}>{tr(iso,"plan")}</p>
+      <div style={{ display:"flex", gap:16, width:"100%", maxWidth:400 }}>
+        {[{key:"m",label:labels.m,img:CDN+"Male25-34.webp"},{key:"f",label:labels.f,img:CDN+"Female25-34.webp"}].map(g=>(
+          <div key={g.key} onClick={()=>next()} style={{
+            flex:1, borderRadius:20, overflow:"hidden", cursor:"pointer", position:"relative",
+            border:"1px solid rgba(255,255,255,0.1)", background:"rgba(255,255,255,0.04)",
+          }}>
+            <div style={{ width:"100%", aspectRatio:"2/3", backgroundImage:`url(${g.img})`, backgroundSize:"cover", backgroundPosition:"center top" }}/>
+            <div style={{ padding:"12px 8px", textAlign:"center", fontSize:14, fontWeight:700 }}>{g.label}</div>
+          </div>
+        ))}
+      </div>
+      <p style={{ color:"#334", fontSize:11, textAlign:"center", margin:0 }}>
+        <a href="https://lolaspeak.com/terms" target="_blank" style={{ color:"#556677" }}>Terms</a>
+        {" & "}
+        <a href="https://lolaspeak.com/privacy" target="_blank" style={{ color:"#556677" }}>Privacy</a>
+      </p>
+    </div>
+  );
+}
+
+function SAgeRange({ next, iso }: { next:()=>void; iso:string }) {
+  const AGE_LABELS: Record<string,string[]> = {
+    es:["18 - 24","25 - 34","35 - 44","45+"],en:["18 - 24","25 - 34","35 - 44","45+"],
+    de:["18 - 24","25 - 34","35 - 44","45+"],fr:["18 - 24","25 - 34","35 - 44","45+"],
+  };
+  const ages = [
+    { label:"18 - 24", img:CDN+"18_24.webp" },
+    { label:"25 - 34", img:CDN+"25_34.webp" },
+    { label:"35 - 44", img:CDN+"35_44.webp" },
+    { label:"45+",     img:CDN+"45.webp"    },
+  ];
+  const AGE_Q: Record<string,string> = {
+    es:"¿Cuántos años tienes?",en:"How old are you?",de:"Wie alt bist du?",fr:"Quel âge as-tu?",
+    it:"Quanti anni hai?",pt:"Quantos anos tens?",ru:"Сколько вам лет?",uk:"Скільки вам років?",
+    bg:"На колко години си?",zh:"你多大了？",cs:"Kolik ti je let?",fi:"Kuinka vanha olet?",
+    el:"Πόσο χρονών είσαι;",id:"Berapa umurmu?",ja:"何歳ですか？",ko:"나이가 어떻게 되세요?",
+    pl:"Ile masz lat?",sv:"Hur gammal är du?",tr:"Kaç yaşındasın?",
+  };
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"32px 20px 100px" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:0 }}>{AGE_Q[iso] ?? AGE_Q.es}</h1>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:14, width:"100%", maxWidth:400 }}>
+        {ages.map(a=>(
+          <div key={a.label} onClick={()=>next()} style={{
+            borderRadius:20, overflow:"hidden", cursor:"pointer",
+            border:"1px solid rgba(255,255,255,0.1)", background:"rgba(255,255,255,0.04)",
+          }}>
+            <div style={{ width:"100%", aspectRatio:"1", backgroundImage:`url(${a.img})`, backgroundSize:"cover", backgroundPosition:"center" }}/>
+            <div style={{ padding:"10px 8px", textAlign:"center", fontSize:14, fontWeight:700 }}>{a.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SAppBenefits({ next, iso }: { next:()=>void; iso:string }) {
+  const BENEFITS = [
+    { img:CDN+"situations.webp", key:"situations" },
+    { img:CDN+"ai.webp",         key:"ai" },
+    { img:CDN+"watch.webp",      key:"watch" },
+    { img:CDN+"pickUp.webp",     key:"pickUp" },
+    { img:CDN+"remember.webp",   key:"remember" },
+    { img:CDN+"fluency.webp",    key:"fluency" },
+  ];
+  const LABELS: Record<string,Record<string,string>> = {
+    situations:{ es:"Practica situaciones reales", en:"Practice real situations", de:"Echte Situationen üben", fr:"Pratiquer des situations réelles", it:"Pratica situazioni reali", pt:"Pratica situações reais", ru:"Практикуй реальные ситуации", uk:"Практикуй реальні ситуації", bg:"Практикувай реални ситуации", zh:"练习真实场景", cs:"Procvičuj reálné situace", fi:"Harjoittele todellisia tilanteita", el:"Εξάσκηση σε πραγματικές καταστάσεις", id:"Latihan situasi nyata", ja:"実際の状況を練習する", ko:"실제 상황 연습", pl:"Ćwicz realne sytuacje", sv:"Öva verkliga situationer", tr:"Gerçek durumları pratik yap" },
+    ai:{ es:"IA que te corrige en tiempo real", en:"AI that corrects you in real time", de:"KI korrigiert dich in Echtzeit", fr:"IA qui te corrige en temps réel", it:"IA che ti corregge in tempo reale", pt:"IA que te corrige em tempo real", ru:"ИИ исправляет тебя в реальном времени", uk:"ШІ виправляє тебе в реальному часі", bg:"ИИ, който те коригира в реално време", zh:"AI实时纠正你", cs:"AI tě opravuje v reálném čase", fi:"Tekoäly korjaa sinut reaaliajassa", el:"ΑΙ που σε διορθώνει σε πραγματικό χρόνο", id:"AI yang mengoreksimu secara real-time", ja:"AIがリアルタイムで修正", ko:"실시간으로 교정하는 AI", pl:"AI koryguje cię w czasie rzeczywistym", sv:"AI som rättar dig i realtid", tr:"Sizi gerçek zamanlı düzelten yapay zeka" },
+    watch:{ es:"Aprende con video lecciones", en:"Learn with video lessons", de:"Lerne mit Video-Lektionen", fr:"Apprends avec des leçons vidéo", it:"Impara con video lezioni", pt:"Aprende com lições em vídeo", ru:"Учись с видео-уроками", uk:"Вчись з відеоуроками", bg:"Учи с видео уроци", zh:"通过视频课程学习", cs:"Uč se s video lekcemi", fi:"Opi videoopetuksin", el:"Μάθε με μαθήματα βίντεο", id:"Belajar dengan pelajaran video", ja:"ビデオレッスンで学ぶ", ko:"비디오 레슨으로 배우기", pl:"Ucz się z lekcjami wideo", sv:"Lär med videolektioner", tr:"Video derslerle öğren" },
+    pickUp:{ es:"Aprende palabras nuevas en contexto", en:"Pick up new words in context", de:"Neue Wörter im Kontext lernen", fr:"Apprendre de nouveaux mots en contexte", it:"Impara nuove parole nel contesto", pt:"Aprende novas palavras em contexto", ru:"Учи новые слова в контексте", uk:"Вивчай нові слова в контексті", bg:"Научавай нови думи в контекст", zh:"在情境中学习新词", cs:"Učit se nová slova v kontextu", fi:"Opi uusia sanoja asiayhteydessä", el:"Μάθε νέες λέξεις στο πλαίσιο", id:"Pelajari kata-kata baru dalam konteks", ja:"文脈の中で新しい単語を学ぶ", ko:"맥락 속에서 새로운 단어 습득", pl:"Ucz się nowych słów w kontekście", sv:"Plocka upp nya ord i sammanhang", tr:"Bağlamda yeni kelimeler öğren" },
+    remember:{ es:"Recuerda palabras para siempre", en:"Remember words forever", de:"Wörter für immer merken", fr:"Retenir les mots pour toujours", it:"Ricorda le parole per sempre", pt:"Lembra-te das palavras para sempre", ru:"Запоминай слова навсегда", uk:"Запам'ятовуй слова назавжди", bg:"Запомни думи завинаги", zh:"永久记住单词", cs:"Pamatuj si slova navždy", fi:"Muista sanat ikuisesti", el:"Θυμάσαι λέξεις για πάντα", id:"Ingat kata-kata selamanya", ja:"言葉を永遠に覚える", ko:"단어를 영원히 기억하세요", pl:"Zapamiętuj słowa na zawsze", sv:"Kom ihåg ord för alltid", tr:"Kelimeleri sonsuza kadar hatırla" },
+    fluency:{ es:"Habla con fluidez y confianza", en:"Speak fluently and confidently", de:"Fließend und selbstbewusst sprechen", fr:"Parler couramment et avec confiance", it:"Parlare con fluidità e sicurezza", pt:"Falar com fluência e confiança", ru:"Говори бегло и уверенно", uk:"Говори вільно і впевнено", bg:"Говори свободно и уверено", zh:"流利自信地表达", cs:"Mluv plynně a sebejistě", fi:"Puhu sujuvasti ja itsevarmasti", el:"Μίλα άπταιστα και με αυτοπεποίθηση", id:"Berbicara dengan fasih dan percaya diri", ja:"流暢に自信を持って話す", ko:"유창하고 자신감 있게 말하기", pl:"Mów płynnie i pewnie", sv:"Tala flytande och självförtroende", tr:"Akıcı ve güvenle konuş" },
+  };
+  const TITLE: Record<string,string> = {
+    es:"Lo que conseguirás",en:"What you'll achieve",de:"Was du erreichen wirst",fr:"Ce que tu réaliseras",it:"Cosa raggiungerai",pt:"O que vais conseguir",ru:"Чего ты достигнешь",uk:"Чого ти досягнеш",bg:"Какво ще постигнеш",zh:"你将获得什么",cs:"Čeho dosáhneš",fi:"Mitä saavutat",el:"Τι θα πετύχεις",id:"Apa yang akan kamu capai",ja:"何を達成するか",ko:"무엇을 이룰 수 있는지",pl:"Co osiągniesz",sv:"Vad du kommer att uppnå",tr:"Ne elde edeceksin",
+  };
+  return (
+    <div style={{ ...SCROLL, paddingBottom:100 }}>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{TITLE[iso] ?? TITLE.es}</h1>
+        {BENEFITS.map(b=>(
+          <div key={b.key} style={{ display:"flex", alignItems:"center", gap:14, marginBottom:12, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:14, padding:"12px 14px" }}>
+            <img src={b.img} alt="" style={{ width:44, height:44, objectFit:"contain", borderRadius:10, flexShrink:0 }}/>
+            <span style={{ fontSize:15, fontWeight:500 }}>{LABELS[b.key]?.[iso] ?? LABELS[b.key]?.en}</span>
+            <span style={{ marginLeft:"auto", color:G, fontSize:16 }}>✓</span>
+          </div>
+        ))}
+      </div>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+function SProgram({ next, iso }: { next:()=>void; iso:string }) {
+  const FEATURES = [
+    { img:CDN+"select.svg",   key:"select" },
+    { img:CDN+"level.svg",    key:"level" },
+    { img:CDN+"finding.svg",  key:"finding" },
+    { img:CDN+"video.svg",    key:"video" },
+    { img:CDN+"creating.svg", key:"creating" },
+  ];
+  const LABELS: Record<string,Record<string,string>> = {
+    select:  { es:"Selecciona lecciones por interés",en:"Select lessons by interest",de:"Lektionen nach Interesse auswählen",fr:"Sélectionner des leçons par intérêt",it:"Seleziona lezioni per interesse",pt:"Seleciona lições por interesse",ru:"Выбирай уроки по интересам",uk:"Вибирай уроки за інтересами",bg:"Избирай уроци по интерес",zh:"按兴趣选择课程",cs:"Vybírej lekce podle zájmů",fi:"Valitse oppitunteja kiinnostuksen mukaan",el:"Επιλέξτε μαθήματα βάσει ενδιαφέροντος",id:"Pilih pelajaran berdasarkan minat",ja:"興味に合わせてレッスンを選ぶ",ko:"관심사별 레슨 선택",pl:"Wybieraj lekcje wg zainteresowań",sv:"Välj lektioner efter intresse",tr:"İlgiye göre ders seç" },
+    level:   { es:"Ajusta el nivel de dificultad",en:"Adjust difficulty level",de:"Schwierigkeitslevel anpassen",fr:"Ajuster le niveau de difficulté",it:"Regola il livello di difficoltà",pt:"Ajusta o nível de dificuldade",ru:"Регулируй уровень сложности",uk:"Регулюй рівень складності",bg:"Регулирай нивото на трудност",zh:"调整难度等级",cs:"Nastav úroveň obtížnosti",fi:"Säädä vaikeustasoa",el:"Ρύθμιση επιπέδου δυσκολίας",id:"Sesuaikan tingkat kesulitan",ja:"難易度レベルを調整する",ko:"난이도 레벨 조정",pl:"Dostosuj poziom trudności",sv:"Justera svårighetsgrad",tr:"Zorluk seviyesini ayarla" },
+    finding: { es:"Encuentra palabras relevantes",en:"Find relevant words",de:"Relevante Wörter finden",fr:"Trouver des mots pertinents",it:"Trova parole rilevanti",pt:"Encontra palavras relevantes",ru:"Находи нужные слова",uk:"Знаходь потрібні слова",bg:"Намирай релевантни думи",zh:"找到相关词汇",cs:"Najdi relevantní slova",fi:"Löydä relevantteja sanoja",el:"Βρείτε σχετικές λέξεις",id:"Temukan kata-kata yang relevan",ja:"関連する単語を見つける",ko:"관련 단어 찾기",pl:"Znajdź odpowiednie słowa",sv:"Hitta relevanta ord",tr:"İlgili kelimeleri bul" },
+    video:   { es:"Videoclips con explicaciones",en:"Video clips with explanations",de:"Videoclips mit Erklärungen",fr:"Clips vidéo avec explications",it:"Videoclip con spiegazioni",pt:"Videoclips com explicações",ru:"Видеоклипы с объяснениями",uk:"Відеокліпи з поясненнями",bg:"Видеоклипове с обяснения",zh:"带解说的视频片段",cs:"Videoklipy s vysvětlením",fi:"Videoleikkeet selityksineen",el:"Βίντεο κλιπ με εξηγήσεις",id:"Klip video dengan penjelasan",ja:"解説付きビデオクリップ",ko:"설명이 있는 비디오 클립",pl:"Klipy wideo z wyjaśnieniami",sv:"Videoklipp med förklaringar",tr:"Açıklamalı video klipleri" },
+    creating:{ es:"Chats de IA para practicar",en:"AI chats to practice",de:"KI-Chats zum Üben",fr:"Chats IA pour pratiquer",it:"Chat IA per praticare",pt:"Chats de IA para praticar",ru:"Чаты с ИИ для практики",uk:"Чати з ШІ для практики",bg:"Чатове с ИИ за практика",zh:"AI对话练习",cs:"Chaty s AI pro procvičování",fi:"Tekoälychattia harjoitteluun",el:"Συνομιλίες ΑΙ για εξάσκηση",id:"Chat AI untuk berlatih",ja:"AIチャットで練習",ko:"AI 채팅으로 연습",pl:"Czaty AI do ćwiczeń",sv:"AI-chattar att öva med",tr:"Pratik yapmak için AI sohbetleri" },
+  };
+  const TITLE: Record<string,string> = {
+    es:"Tu programa incluye",en:"Your program includes",de:"Dein Programm beinhaltet",fr:"Ton programme comprend",it:"Il tuo programma include",pt:"O teu programa inclui",ru:"Твоя программа включает",uk:"Твоя програма включає",bg:"Програмата ти включва",zh:"你的课程包含",cs:"Tvůj program zahrnuje",fi:"Ohjelmaasi kuuluu",el:"Το πρόγραμμά σου περιλαμβάνει",id:"Programmu mencakup",ja:"プログラムに含まれるもの",ko:"프로그램에 포함된 것",pl:"Twój program obejmuje",sv:"Ditt program inkluderar",tr:"Programın şunları içerir",
+  };
+  return (
+    <div style={{ ...SCROLL, paddingBottom:100 }}>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{TITLE[iso] ?? TITLE.es}</h1>
+        {FEATURES.map(f=>(
+          <div key={f.key} style={{ display:"flex", alignItems:"center", gap:14, marginBottom:12, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:14, padding:"12px 14px" }}>
+            <img src={f.img} alt="" style={{ width:40, height:40, objectFit:"contain", flexShrink:0 }}/>
+            <span style={{ fontSize:15, fontWeight:500 }}>{LABELS[f.key]?.[iso] ?? LABELS[f.key]?.en}</span>
+            <span style={{ marginLeft:"auto", color:G, fontSize:16 }}>✓</span>
+          </div>
+        ))}
+      </div>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
 function SGoal({ next, sel, setSel, iso }: { next:()=>void; sel:number|null; setSel:(n:number)=>void; iso:string }) {
   const opts=[{id:3,img:CDN+"30.webp",lbl:"30 min",sub:"Máximo progreso"},{id:2,img:CDN+"15.webp",lbl:"15 min",sub:"Buen avance"},{id:1,img:CDN+"5.webp",lbl:"5 min",sub:"Para empezar"}];
   return (
@@ -567,31 +709,46 @@ function SEmail({ next, email, setEmail, iso }: { next:()=>void; email:string; s
 }
 
 function SBuilding({ next, iso }: { next:()=>void; iso:string }) {
-  const steps=["Analizando tu nivel...","Personalizando contenido...","Generando tu plan..."];
+  const PROG_STEPS = [
+    { img:CDN+"prog_step_1.webp",   pct:16 },
+    { img:CDN+"prog_step_2.webp",   pct:32 },
+    { img:CDN+"prog_step_3.webp",   pct:48 },
+    { img:CDN+"prog_step_4.webp",   pct:64 },
+    { img:CDN+"prog_step_5.webp",   pct:80 },
+    { img:CDN+"prog_step_6.webp",   pct:100 },
+  ];
+  const STEP_LABELS: Record<string,string[]> = {
+    es:["Analizando tu nivel...","Creando diálogos...","Añadiendo práctica de IA...","Seleccionando vocabulario...","Configurando pronunciación...","Trazando tu camino..."],
+    en:["Analyzing your level...","Creating dialogues...","Adding AI speaking practice...","Selecting vocabulary level...","Pronunciation training setup...","Mapping your learning path..."],
+    de:["Dein Level analysieren...","Dialoge erstellen...","KI-Sprachpraxis hinzufügen...","Vokabellevel auswählen...","Aussprachetraining einrichten...","Lernpfad kartieren..."],
+    fr:["Analyser votre niveau...","Créer des dialogues...","Ajouter la pratique IA...","Sélectionner le vocabulaire...","Configurer la prononciation...","Tracer votre parcours..."],
+    it:["Analizzando il tuo livello...","Creando dialoghi...","Aggiungendo pratica IA...","Selezionando vocabolario...","Configurando pronuncia...","Mappando il tuo percorso..."],
+    pt:["A analisar o teu nível...","A criar diálogos...","A adicionar prática com IA...","A selecionar vocabulário...","A configurar pronúncia...","A traçar o teu caminho..."],
+    ru:["Анализируем уровень...","Создаём диалоги...","Добавляем практику ИИ...","Подбираем словарный запас...","Настраиваем произношение...","Строим путь обучения..."],
+    uk:["Аналізуємо рівень...","Створюємо діалоги...","Додаємо практику ШІ...","Вибираємо словниковий запас...","Налаштовуємо вимову...","Будуємо шлях навчання..."],
+  };
+  const labels = STEP_LABELS[iso] ?? STEP_LABELS.es;
   const [si, setSi] = useState(0);
   const [pct, setPct] = useState(0);
   useEffect(()=>{
-    const t1=setTimeout(()=>setSi(1),1100);
-    const t2=setTimeout(()=>setSi(2),2300);
-    const t3=setTimeout(()=>{ setPct(100); setTimeout(next,500); },3400);
-    let p=0; const iv=setInterval(()=>{ p=Math.min(p+1.6,100); setPct(Math.round(p)); if(p>=100)clearInterval(iv); },55);
-    return()=>{ clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);clearInterval(iv); };
+    const timers = PROG_STEPS.map((_,i)=>setTimeout(()=>{ setSi(i); setPct(PROG_STEPS[i].pct); }, i*800));
+    const done = setTimeout(()=>next(), PROG_STEPS.length*800+400);
+    return()=>{ timers.forEach(clearTimeout); clearTimeout(done); };
   },[]);
+  const cur = PROG_STEPS[si];
   return (
-    <div style={{ ...BASE, justifyContent:"center", padding:"0 28px", textAlign:"center" }}>
-      <h1 style={{ fontSize:22, fontWeight:800, marginBottom:48 }}>{tr(iso,"building")}</h1>
-      {steps.map((s,i)=>(
-        <div key={s} style={{ display:"flex", alignItems:"center", gap:14, marginBottom:20, opacity:i<=si?1:0.2, transition:"opacity 0.5s", width:"100%", maxWidth:340, textAlign:"left" }}>
-          <div style={{ width:22, height:22, borderRadius:"50%", flexShrink:0, background:i<=si?G:"rgba(255,255,255,0.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, color:"#000", fontWeight:900 }}>
-            {i<si?"✓":i===si?"·":""}
-          </div>
-          <span style={{ fontSize:15, color:i<=si?"#fff":"#444" }}>{s}</span>
-        </div>
-      ))}
-      <div style={{ width:"100%", maxWidth:340, height:6, background:"rgba(255,255,255,0.1)", borderRadius:999, marginTop:28 }}>
-        <div style={{ width:`${pct}%`, height:"100%", background:G, borderRadius:999, transition:"width 0.1s" }}/>
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"32px 28px 48px", textAlign:"center" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>{tr(iso,"building")}</h1>
+      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%" }}>
+        <img src={cur.img} alt="" style={{ width:"70%", maxWidth:260, objectFit:"contain", transition:"opacity 0.4s" }} key={cur.img}/>
       </div>
-      <div style={{ marginTop:8, fontSize:13, color:G, fontWeight:700 }}>{pct}%</div>
+      <div style={{ width:"100%", maxWidth:360 }}>
+        <p style={{ fontSize:14, color:"#8899aa", marginBottom:16, minHeight:22 }}>{labels[si]}</p>
+        <div style={{ width:"100%", height:6, background:"rgba(255,255,255,0.1)", borderRadius:999 }}>
+          <div style={{ width:`${pct}%`, height:"100%", background:G, borderRadius:999, transition:"width 0.6s ease" }}/>
+        </div>
+        <div style={{ marginTop:8, fontSize:13, color:G, fontWeight:700 }}>{pct}%</div>
+      </div>
     </div>
   );
 }
@@ -689,9 +846,9 @@ export const Route = createFileRoute("/quiz")({
   component: IolaQuiz,
 });
 
-type Screen = "start"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"goodHands2"|"goal"|"email"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
+type Screen = "start"|"gender"|"ageRange"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"appBenefits"|"program"|"goodHands2"|"goal"|"email"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
 
-const FLOW: Screen[] = ["start","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","goodHands2","goal","email","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
+const FLOW: Screen[] = ["start","gender","ageRange","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","appBenefits","program","goodHands2","goal","email","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
 
 export default function IolaQuiz() {
   const [step,   setStep]   = useState(0);
@@ -711,7 +868,9 @@ export default function IolaQuiz() {
 
   return (
     <>
-      {sc==="start"        && <SStart       next={next} iso={iso} />}
+      {sc==="start"        && <SStart        next={next} iso={iso} />}
+      {sc==="gender"       && <SGender      next={next} iso={iso} />}
+      {sc==="ageRange"     && <SAgeRange    next={next} iso={iso} />}
       {sc==="language"     && <SLanguage    next={next} langId={langId} setLangId={setLangId} />}
       {sc==="video"        && <SVideo       next={next} iso={iso} />}
       {sc==="name"         && <SName        next={next} name={name} setName={setName} iso={iso} />}
@@ -723,7 +882,9 @@ export default function IolaQuiz() {
       {sc==="goodHands1"   && <SGoodHands1  next={next} iso={iso} />}
       {sc==="struggles"    && <SStruggles   next={next} sel={strugs} setSel={setStrugs} iso={iso} langId={langId} />}
       {sc==="brainStudy"   && <SBrainStudy  next={next} iso={iso} />}
-      {sc==="topics"       && <STopics      next={next} sel={topics} setSel={setTopics} iso={iso} />}
+      {sc==="topics"       && <STopics       next={next} sel={topics} setSel={setTopics} iso={iso} />}
+      {sc==="appBenefits"  && <SAppBenefits next={next} iso={iso} />}
+      {sc==="program"      && <SProgram     next={next} iso={iso} />}
       {sc==="goodHands2"   && <SGoodHands2  next={next} iso={iso} />}
       {sc==="goal"         && <SGoal        next={next} sel={goal} setSel={setGoal} iso={iso} />}
       {sc==="email"        && <SEmail       next={next} email={email} setEmail={setEmail} iso={iso} />}
