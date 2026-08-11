@@ -276,39 +276,43 @@ function SPersonalPlan({ next, name, iso }: { next:()=>void; name:string; iso:st
   const [done, setDone] = useState(false);
   useEffect(()=>{
     let t0: number|null = null;
-    const dur = 2600;
+    const dur = 2800;
     function frame(ts:number){ if(!t0)t0=ts; const p=Math.min((ts-t0)/dur,1); setProg(p); if(p<1)requestAnimationFrame(frame); else setDone(true); }
     requestAnimationFrame(frame);
   },[]);
-  const W=300, H=200, N=80;
+  const W=340, H=360, N=100;
   const pts: {x:number,y:number}[] = [];
   for(let i=0;i<=Math.floor(prog*N);i++){
-    const f=i/N, x=W*.1+f*W*.8, e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
-    pts.push({x, y:H*.9-e*H*.78});
+    const f=i/N, x=W*.05+f*W*.9, e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    pts.push({x, y:H*.95-e*H*.88});
   }
   const cur = pts[pts.length-1];
   const d = pts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
   return (
-    <div style={{ ...BASE, justifyContent:"center", padding:"0 20px" }}>
-      <p style={{ color:"#8899aa", fontSize:16, textAlign:"center", margin:"0 0 6px" }}>
-        {tr(iso,"welcome")} <strong style={{ color:"#fff" }}>{name||"amigo"}!</strong>
-      </p>
-      <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 36px" }}>
-        {tr(iso,"pp1")} <span style={{ color:G }}>{tr(iso,"pp2")}</span>
-      </h1>
-      <div style={{ position:"relative", width:W, height:H }}>
-        <svg width={W} height={H} style={{ position:"absolute", inset:0 }}>
-          {[1,2,3,4].map(i=><line key={i} x1={W*.1} x2={W*.9} y1={H*i/5} y2={H*i/5} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,4"/>)}
-          {[1,2,3,4].map(i=><line key={i} x1={W*i/5} x2={W*i/5} y1={H*.05} y2={H*.95} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,4"/>)}
-        </svg>
-        <div style={{ position:"absolute", top:"20%", left:"25%", width:150, height:150, background:"radial-gradient(circle,rgba(0,140,210,0.15) 0%,transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
-        <svg width={W} height={H} style={{ position:"absolute", inset:0 }}>
-          {pts.length>1 && <path d={d} fill="none" stroke={G} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"/>}
-          {cur && prog>.02 && <circle cx={cur.x} cy={cur.y} r={7} fill={G}/>}
-          {done && cur && <text x={cur.x+2} y={cur.y-13} fill={G} fontSize={11} fontWeight="bold">✓</text>}
+    <div style={{ ...BASE, justifyContent:"flex-start", padding:0, overflow:"hidden" }}>
+      <div style={{ padding:"32px 20px 0", textAlign:"center", width:"100%" }}>
+        <p style={{ color:"#8899aa", fontSize:16, margin:"0 0 4px" }}>
+          {tr(iso,"welcome")} <strong style={{ color:"#fff" }}>{name||"amigo"}!</strong>
+        </p>
+        <h1 style={{ fontSize:22, fontWeight:800, margin:"0 0 0" }}>
+          {tr(iso,"pp1")} <span style={{ color:G }}>{tr(iso,"pp2")}</span>
+        </h1>
+      </div>
+      <div style={{ position:"relative", width:"100%", flex:1, minHeight:0, display:"flex", alignItems:"stretch" }}>
+        <svg width="100%" height="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ position:"absolute", inset:0 }}>
+          {[1,2,3,4,5].map(i=><line key={i} x1={W*.05} x2={W*.95} y1={H*i/6} y2={H*i/6} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,6"/>)}
+          {[1,2,3,4].map(i=><line key={i} x1={W*i/5} x2={W*i/5} y1={H*.02} y2={H*.98} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,6"/>)}
+          <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stopColor="rgba(0,140,210,0.18)"/>
+            <stop offset="100%" stopColor="rgba(0,140,210,0)"/>
+          </radialGradient>
+          <ellipse cx={W*.5} cy={H*.4} rx={W*.45} ry={H*.35} fill="url(#glow)"/>
+          {pts.length>1 && <path d={d} fill="none" stroke={G} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round"/>}
+          {cur && prog>.01 && <circle cx={cur.x} cy={cur.y} r={8} fill={G} opacity={0.9}/>}
+          {done && cur && <text x={cur.x-4} y={cur.y+4} fill="#000" fontSize={10} fontWeight="900">✓</text>}
         </svg>
       </div>
-      {done && <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>}
+      {done && <div style={{ padding:"0 20px 20px", width:"100%" }}><NextBtn onClick={next}>{tr(iso,"next")}</NextBtn></div>}
     </div>
   );
 }
