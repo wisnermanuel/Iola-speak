@@ -276,40 +276,54 @@ function SPersonalPlan({ next, name, iso }: { next:()=>void; name:string; iso:st
   const [done, setDone] = useState(false);
   useEffect(()=>{
     let t0: number|null = null;
-    const dur = 2800;
+    const dur = 2600;
     function frame(ts:number){ if(!t0)t0=ts; const p=Math.min((ts-t0)/dur,1); setProg(p); if(p<1)requestAnimationFrame(frame); else setDone(true); }
     requestAnimationFrame(frame);
   },[]);
-  const W=340, H=360, N=100;
-  const pts: {x:number,y:number}[] = [];
-  for(let i=0;i<=Math.floor(prog*N);i++){
+  const W=340, H=380, N=100;
+  // Full curve (gray) — goes all the way
+  const fullPts: {x:number,y:number}[] = [];
+  for(let i=0;i<=N;i++){
     const f=i/N, x=W*.05+f*W*.9, e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
-    pts.push({x, y:H*.95-e*H*.88});
+    fullPts.push({x, y:H*.95-e*H*.88});
   }
-  const cur = pts[pts.length-1];
-  const d = pts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  // Green line — animates and stops at midpoint (~50%)
+  const greenStop = 0.5;
+  const greenPts: {x:number,y:number}[] = [];
+  for(let i=0;i<=Math.floor(prog*greenStop*N);i++){
+    const f=i/N, x=W*.05+f*W*.9, e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    greenPts.push({x, y:H*.95-e*H*.88});
+  }
+  const cur = greenPts[greenPts.length-1];
+  const dFull = fullPts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const dGreen = greenPts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
   return (
     <div style={{ ...BASE, justifyContent:"flex-start", padding:0, overflow:"hidden" }}>
-      <div style={{ padding:"32px 20px 0", textAlign:"center", width:"100%" }}>
+      <div style={{ padding:"28px 20px 0", textAlign:"center", width:"100%" }}>
         <p style={{ color:"#8899aa", fontSize:16, margin:"0 0 4px" }}>
           {tr(iso,"welcome")} <strong style={{ color:"#fff" }}>{name||"amigo"}!</strong>
         </p>
-        <h1 style={{ fontSize:22, fontWeight:800, margin:"0 0 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>
           {tr(iso,"pp1")} <span style={{ color:G }}>{tr(iso,"pp2")}</span>
         </h1>
       </div>
-      <div style={{ position:"relative", width:"100%", flex:1, minHeight:0, display:"flex", alignItems:"stretch" }}>
+      <div style={{ position:"relative", width:"100%", flex:1, minHeight:0 }}>
         <svg width="100%" height="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ position:"absolute", inset:0 }}>
-          {[1,2,3,4,5].map(i=><line key={i} x1={W*.05} x2={W*.95} y1={H*i/6} y2={H*i/6} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,6"/>)}
-          {[1,2,3,4].map(i=><line key={i} x1={W*i/5} x2={W*i/5} y1={H*.02} y2={H*.98} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,6"/>)}
-          <radialGradient id="glow" cx="50%" cy="40%" r="50%">
-            <stop offset="0%" stopColor="rgba(0,140,210,0.18)"/>
-            <stop offset="100%" stopColor="rgba(0,140,210,0)"/>
-          </radialGradient>
-          <ellipse cx={W*.5} cy={H*.4} rx={W*.45} ry={H*.35} fill="url(#glow)"/>
-          {pts.length>1 && <path d={d} fill="none" stroke={G} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round"/>}
-          {cur && prog>.01 && <circle cx={cur.x} cy={cur.y} r={8} fill={G} opacity={0.9}/>}
-          {done && cur && <text x={cur.x-4} y={cur.y+4} fill="#000" fontSize={10} fontWeight="900">✓</text>}
+          <defs>
+            <radialGradient id="bg-glow" cx="50%" cy="40%" r="55%">
+              <stop offset="0%" stopColor="rgba(0,120,200,0.16)"/>
+              <stop offset="100%" stopColor="rgba(0,120,200,0)"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx={W*.5} cy={H*.38} rx={W*.48} ry={H*.38} fill="url(#bg-glow)"/>
+          {[1,2,3,4,5].map(i=><line key={i} x1={W*.04} x2={W*.96} y1={H*i/6} y2={H*i/6} stroke="rgba(255,255,255,0.06)" strokeWidth={1} strokeDasharray="4,6"/>)}
+          {[1,2,3,4].map(i=><line key={i} x1={W*i/5} x2={W*i/5} y1={H*.02} y2={H*.98} stroke="rgba(255,255,255,0.06)" strokeWidth={1} strokeDasharray="4,6"/>)}
+          {/* Gray full curve */}
+          <path d={dFull} fill="none" stroke="rgba(180,180,180,0.25)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
+          {/* Green animated curve — stops at midpoint */}
+          {greenPts.length>1 && <path d={dGreen} fill="none" stroke={G} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round"/>}
+          {cur && prog>.01 && <circle cx={cur.x} cy={cur.y} r={9} fill={G} opacity={0.95}/>}
+          {done && cur && <text x={cur.x-5} y={cur.y+5} fill="#000" fontSize={11} fontWeight="900">✓</text>}
         </svg>
       </div>
       {done && <div style={{ padding:"0 20px 20px", width:"100%" }}><NextBtn onClick={next}>{tr(iso,"next")}</NextBtn></div>}
