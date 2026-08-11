@@ -1174,14 +1174,456 @@ function SGrammarResults({ next, iso }: { next:()=>void; iso:string }) {
   );
 }
 
+// ─── LexTest ───────────────────────────────────────────────────────────────────
+type LexQ =
+  | { type:"images";    prompt:string; partEmojis:string[]; opts:string[]; ans:string }
+  | { type:"stress";    prompt:string; icon:string;         opts:string[]; ans:string }
+  | { type:"split";     prompt:string; word:string;         grid:{e:string}[]; ans:string }
+  | { type:"form";      prompt:string; icon:string;         opts:string[]; ans:string }
+  | { type:"synonym";   prompt:string; icon:string; word:string; opts:string[]; ans:string }
+  | { type:"sentiment"; prompt:string; word:string;         ans:"pos"|"neg" }
+  | { type:"compound";  prompt:string; word:string; partA:string; opts:{e1:string;e2:string}[]; ans:number }
+  | { type:"basket";    prompt:string; icon:string;         opts:string[]; ans:string };
+
+const LEX_QS: LexQ[] = [
+  { type:"images",    prompt:"Elija las imágenes correctas",           partEmojis:["🗝️","🧱"],       opts:["keystone","skateboard","keyboard","snowboard"],                                        ans:"keystone"  },
+  { type:"stress",    prompt:"Elija la pronunciación correcta",         icon:"💿",                    opts:["REcord","reCORD"],                                                                     ans:"REcord"    },
+  { type:"split",     prompt:"Elija las imágenes correctas",            word:"teacher",               grid:[{e:"☕"},{e:"🎾"},{e:"🧊"},{e:"🪑"}],                                                 ans:"☕"         },
+  { type:"form",      prompt:"Elija la opción correcta",                icon:"👫",                    opts:["makeup","make up"],                                                                   ans:"makeup"    },
+  { type:"synonym",   prompt:"Elija el sinónimo",                       icon:"😀", word:"happy",      opts:["sad","curious","angry","joyful"],                                                     ans:"joyful"    },
+  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"lazy",                  ans:"neg" },
+  { type:"compound",  prompt:"Elija las imágenes correctas",            word:"honeymoon", partA:"🍎", opts:[{e1:"🌙",e2:"🍎"},{e1:"🐤",e2:"🍯"},{e1:"🍯",e2:"🌙"},{e1:"🍎",e2:"🐤"}],           ans:2           },
+  { type:"basket",    prompt:"Elija la opción correcta",                icon:"🧺",                    opts:["PROduce","proDUCE"],                                                                  ans:"PROduce"   },
+  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"ambitious",             ans:"pos" },
+];
+
+function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
+  const [qi,     setQi]     = useState(0);
+  const [picked, setPicked] = useState<string|number|null>(null);
+  const [secs,   setSecs]   = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setSecs(s => s + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const q     = LEX_QS[qi];
+  const total = LEX_QS.length;
+  const mm    = String(Math.floor(secs / 60)).padStart(2, "0");
+  const ss    = String(secs % 60).padStart(2, "0");
+
+  function choose(val: string | number) {
+    if (picked !== null) return;
+    setPicked(val);
+    setTimeout(() => {
+      if (qi < total - 1) { setQi(i => i + 1); setPicked(null); }
+      else next();
+    }, 400);
+  }
+
+  function skipQ() {
+    if (qi < total - 1) { setQi(i => i + 1); setPicked(null); }
+    else next();
+  }
+
+  const BTN: React.CSSProperties = {
+    width:"100%", padding:"16px", borderRadius:14, fontSize:17, fontWeight:700,
+    background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
+    color:"#fff", cursor:"pointer", textAlign:"center",
+  };
+  const BTN_SEL: React.CSSProperties = { ...BTN, background:"rgba(174,234,0,0.15)", border:`2px solid ${G}` };
+
+  return (
+    <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:80 }}>
+      <style>{`@keyframes lexPulse{0%,100%{opacity:1}50%{opacity:0.6}}`}</style>
+      {/* Progress dots */}
+      <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", gap:6, alignItems:"center" }}>
+        {Array.from({length:total},(_,i) => (
+          <div key={i} style={{
+            flex:1, height:4, borderRadius:999,
+            background: i < qi ? "#2563eb" : i===qi ? G : "rgba(255,255,255,0.12)",
+          }}/>
+        ))}
+      </div>
+      {/* Timer */}
+      <div style={{ textAlign:"center", padding:"24px 20px 8px" }}>
+        <div style={{ fontSize:34, fontWeight:700, fontFamily:"monospace", letterSpacing:2 }}>{mm}:{ss}</div>
+        <div style={{ fontSize:15, color:"#ccc", marginTop:6 }}>{q.prompt}</div>
+      </div>
+
+      {/* Question */}
+      <div style={{ width:"100%", maxWidth:480, padding:"0 20px", flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:20 }}>
+        {q.type==="images" && <>
+          <div style={{ display:"flex", alignItems:"center", gap:16, fontSize:52 }}>
+            {q.partEmojis.map((e,i)=><span key={i}>{e}</span>)}
+          </div>
+          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+            {q.opts.map(o=>(
+              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}>{o}</div>
+            ))}
+          </div>
+        </>}
+
+        {q.type==="stress" && <>
+          <div style={{ fontSize:80 }}>{q.icon}</div>
+          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+            {q.opts.map(o=>(
+              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}
+                dangerouslySetInnerHTML={{__html: o.replace(/([A-Z]+)/g, m=>`<span style="font-weight:900;color:${G}">${m}</span>`)}}/>
+            ))}
+          </div>
+        </>}
+
+        {q.type==="split" && <>
+          <div style={{ fontSize:26, fontWeight:800 }}>{q.word}</div>
+          <div style={{ display:"flex", gap:10 }}>
+            <div style={{ width:72, height:72, borderRadius:16, background:"rgba(255,255,255,0.08)", border:"1.5px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:36 }}>?</div>
+            <span style={{ fontSize:28, alignSelf:"center", color:"#aaa" }}>+</span>
+            <div style={{ width:72, height:72, borderRadius:16, background:"rgba(255,255,255,0.08)", border:"1.5px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:36 }}>?</div>
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
+            {q.grid.map((cell,i)=>(
+              <div key={i} onClick={()=>choose(cell.e)} style={{
+                ...(picked===cell.e ? BTN_SEL : BTN), padding:"24px 12px",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:44,
+              }}>{cell.e}</div>
+            ))}
+          </div>
+        </>}
+
+        {q.type==="form" && <>
+          <div style={{ fontSize:80 }}>{q.icon}</div>
+          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+            {q.opts.map(o=>(
+              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}>{o}</div>
+            ))}
+          </div>
+        </>}
+
+        {q.type==="synonym" && <>
+          <div style={{ fontSize:72 }}>{q.icon}</div>
+          <div style={{ fontSize:26, fontWeight:800 }}>{q.word}</div>
+          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+            {q.opts.map(o=>(
+              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}>{o}</div>
+            ))}
+          </div>
+        </>}
+
+        {q.type==="sentiment" && <>
+          <div style={{ fontSize:36, fontWeight:900, letterSpacing:1 }}>{q.word}</div>
+          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+            {(["pos","neg"] as const).map(v=>(
+              <div key={v} onClick={()=>choose(v)} style={{
+                ...(picked===v ? BTN_SEL : BTN),
+                background: picked===v ? (v==="pos"?"rgba(174,234,0,0.15)":"rgba(239,68,68,0.15)") : "rgba(255,255,255,0.08)",
+                border: picked===v ? `2px solid ${v==="pos"?G:"#ef4444"}` : "1px solid rgba(255,255,255,0.12)",
+                padding:"28px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:6,
+              }}>
+                <span style={{ fontSize:40 }}>{v==="pos"?"👍":"👎"}</span>
+                <span style={{ fontSize:17, fontWeight:700 }}>{v==="pos"?"Positiva":"Negativa"}</span>
+              </div>
+            ))}
+          </div>
+        </>}
+
+        {q.type==="compound" && <>
+          <div style={{ fontSize:24, fontWeight:800 }}>{q.word}</div>
+          <div style={{ display:"flex", alignItems:"center", gap:10, fontSize:46 }}>
+            <span>{q.partA}</span>
+            <span style={{ fontSize:24, color:"#aaa" }}>+</span>
+            <span>❓</span>
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
+            {q.opts.map((o,i)=>(
+              <div key={i} onClick={()=>choose(i)} style={{
+                ...(picked===i ? BTN_SEL : BTN), padding:"18px 8px",
+                display:"flex", alignItems:"center", justifyContent:"center", gap:4, fontSize:34,
+              }}>{o.e1}<span style={{fontSize:14,color:"#aaa"}}>+</span>{o.e2}</div>
+            ))}
+          </div>
+        </>}
+
+        {q.type==="basket" && <>
+          <div style={{ fontSize:80 }}>{q.icon}</div>
+          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+            {q.opts.map(o=>(
+              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}
+                dangerouslySetInnerHTML={{__html: o.replace(/([A-Z]+)/g, m=>`<span style="font-weight:900;color:${G}">${m}</span>`)}}/>
+            ))}
+          </div>
+        </>}
+      </div>
+
+      <button onClick={skipQ} style={{ background:"none", border:"none", color:"#556677", fontSize:15, cursor:"pointer", padding:"12px 0" }}>
+        {tr(iso,"skip")}
+      </button>
+    </div>
+  );
+}
+
+// ─── LexTest Results ───────────────────────────────────────────────────────────
+function CircleGauge({ pct, label, sub, color=G }: { pct:number; label:string; sub:string; color?:string }) {
+  const [anim, setAnim] = useState(0);
+  useEffect(() => {
+    let start: number | null = null;
+    function step(ts: number) {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / 1600, 1);
+      setAnim(p * pct);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }, [pct]);
+  const r = 80, cx = 100, cy = 100, circ = 2 * Math.PI * r;
+  return (
+    <div style={{ position:"relative", width:200, height:200 }}>
+      <svg viewBox="0 0 200 200" style={{ width:"100%", height:"100%", transform:"rotate(-90deg)" }}>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={18}/>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={18}
+          strokeLinecap="round"
+          strokeDasharray={`${(anim/100)*circ} ${circ}`}/>
+      </svg>
+      <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ fontSize:34, fontWeight:800 }}>{label}</div>
+        <div style={{ fontSize:13, color:"#aaa" }}>{sub}</div>
+      </div>
+    </div>
+  );
+}
+
+function SLexTestResults({ next, iso }: { next:()=>void; iso:string }) {
+  const [timeSecs] = useState(206);
+  const mm = String(Math.floor(timeSecs/60)).padStart(2,"0");
+  const ss2 = String(timeSecs%60).padStart(2,"0");
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px", textAlign:"center" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>Puntuación de acceso léxico</h1>
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:24 }}>
+        <CircleGauge pct={30} label="30%" sub="correcto"/>
+        <div style={{ width:140, height:140, borderRadius:"50%", background:"rgba(255,255,255,0.08)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ fontSize:28, fontWeight:800 }}>{mm}:{ss2}</div>
+          <div style={{ fontSize:13, color:"#aaa" }}>segundos</div>
+        </div>
+      </div>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+// ─── CreatProgram ──────────────────────────────────────────────────────────────
+type CpSlide =
+  | { kind:"info";  icon:string; title:string; pct:number }
+  | { kind:"yesno"; icon:string; title:string; pct:number };
+
+const CP_SLIDES: CpSlide[] = [
+  { kind:"info",  icon:"🤖", title:"Analizando su nivel",                                                               pct:6  },
+  { kind:"yesno", icon:"🥶", title:"Puedo leer y escribir mejor de lo que hablo",                                       pct:16 },
+  { kind:"info",  icon:"📊", title:"Creando diálogos de la vida real",                                                   pct:21 },
+  { kind:"yesno", icon:"📖", title:"Entiendo lo que dicen los demás, pero me quedo en blanco cuando me toca hablar",     pct:32 },
+  { kind:"info",  icon:"🛒", title:"Añadiendo práctica de conversación con IA",                                          pct:39 },
+  { kind:"yesno", icon:"🧠", title:"A veces no recuerdo palabras que ya había aprendido",                                pct:48 },
+  { kind:"info",  icon:"📱", title:"Seleccionando vocabulario para su nivel",                                             pct:64 },
+  { kind:"yesno", icon:"🎤", title:"Quiero sonar más natural cuando hablo",                                              pct:64 },
+  { kind:"info",  icon:"🏆", title:"Configurando entrenamiento de pronunciación",                                         pct:79 },
+  { kind:"yesno", icon:"📈", title:"A veces siento que no avanzo, aunque lo intento",                                    pct:90 },
+  { kind:"info",  icon:"🎯", title:"Trazando su ruta de aprendizaje",                                                    pct:100 },
+];
+
+function SCreatProgram({ next, iso }: { next:()=>void; iso:string }) {
+  const [si,       setSi]       = useState(0);          // slide index
+  const [dispPct,  setDispPct]  = useState(0);          // animated % display
+  const [btnOk,    setBtnOk]    = useState(false);      // info slides: Siguiente enabled
+
+  const slide = CP_SLIDES[si];
+  const isLast = si === CP_SLIDES.length - 1;
+
+  // Animate percentage toward target
+  useEffect(() => {
+    const target = slide.pct;
+    setDispPct(p => p); // trigger rerender
+    let frame: number;
+    function tick() {
+      setDispPct(p => {
+        if (Math.abs(p - target) < 0.5) return target;
+        return p + (target - p) * 0.06;
+      });
+      frame = requestAnimationFrame(tick);
+    }
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [si]);
+
+  // Info slides: auto-advance after 3s
+  useEffect(() => {
+    setBtnOk(false);
+    if (slide.kind !== "info") return;
+    const id = setTimeout(() => setBtnOk(true), 2800);
+    return () => clearTimeout(id);
+  }, [si]);
+
+  function advance() {
+    if (isLast) next();
+    else { setSi(i => i + 1); }
+  }
+
+  const isAnimated = slide.icon === "📱";
+
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 20px 100px" }}>
+      <style>{`
+        @keyframes cpFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.04)}}
+        @keyframes cpPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.06)}}
+        @keyframes soundBar{0%,100%{scaleY:0.3}50%{scaleY:1}}
+      `}</style>
+
+      {/* Top progress bar */}
+      <div style={{ width:"100%", maxWidth:480, height:4, background:"rgba(255,255,255,0.08)", borderRadius:999, overflow:"hidden", marginTop:16 }}>
+        <div style={{ height:"100%", background:G, borderRadius:999, width:`${dispPct}%`, transition:"width 0.4s ease" }}/>
+      </div>
+
+      {/* Icon / content */}
+      <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:20, textAlign:"center", padding:"0 8px" }}>
+        <div style={{ fontSize:slide.icon==="🤖"?0:90, animation: isAnimated?"cpPulse 2s ease-in-out infinite":"cpFloat 3s ease-in-out infinite" }}>
+          {slide.icon !== "🤖" && slide.icon}
+          {slide.icon === "🤖" && (
+            <div style={{ position:"relative", display:"inline-block" }}>
+              <img src={CDN+"lola.png"} alt="" style={{ width:120, height:120, borderRadius:"50%", border:`3px solid ${G}`, objectFit:"cover" }}/>
+              {/* Sound wave bars */}
+              <div style={{ position:"absolute", top:-20, left:"50%", transform:"translateX(-50%)", display:"flex", gap:3, alignItems:"flex-end" }}>
+                {[14,22,30,22,14,30,18].map((h,i)=>(
+                  <div key={i} style={{ width:4, height:h, background:G, borderRadius:2, animation:`cpPulse ${0.4+i*0.12}s ease-in-out infinite alternate` }}/>
+                ))}
+              </div>
+              {/* Speech bubble */}
+              <div style={{ position:"absolute", bottom:-36, left:"50%", transform:"translateX(-50%)", background:"rgba(255,255,255,0.15)", backdropFilter:"blur(8px)", borderRadius:12, padding:"6px 14px", whiteSpace:"nowrap", fontSize:14, fontWeight:600 }}>
+                What&apos;s up_
+              </div>
+            </div>
+          )}
+        </div>
+        <h2 style={{ fontSize:20, fontWeight:800, lineHeight:1.4, margin:0 }}>{slide.title}</h2>
+        {/* Percentage */}
+        <div style={{ fontSize:28, fontWeight:800, color:G }}>{Math.round(dispPct)}%</div>
+      </div>
+
+      {/* Buttons */}
+      {slide.kind==="info" ? (
+        <button onClick={advance} disabled={!btnOk} style={{
+          width:"100%", maxWidth:480, height:56, borderRadius:999, border:"none",
+          background: btnOk ? G : "rgba(255,255,255,0.12)",
+          color: btnOk ? "#000" : "#444", fontSize:17, fontWeight:700, cursor: btnOk?"pointer":"default",
+          transition:"all 0.3s",
+        }}>{tr(iso,"next")}</button>
+      ) : (
+        <div style={{ width:"100%", maxWidth:480, display:"flex", gap:12 }}>
+          {["Sí","No"].map(v=>(
+            <button key={v} onClick={advance} style={{
+              flex:1, height:56, borderRadius:999, border:"1.5px solid rgba(255,255,255,0.15)",
+              background:"rgba(255,255,255,0.06)", color:"#fff", fontSize:18, fontWeight:700, cursor:"pointer",
+            }}>{v}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Summary (chat con Lola AI) ────────────────────────────────────────────────
+const SUMMARY_MSGS = [
+  { bold:"",                           text:"Según sus respuestas, tiene un nivel principiante de inglés." },
+  { bold:"Vocabulario personalizado.",  text:" Aprende palabras clave para su nivel y mejore su fluidez." },
+  { bold:"Práctica de pronunciación.", text:" Un análisis a nivel de sonido detecta fonemas difíciles, y videos breves entrenan su articulación y su oído. Tras cada sesión oirá cómo se acerca a un acento natural." },
+  { bold:"Conversación con IA.",        text:" Practica diálogos reales con nuestra IA y gana confianza para hablar en cualquier situación." },
+];
+
+function SSummary({ next, iso }: { next:()=>void; iso:string }) {
+  const [visible, setVisible] = useState(1);   // how many msgs shown
+  const [loading, setLoading] = useState(false); // show "..." bubble
+
+  useEffect(() => {
+    if (visible >= SUMMARY_MSGS.length) return;
+    setLoading(true);
+    const t1 = setTimeout(() => setLoading(false), 1800);
+    const t2 = setTimeout(() => setVisible(v => v + 1), 2400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [visible]);
+
+  const done = visible >= SUMMARY_MSGS.length && !loading;
+
+  return (
+    <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:100 }}>
+      <style>{`@keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}`}</style>
+      {/* Progress dots */}
+      <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", gap:6, alignItems:"center" }}>
+        {["language","level","how","summary"].map((s,i,arr) => (
+          <div key={s} style={{ flex:1, height:4, borderRadius:999, position:"relative",
+            background: i < arr.length-1 ? G : "rgba(255,255,255,0.12)" }}>
+            {i < arr.length-1 && (
+              <div style={{ position:"absolute", top:"50%", right:-6, transform:"translateY(-50%)", width:14, height:14, borderRadius:"50%", background:G, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, color:"#000", fontWeight:900 }}>✓</div>
+            )}
+            {i === arr.length-1 && (
+              <div style={{ position:"absolute", top:"50%", right:-6, transform:"translateY(-50%)", width:14, height:14, borderRadius:"50%", border:`2px solid ${G}`, background:"transparent" }}/>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <h1 style={{ fontSize:24, fontWeight:800, margin:"24px 20px 16px", width:"100%", maxWidth:480 }}>Toques finales</h1>
+
+      {/* Chat messages */}
+      <div style={{ width:"100%", maxWidth:480, padding:"0 20px", display:"flex", flexDirection:"column", gap:16, overflowY:"auto", flex:1 }}>
+        {SUMMARY_MSGS.slice(0, visible).map((msg, i) => (
+          <div key={i} style={{ display:"flex", flexDirection:"column", gap:6 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <img src={CDN+"lola.png"} alt="" style={{ width:32, height:32, borderRadius:"50%", objectFit:"cover", border:`1.5px solid ${G}` }}/>
+              <span style={{ fontSize:13, fontWeight:600, color:"#aaa" }}>Lola AI</span>
+            </div>
+            <div style={{
+              background:"linear-gradient(135deg,#0d2d2a 0%,#0a1f2e 100%)",
+              border:"1px solid rgba(174,234,0,0.12)", borderRadius:"4px 16px 16px 16px",
+              padding:"12px 14px", fontSize:15, lineHeight:1.55, color:"#e8f0e8",
+              marginLeft:40,
+            }}>
+              {msg.bold && <span style={{ color:G, fontWeight:700 }}>{msg.bold}</span>}
+              {msg.text}
+            </div>
+          </div>
+        ))}
+
+        {/* Loading bubble */}
+        {loading && (
+          <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <img src={CDN+"lola.png"} alt="" style={{ width:32, height:32, borderRadius:"50%", objectFit:"cover", border:`1.5px solid ${G}` }}/>
+              <span style={{ fontSize:13, fontWeight:600, color:"#aaa" }}>Lola AI</span>
+            </div>
+            <div style={{
+              background:"linear-gradient(135deg,#0d2d2a 0%,#0a1f2e 100%)",
+              border:"1px solid rgba(174,234,0,0.12)", borderRadius:"4px 16px 16px 16px",
+              padding:"14px 20px", marginLeft:40, display:"flex", gap:5, alignItems:"center",
+            }}>
+              {[0,1,2].map(i=>(
+                <div key={i} style={{ width:8, height:8, borderRadius:"50%", background:"#aaa", animation:`dotBounce 1.2s ease-in-out ${i*0.2}s infinite` }}/>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <NextBtn onClick={next} disabled={!done}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
 // ─── Route + Main ──────────────────────────────────────────────────────────────
 export const Route = createFileRoute("/quiz")({
   component: IolaQuiz,
 });
 
-type Screen = "start"|"gender"|"ageRange"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"appBenefits"|"program"|"goodHands2"|"goalChart"|"goal"|"askTest"|"vocabTest"|"vocabResults"|"grammarTest"|"grammarResults"|"email"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
+type Screen = "start"|"gender"|"ageRange"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"appBenefits"|"program"|"goodHands2"|"goalChart"|"goal"|"askTest"|"vocabTest"|"vocabResults"|"grammarTest"|"grammarResults"|"lexTest"|"lexTestResults"|"creatProgram"|"email"|"summary"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
 
-const FLOW: Screen[] = ["start","gender","ageRange","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","appBenefits","program","goodHands2","goalChart","goal","askTest","vocabTest","vocabResults","grammarTest","grammarResults","email","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
+const FLOW: Screen[] = ["start","gender","ageRange","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","appBenefits","program","goodHands2","goalChart","goal","askTest","vocabTest","vocabResults","grammarTest","grammarResults","lexTest","lexTestResults","creatProgram","email","summary","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
 
 export default function IolaQuiz() {
   const [step,   setStep]   = useState(0);
@@ -1226,7 +1668,11 @@ export default function IolaQuiz() {
       {sc==="vocabResults" && <SVocabResults next={next} iso={iso} />}
       {sc==="grammarTest"  && <SGrammarTest  next={next} iso={iso} />}
       {sc==="grammarResults" && <SGrammarResults next={next} iso={iso} />}
+      {sc==="lexTest"       && <SLexTest       next={next} iso={iso} />}
+      {sc==="lexTestResults"&& <SLexTestResults next={next} iso={iso} />}
+      {sc==="creatProgram"  && <SCreatProgram  next={next} iso={iso} />}
       {sc==="email"        && <SEmail        next={next} email={email} setEmail={setEmail} iso={iso} />}
+      {sc==="summary"       && <SSummary       next={next} iso={iso} />}
       {sc==="building"     && <SBuilding    next={next} iso={iso} />}
       {sc==="expect1"      && <SExpect      next={next} week={1}     iso={iso} />}
       {sc==="expect4"      && <SExpect      next={next} week={4}     iso={iso} />}
