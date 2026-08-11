@@ -1412,41 +1412,54 @@ function SLexTestResults({ next, iso }: { next:()=>void; iso:string }) {
 }
 
 // ─── CreatProgram ──────────────────────────────────────────────────────────────
-type CpSlide =
-  | { kind:"info";  icon:string; title:string; pct:number }
-  | { kind:"yesno"; icon:string; title:string; pct:number };
+type CpStep = {
+  headerImg: string;
+  pct: number;
+  questionImg?: string;
+  question?: string;
+};
 
-const CP_SLIDES: CpSlide[] = [
-  { kind:"info",  icon:"🤖", title:"Analizando su nivel",                                                               pct:6  },
-  { kind:"yesno", icon:"🥶", title:"Puedo leer y escribir mejor de lo que hablo",                                       pct:16 },
-  { kind:"info",  icon:"📊", title:"Creando diálogos de la vida real",                                                   pct:21 },
-  { kind:"yesno", icon:"📖", title:"Entiendo lo que dicen los demás, pero me quedo en blanco cuando me toca hablar",     pct:32 },
-  { kind:"info",  icon:"🛒", title:"Añadiendo práctica de conversación con IA",                                          pct:39 },
-  { kind:"yesno", icon:"🧠", title:"A veces no recuerdo palabras que ya había aprendido",                                pct:48 },
-  { kind:"info",  icon:"📱", title:"Seleccionando vocabulario para su nivel",                                             pct:64 },
-  { kind:"yesno", icon:"🎤", title:"Quiero sonar más natural cuando hablo",                                              pct:64 },
-  { kind:"info",  icon:"🏆", title:"Configurando entrenamiento de pronunciación",                                         pct:79 },
-  { kind:"yesno", icon:"📈", title:"A veces siento que no avanzo, aunque lo intento",                                    pct:90 },
-  { kind:"info",  icon:"🎯", title:"Trazando su ruta de aprendizaje",                                                    pct:100 },
+const CP_STEPS: CpStep[] = [
+  { headerImg: CDN+"prog_step_1.webp", pct:16 },
+  { headerImg: CDN+"prog_step_2.webp", pct:32,  questionImg: CDN+"prog_step_2_q.webp", question:"Puedo leer y escribir mejor de lo que hablo" },
+  { headerImg: CDN+"prog_step_3.webp", pct:48,  questionImg: CDN+"prog_step_3_q.webp", question:"Entiendo a los demás, pero me quedo en blanco cuando hablo" },
+  { headerImg: CDN+"prog_step_4.webp", pct:64,  questionImg: CDN+"prog_step_4_q.webp", question:"A veces no recuerdo palabras que ya había aprendido" },
+  { headerImg: CDN+"prog_step_5.webp", pct:80,  questionImg: CDN+"prog_step_5_q.webp", question:"Quiero sonar más natural cuando hablo" },
+  { headerImg: CDN+"prog_step_6.webp", pct:100, questionImg: CDN+"prog_step_6_q.webp", question:"A veces siento que no avanzo, aunque lo intento" },
 ];
 
-function SCreatProgram({ next, iso }: { next:()=>void; iso:string }) {
-  const [si,       setSi]       = useState(0);          // slide index
-  const [dispPct,  setDispPct]  = useState(0);          // animated % display
-  const [btnOk,    setBtnOk]    = useState(false);      // info slides: Siguiente enabled
+// Each step has an info phase (header image) then optional yesno phase (question image)
+// Internal slide: { stepIdx, phase: "info"|"yesno" }
+type CpPhase = { stepIdx:number; phase:"info"|"yesno" };
 
-  const slide = CP_SLIDES[si];
-  const isLast = si === CP_SLIDES.length - 1;
+function buildCpSlides(): CpPhase[] {
+  const slides: CpPhase[] = [];
+  CP_STEPS.forEach((s, i) => {
+    slides.push({ stepIdx:i, phase:"info" });
+    if (s.questionImg) slides.push({ stepIdx:i, phase:"yesno" });
+  });
+  return slides;
+}
+const CP_SLIDES_V2 = buildCpSlides();
+
+function SCreatProgram({ next, iso }: { next:()=>void; iso:string }) {
+  const [si,      setSi]      = useState(0);
+  const [dispPct, setDispPct] = useState(0);
+  const [btnOk,   setBtnOk]   = useState(false);
+
+  const { stepIdx, phase } = CP_SLIDES_V2[si];
+  const step    = CP_STEPS[stepIdx];
+  const isLast  = si === CP_SLIDES_V2.length - 1;
+  const imgSrc  = phase === "yesno" ? step.questionImg! : step.headerImg;
+  const targetPct = step.pct;
 
   // Animate percentage toward target
   useEffect(() => {
-    const target = slide.pct;
-    setDispPct(p => p); // trigger rerender
     let frame: number;
     function tick() {
       setDispPct(p => {
-        if (Math.abs(p - target) < 0.5) return target;
-        return p + (target - p) * 0.06;
+        if (Math.abs(p - targetPct) < 0.5) return targetPct;
+        return p + (targetPct - p) * 0.06;
       });
       frame = requestAnimationFrame(tick);
     }
@@ -1454,77 +1467,57 @@ function SCreatProgram({ next, iso }: { next:()=>void; iso:string }) {
     return () => cancelAnimationFrame(frame);
   }, [si]);
 
-  // Info slides: auto-advance after 3s
+  // Info slides: auto-enable Siguiente after 2.8s
   useEffect(() => {
     setBtnOk(false);
-    if (slide.kind !== "info") return;
+    if (phase !== "info") return;
     const id = setTimeout(() => setBtnOk(true), 2800);
     return () => clearTimeout(id);
   }, [si]);
 
   function advance() {
     if (isLast) next();
-    else { setSi(i => i + 1); }
+    else setSi(i => i + 1);
   }
 
-  const isAnimated = slide.icon === "📱";
-
   return (
-    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 20px 100px" }}>
-      <style>{`
-        @keyframes cpFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.04)}}
-        @keyframes cpPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.06)}}
-        @keyframes soundBar{0%,100%{scaleY:0.3}50%{scaleY:1}}
-      `}</style>
-
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 0 100px" }}>
       {/* Top progress bar */}
-      <div style={{ width:"100%", maxWidth:480, height:4, background:"rgba(255,255,255,0.08)", borderRadius:999, overflow:"hidden", marginTop:16 }}>
-        <div style={{ height:"100%", background:G, borderRadius:999, width:`${dispPct}%`, transition:"width 0.4s ease" }}/>
+      <div style={{ width:"100%", height:4, background:"rgba(255,255,255,0.08)", overflow:"hidden" }}>
+        <div style={{ height:"100%", background:G, width:`${dispPct}%`, transition:"width 0.4s ease" }}/>
       </div>
 
-      {/* Icon / content */}
-      <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:20, textAlign:"center", padding:"0 8px" }}>
-        <div style={{ fontSize:slide.icon==="🤖"?0:90, animation: isAnimated?"cpPulse 2s ease-in-out infinite":"cpFloat 3s ease-in-out infinite" }}>
-          {slide.icon !== "🤖" && slide.icon}
-          {slide.icon === "🤖" && (
-            <div style={{ position:"relative", display:"inline-block" }}>
-              <img src={CDN+"lola.png"} alt="" style={{ width:120, height:120, borderRadius:"50%", border:`3px solid ${G}`, objectFit:"cover" }}/>
-              {/* Sound wave bars */}
-              <div style={{ position:"absolute", top:-20, left:"50%", transform:"translateX(-50%)", display:"flex", gap:3, alignItems:"flex-end" }}>
-                {[14,22,30,22,14,30,18].map((h,i)=>(
-                  <div key={i} style={{ width:4, height:h, background:G, borderRadius:2, animation:`cpPulse ${0.4+i*0.12}s ease-in-out infinite alternate` }}/>
-                ))}
-              </div>
-              {/* Speech bubble */}
-              <div style={{ position:"absolute", bottom:-36, left:"50%", transform:"translateX(-50%)", background:"rgba(255,255,255,0.15)", backdropFilter:"blur(8px)", borderRadius:12, padding:"6px 14px", whiteSpace:"nowrap", fontSize:14, fontWeight:600 }}>
-                What&apos;s up_
-              </div>
+      {/* Image fills most of screen */}
+      <div style={{ flex:1, width:"100%", overflow:"hidden", display:"flex", alignItems:"stretch" }}>
+        <img key={imgSrc} src={imgSrc} alt="" style={{ width:"100%", objectFit:"cover", objectPosition:"top", transition:"opacity 0.3s" }}/>
+      </div>
+
+      {/* Bottom controls */}
+      <div style={{ padding:"16px 20px 0", width:"100%", maxWidth:480, alignSelf:"center" }}>
+        {/* Pct indicator */}
+        <div style={{ textAlign:"center", fontSize:14, color:G, fontWeight:700, marginBottom:12 }}>{Math.round(dispPct)}%</div>
+
+        {phase === "info" ? (
+          <button onClick={advance} disabled={!btnOk} style={{
+            width:"100%", height:56, borderRadius:999, border:"none",
+            background: btnOk ? G : "rgba(255,255,255,0.12)",
+            color: btnOk ? "#000" : "#666", fontSize:17, fontWeight:700, cursor: btnOk?"pointer":"default",
+            transition:"all 0.3s",
+          }}>{tr(iso,"next")}</button>
+        ) : (
+          <>
+            {step.question && <p style={{ textAlign:"center", fontSize:16, fontWeight:600, marginBottom:14, lineHeight:1.4 }}>{step.question}</p>}
+            <div style={{ display:"flex", gap:12 }}>
+              {["Sí","No"].map(v=>(
+                <button key={v} onClick={advance} style={{
+                  flex:1, height:56, borderRadius:999, border:"1.5px solid rgba(255,255,255,0.2)",
+                  background:"rgba(255,255,255,0.07)", color:"#fff", fontSize:18, fontWeight:700, cursor:"pointer",
+                }}>{v}</button>
+              ))}
             </div>
-          )}
-        </div>
-        <h2 style={{ fontSize:20, fontWeight:800, lineHeight:1.4, margin:0 }}>{slide.title}</h2>
-        {/* Percentage */}
-        <div style={{ fontSize:28, fontWeight:800, color:G }}>{Math.round(dispPct)}%</div>
+          </>
+        )}
       </div>
-
-      {/* Buttons */}
-      {slide.kind==="info" ? (
-        <button onClick={advance} disabled={!btnOk} style={{
-          width:"100%", maxWidth:480, height:56, borderRadius:999, border:"none",
-          background: btnOk ? G : "rgba(255,255,255,0.12)",
-          color: btnOk ? "#000" : "#444", fontSize:17, fontWeight:700, cursor: btnOk?"pointer":"default",
-          transition:"all 0.3s",
-        }}>{tr(iso,"next")}</button>
-      ) : (
-        <div style={{ width:"100%", maxWidth:480, display:"flex", gap:12 }}>
-          {["Sí","No"].map(v=>(
-            <button key={v} onClick={advance} style={{
-              flex:1, height:56, borderRadius:999, border:"1.5px solid rgba(255,255,255,0.15)",
-              background:"rgba(255,255,255,0.06)", color:"#fff", fontSize:18, fontWeight:700, cursor:"pointer",
-            }}>{v}</button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
