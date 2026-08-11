@@ -175,17 +175,22 @@ function ProgressBar({ screen }: { screen:string }) {
 
 function SStart({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div style={{ ...BASE, justifyContent:"flex-start" }}>
-      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}`}</style>
-      <div style={{ padding:"22px 0 0", display:"flex", alignItems:"center", gap:10 }}>
-        <img src={CDN+"lola.png"} alt="" style={{ width:38, height:38, borderRadius:"50%" }} />
-        <span style={{ fontWeight:800, fontSize:18, letterSpacing:-0.5 }}>iola Speak</span>
+    <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:88 }}>
+      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}`}</style>
+      {/* Logo */}
+      <div style={{ padding:"20px 0 0", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
+        <img src={CDN+"lola.png"} alt="" style={{ width:36, height:36, borderRadius:"50%" }} />
+        <span style={{ fontWeight:800, fontSize:17, letterSpacing:-0.5 }}>iola Speak</span>
       </div>
-      <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"0 28px", textAlign:"center" }}>
-        <h1 style={{ fontSize:30, fontWeight:900, margin:"0 0 12px", lineHeight:1.25 }}>{tr(iso,"unlock")}</h1>
-        <p style={{ color:"#8899aa", fontSize:16, margin:"0 0 10px", lineHeight:1.6, maxWidth:380 }}>{tr(iso,"plan")}</p>
-        <p style={{ fontSize:12, fontWeight:700, letterSpacing:2, color:"#556677", margin:"0 0 28px" }}>{tr(iso,"quiz3").toUpperCase()}</p>
-        <img src={CDN+"hero.webp"} alt="" style={{ width:"min(280px,80%)", animation:"float 4s ease-in-out infinite" }} />
+      {/* Text */}
+      <div style={{ padding:"16px 28px 0", textAlign:"center", flexShrink:0 }}>
+        <h1 style={{ fontSize:26, fontWeight:900, margin:"0 0 10px", lineHeight:1.25 }}>{tr(iso,"unlock")}</h1>
+        <p style={{ color:"#8899aa", fontSize:15, margin:"0 0 8px", lineHeight:1.5, maxWidth:360 }}>{tr(iso,"plan")}</p>
+        <p style={{ fontSize:11, fontWeight:700, letterSpacing:2, color:"#556677", margin:0 }}>{tr(iso,"quiz3").toUpperCase()}</p>
+      </div>
+      {/* Hero image — fills remaining space without overflowing */}
+      <div style={{ flex:1, minHeight:0, display:"flex", alignItems:"flex-end", justifyContent:"center", overflow:"hidden", width:"100%" }}>
+        <img src={CDN+"hero.webp"} alt="" style={{ height:"100%", maxWidth:"100%", objectFit:"contain", objectPosition:"bottom", animation:"float 4s ease-in-out infinite" }} />
       </div>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
