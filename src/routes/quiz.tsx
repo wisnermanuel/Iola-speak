@@ -1,1430 +1,685 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
-export const Route = createFileRoute("/quiz")({
-  component: IolaQuiz,
-  head: () => ({
-    meta: [
-      { title: "iola Speak: English Practice" },
-      { name: "description", content: "Tu plan personalizado de inglés con IA. Quiz de 3 minutos." },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-    ],
-  }),
-});
-
-// ─── Theme ────────────────────────────────────────────────────────────────────
-const G = "#AEEA00";          // lime green accent
-const DARK = "#09090F";
-const CARD = "#111118";
-const CARD2 = "#16161F";
-const MUTED = "#6B6B80";
-const TEXT = "#FFFFFF";
-
-// ─── Imágenes del CDN de Lola Speak (mismas que usan ellos) ───────────────────
 const CDN = "https://cdn-eu.lolaenglish.com/web-images%2F";
-const IMG = {
-  hero:         CDN + "hero.webp",
-  brain:        CDN + "startBrain.webp",
-  brains:       CDN + "Brains.webp",
-  lamp:         CDN + "Lamp.webp",
-  twoX:         CDN + "2x.webp",
-  remember:     CDN + "remember.webp",
-  hands:        CDN + "hands.webp",
-  imgPlan:      CDN + "img-plan.webp",
-  finding:      CDN + "finding.svg",
-  creating:     CDN + "creating.svg",
-  // Level icons
-  beginner:     CDN + "Beginner.svg",
-  intermediate: CDN + "Intermediate.svg",
-  advanced:     CDN + "Advansed.svg",
-  // Practice time
-  time30:       CDN + "30.webp",
-  time15:       CDN + "15.webp",
-  time5:        CDN + "5.webp",
-  // What to expect
-  week1:        CDN + "week1.webp",
-  week4:        CDN + "week4.webp",
-  month12:      CDN + "month12.webp",
-  // AI / features
-  aiImg:        CDN + "ai.webp",
-  pronunciation:CDN + "pronunciation.webp",
-  watch:        CDN + "watch.webp",
-  fluency:      CDN + "fluency.webp",
-  vocab:        CDN + "vocab.webp",
-  pickUp:       CDN + "pickUp.webp",
-  situations:   CDN + "situations.webp",
-  // Progress steps (paywall)
-  prog1:        CDN + "prog_step_1.webp",
-  prog2:        CDN + "prog_step_2.webp",
-  prog3:        CDN + "prog_step_3.webp",
-  prog4:        CDN + "prog_step_4.webp",
-  prog5:        CDN + "prog_step_5.webp",
-  prog6:        CDN + "prog_step_6.webp",
-  // Avatars personas reales (Unsplash — Lola no expone las suyas)
-  tutor: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80&fit=crop&crop=face",
-  av1:   "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face",
-  av2:   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&fit=crop&crop=face",
-  av3:   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face",
-  av4:   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80&fit=crop&crop=face",
-  av5:   "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=100&q=80&fit=crop&crop=face",
-  av6:   "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&fit=crop&crop=face",
-  // Topics (Unsplash — Lola tampoco expone estas)
-  topAdventura: "https://images.unsplash.com/photo-1533130061792-64b345e4a833?w=200&q=75&fit=crop",
-  topArte:      "https://images.unsplash.com/photo-1547826039-bdbebb989f68?w=200&q=75&fit=crop",
-  topSocial:    "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=200&q=75&fit=crop",
-  topNegocios:  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=75&fit=crop",
-  topCarrera:   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=75&fit=crop",
-  topDiario:    "https://images.unsplash.com/photo-1484627147104-f5197bcd6651?w=200&q=75&fit=crop",
-  topMedicina:  "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=75&fit=crop",
-  topViajes:    "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=200&q=75&fit=crop",
-  topComida:    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=75&fit=crop",
-  topDeporte:   "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=200&q=75&fit=crop",
-  topRedes:     "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&q=75&fit=crop",
-  topDigital:   "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&q=75&fit=crop",
-  // Video thumbnail
-  videoThumb:   "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=700&q=80&fit=crop",
-};
+const GCS = "https://storage.googleapis.com/cdn-eu.lolaenglish.com/";
+const CF  = "75b2bc08bf7b942ba7c1d5582f937ab0";
+const G   = "#AEEA00";
 
-// Cloudflare Stream video ID (mismo video que usa Lola Speak)
-const CF_VIDEO_ID = "75b2bc08bf7b942ba7c1d5582f937ab0";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface QuizState {
-  language: string;
-  name: string;
-  level: string;
-  studyMethod: string[];
-  goal: string;
-  difficulties: string[];
-  topics: string[];
-  practiceTime: string;
-  vocabA1: string[];
-  vocabB1: string[];
-  vocabC1: string[];
-  email: string;
-  selectedPlan: string;
-}
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
 const LANGUAGES = [
-  { code: "es", flag: "🇪🇸", name: "Español" },
-  { code: "pt", flag: "🇧🇷", name: "Português" },
-  { code: "fr", flag: "🇫🇷", name: "Français" },
-  { code: "de", flag: "🇩🇪", name: "Deutsch" },
-  { code: "it", flag: "🇮🇹", name: "Italiano" },
-  { code: "zh", flag: "🇨🇳", name: "Chinese" },
-  { code: "uk", flag: "🇺🇦", name: "Українська" },
-  { code: "pl", flag: "🇵🇱", name: "Polish" },
-  { code: "ro", flag: "🇷🇴", name: "Romanian" },
-  { code: "tr", flag: "🇹🇷", name: "Turkish" },
-  { code: "ar", flag: "🇸🇦", name: "العربية" },
-  { code: "ja", flag: "🇯🇵", name: "日本語" },
+  { id:71, iso:"es", name:"Español",       icon:GCS+"spain_J6q4m4B.png" },
+  { id:67, iso:"bg", name:"Bulgarian",      icon:GCS+"bulgaria_UnvHOUX.png" },
+  { id:96, iso:"zh", name:"Chinese",        icon:GCS+"china_R8GnlTm.png" },
+  { id:68, iso:"cs", name:"Czech",          icon:GCS+"czech_republic_O4ayRIR.png" },
+  { id:69, iso:"de", name:"Deutsch",        icon:GCS+"germany_H56jXL4.png" },
+  { id:97, iso:"en", name:"English",        icon:GCS+"Globe_Showing_Americas_sfMQFno.png" },
+  { id:94, iso:"uk", name:"Українська",     icon:GCS+"ukraine_FQtX9TE.png" },
+  { id:72, iso:"fi", name:"Finnish",        icon:GCS+"finland_Gxthusg.png" },
+  { id:73, iso:"fr", name:"Français",       icon:GCS+"france_lwYfTCr.png" },
+  { id:70, iso:"el", name:"Greek (modern)", icon:GCS+"greece_NvBUlwu.png" },
+  { id:76, iso:"id", name:"Indonesian",     icon:GCS+"indonesia_xfhfHrh.png" },
+  { id:77, iso:"it", name:"Italian",        icon:GCS+"italy_tTy3Oxj.png" },
+  { id:79, iso:"ja", name:"Japanese",       icon:GCS+"japan_f90mLqQ.png" },
+  { id:82, iso:"ko", name:"Korean",         icon:GCS+"south_korea_0uTBFCK.png" },
+  { id:86, iso:"pl", name:"Polish",         icon:GCS+"poland_ibRsVmf.png" },
+  { id:87, iso:"pt", name:"Portuguese",     icon:GCS+"portugal_RlfmN9d.png" },
+  { id:89, iso:"ru", name:"Русский",        icon:GCS+"russia_3vg3oKY.png" },
+  { id:90, iso:"sv", name:"Swedish",        icon:GCS+"sweden_2jwEXlz.png" },
+  { id:93, iso:"tr", name:"Turkish",        icon:GCS+"turkey_SiNtSwZ.png" },
+];
+
+type Item = { id:number; title:string; image:string; localized:Record<string,string> };
+
+const HOWS: Item[] = [
+  { id:1, title:"At school",       image:GCS+"school_copy_Mu7o281.webp",     localized:{"71":"En la escuela","69":"In der Schule","73":"À l'école","77":"A scuola","87":"Na escola","97":"At school","94":"У школі","89":"В школе","82":"학교에서","79":"学校で"} },
+  { id:2, title:"At university",   image:GCS+"university_copy_X4gz91q.webp", localized:{"71":"En la universidad","69":"An der Universität","73":"À l'université","77":"All'università","87":"Na universidade","97":"At university","94":"В університеті","89":"В университете","82":"대학에서","79":"大学で"} },
+  { id:3, title:"Studying abroad", image:GCS+"abroad_copy_4es3Fkm.webp",     localized:{"71":"Estudiar en el extranjero","69":"Studieren im Ausland","73":"Étudier à l'étranger","77":"Studiare all'estero","87":"Estudar no estrangeiro","97":"Studying abroad","94":"Навчання за кордоном","89":"Учёба за границей","82":"해외 유학","79":"海外留学"} },
+  { id:4, title:"With a tutor",    image:GCS+"tutor_copy_mPRvNvc.webp",      localized:{"71":"Con un tutor","69":"Mit einem Privatlehrer","73":"Avec un prof particulier","77":"Con un tutor","87":"Com um explicador","97":"With a tutor","94":"З репетитором","89":"С репетитором","82":"과외 선생님과","79":"家庭教師と"} },
+  { id:5, title:"With apps",       image:GCS+"apps_copy_J7EtGTR.webp",       localized:{"71":"Con aplicaciones","69":"Mit Apps","73":"Avec des applications","77":"Con le applicazioni","87":"Com aplicações","97":"With apps","94":"З додатками","89":"С приложениями","82":"앱 사용","79":"アプリ"} },
+  { id:6, title:"With textbooks",  image:GCS+"textbooks_copy_sjujkin.webp",  localized:{"71":"Con libros de texto","69":"Mit Lehrbüchern","73":"Avec des manuels","77":"Con i libri di testo","87":"Com manuais","97":"With textbooks","94":"З підручниками","89":"С учебниками","82":"교과서 사용","79":"教科書で"} },
+];
+
+const WHYS: Item[] = [
+  { id:1, title:"Vacation",         image:GCS+"Vacation_copy_6kuRxes.webp",     localized:{"71":"Vacaciones","69":"Urlaub","73":"Vacances","77":"Vacanza","87":"Férias","97":"Vacation","94":"Відпустка","89":"Отпуск","82":"휴가","79":"バケーション"} },
+  { id:2, title:"Work",             image:GCS+"Work_copy_HjgTKvd.webp",         localized:{"71":"Trabajo","69":"Arbeit","73":"Travail","77":"Lavoro","87":"Trabalho","97":"Work","94":"Робота","89":"Работа","82":"업무","79":"仕事"} },
+  { id:3, title:"Plan to live abroad",image:GCS+"live_abroad_copy_8exzQTX.webp",localized:{"71":"Vivir en el extranjero","69":"Im Ausland leben","73":"Vivre à l'étranger","77":"Trasferirsi all'estero","87":"Viver no estrangeiro","97":"Plan to live abroad","94":"Жити за кордоном","89":"Жить за границей","82":"해외 거주 계획","79":"海外での生活計画"} },
+  { id:4, title:"To make friends",  image:GCS+"friends_copy_g1EALjz.webp",      localized:{"71":"Hacer amigos","69":"Freunde finden","73":"Se faire des amis","77":"Fare amicizia","87":"Fazer amigos","97":"Make friends","94":"Завести друзів","89":"Завести друзей","82":"친구 사귀기","79":"友人を作る"} },
+  { id:5, title:"Fun",              image:GCS+"fun_copy_SqyBBhd.webp",          localized:{"71":"Diversión","69":"Spaß","73":"S'amuser","77":"Divertimento","87":"Diversão","97":"Fun","94":"Розваги","89":"Веселье","82":"재미","79":"楽しみのため"} },
+  { id:6, title:"Pass an exam",     image:GCS+"exam_copy_DqThQhY.webp",         localized:{"71":"Aprobar un examen","69":"Prüfung bestehen","73":"Réussir un examen","77":"Superare un esame","87":"Passar num exame","97":"Pass an exam","94":"Скласти іспит","89":"Сдать экзамен","82":"시험 합격","79":"試験に合格する"} },
+];
+
+const STRUGGLES: Item[] = [
+  { id:3, title:"Lack of Practice",         image:GCS+"Frame_296483448.webp",           localized:{"71":"Falta de práctica","69":"Fehlende Übung","73":"Manque de pratique","77":"Mancanza di pratica","87":"Falta de prática","97":"Lack of Practice","94":"Брак практики","89":"Недостаток практики","82":"연습 부족","79":"練習不足"} },
+  { id:1, title:"Fear of Speaking",         image:GCS+"Speaking_copy_Gjmop4g.webp",     localized:{"71":"Miedo a hablar","69":"Sprechangst","73":"Peur de parler","77":"Paura di parlare","87":"Medo de falar","97":"Fear of Speaking","94":"Страх говорити","89":"Страх говорить","82":"말하기 두려움","79":"スピーキングへの恐怖"} },
+  { id:5, title:"Pronunciation",            image:GCS+"Pronunciation_copy_O3xcdsY.webp", localized:{"71":"Pronunciación","69":"Aussprache","73":"Prononciation","77":"Pronuncia","87":"Pronúncia","97":"Pronunciation","94":"Вимова","89":"Произношение","82":"발음","79":"発音"} },
+  { id:4, title:"Listening & Understanding",image:GCS+"Listening_copy_4ycnelw.webp",    localized:{"71":"Escucha y comprensión","69":"Hören & Verstehen","73":"Écoute & compréhension","77":"Ascolto e comprensione","87":"Escuta e compreensão","97":"Listening & Understanding","94":"Слухання","89":"Слух и понимание","82":"듣기 및 이해","79":"リスニング"} },
+  { id:6, title:"Vocabulary",               image:GCS+"Vocabulary_copy_XpPc5CJ.webp",   localized:{"71":"Vocabulario","69":"Wortschatz","73":"Vocabulaire","77":"Vocabolario","87":"Vocabulário","97":"Vocabulary","94":"Словниковий запас","89":"Словарный запас","82":"어휘","79":"語彙"} },
 ];
 
 const TOPICS = [
-  { img: IMG.topAdventura, label: "Aventura" },
-  { img: IMG.topArte,      label: "Arte & Cultura" },
-  { img: IMG.topSocial,    label: "Vida social" },
-  { img: IMG.topNegocios,  label: "Negocios" },
-  { img: IMG.topCarrera,   label: "Carrera" },
-  { img: IMG.topDiario,    label: "Vida diaria" },
-  { img: IMG.topMedicina,  label: "Medicina" },
-  { img: IMG.topViajes,    label: "Viajes" },
-  { img: IMG.topComida,    label: "Comida" },
-  { img: IMG.topDeporte,   label: "Deporte" },
-  { img: IMG.topRedes,     label: "Redes sociales" },
-  { img: IMG.topDigital,   label: "Negocios digitales" },
-];
-
-const VOCAB_A1 = ["because","booking","excellent","pay","strawberry","usual","wife","yesterday"];
-const VOCAB_B1 = ["avoid","charisma","emphasize","excitement","impact","maintain","stunning","trustworthy"];
-const VOCAB_C1 = ["ascertain","frolic","opaque","opulent","proprietary","scrutinize","tranquility","viability"];
-
-const GRAMMAR_QUESTIONS = [
-  { question: 'My brother ___ eleven years old.', options: ["are","is","be","am"], correct: "is" },
-  { question: 'We ___ to school every morning.', options: ["go","goes","is going","gone"], correct: "go" },
-  { question: 'Look! The children ___ football in the yard.', options: ["played","have played","play","are playing"], correct: "are playing" },
+  { id:1,  title:"Adventure",  image:GCS+"Adventure_icon.webp" },
+  { id:2,  title:"Art",        image:GCS+"Art.webp" },
+  { id:3,  title:"Beauty",     image:GCS+"Beauty.webp" },
+  { id:4,  title:"Business",   image:GCS+"Business.webp" },
+  { id:5,  title:"Career",     image:GCS+"Career_icon.webp" },
+  { id:7,  title:"Daily Life", image:GCS+"Daily.webp" },
+  { id:8,  title:"Doctor",     image:GCS+"Doctor.webp" },
+  { id:10, title:"Embassy",    image:GCS+"Embassy.webp" },
+  { id:11, title:"Food",       image:GCS+"Food.webp" },
+  { id:12, title:"Gym",        image:GCS+"Gym.webp" },
+  { id:13, title:"Party",      image:GCS+"Party.webp" },
+  { id:14, title:"Politics",   image:GCS+"Politics.webp" },
+  { id:15, title:"Restaurant", image:GCS+"Restaurant.webp" },
+  { id:16, title:"Romance",    image:GCS+"Romance_romance.webp" },
+  { id:17, title:"Shopping",   image:GCS+"Shopping.webp" },
+  { id:18, title:"Tech",       image:GCS+"Tech.webp" },
+  { id:19, title:"Travel",     image:GCS+"Travel_icon.webp" },
 ];
 
 const PLANS = [
-  { id:"week",    label:"1 semana",  save:"AHORRA 40%", originalTotal:"$14.99", saleTotal:"$8.99",  perDay:"$1.28", popular:false },
-  { id:"month",   label:"1 mes",     save:"AHORRA 50%", originalTotal:"$29.99", saleTotal:"$14.99", perDay:"$0.50", popular:true  },
-  { id:"quarter", label:"3 meses",   save:"AHORRA 49%", originalTotal:"$69.99", saleTotal:"$34.99", perDay:"$0.39", popular:false },
+  { id:"week",    label:"1 semana", save:"AHORRA 40%", orig:"$14.99", sale:"$8.99",  per:"$1.28 / día", popular:false },
+  { id:"month",   label:"1 mes",    save:"AHORRA 50%", orig:"$29.99", sale:"$14.99", per:"$0.50 / día", popular:true  },
+  { id:"quarter", label:"3 meses",  save:"AHORRA 49%", orig:"$69.99", sale:"$34.99", per:"$0.39 / día", popular:false },
 ];
 
-const TESTIMONIALS = [
-  { av: IMG.av1, name: "María G.", text: "En 3 semanas ya podía hablar en reuniones de trabajo en inglés. Increíble.", stars: 5 },
-  { av: IMG.av2, name: "Carlos M.", text: "Lo intenté con Duolingo años. Con iola Speak en 1 mes noté la diferencia real.", stars: 5 },
-  { av: IMG.av3, name: "Sofía R.", text: "La IA me corrige la pronunciación al instante. No hay nada igual.", stars: 5 },
-];
+// ─── i18n ──────────────────────────────────────────────────────────────────────
+const S: Record<string,Record<string,string>> = {
+  es:{ next:"Siguiente", skip:"Saltar", unlock:"Desbloquea tu potencial en inglés", plan:"Obtén un plan de aprendizaje personalizado adaptado a tus objetivos", quiz3:"Cuestionario de 3 minutos", nativeLang:"¿Cuál es tu idioma nativo?", nameQ:"¿Cómo te llamas?", welcome:"¡Bienvenido a bordo", pp1:"Vamos a crear tu", pp2:"plan personal", levelQ:"¿Qué tan bien dominas el inglés?", beg:"Sé un poco", mid:"Puedo tener una conversación sencilla", adv:"Hablo con confianza", howQ:"¿Cómo has estudiado inglés?", whyQ:"¿Por qué quieres aprender inglés?", strugQ:"Dificultades", topicQ:"¿Qué temas te interesan?", goalQ:"¿Cuánto tiempo practicas al día?", emailQ:"Ingresa tu email para guardar tu plan", emailSub:"Recibirás tu plan personalizado gratis", building:"Construyendo tu plan...", choosePlan:"Elige tu plan", goodHands:"Estás en buenas manos", source:"FUENTE", startNow:"Comenzar ahora", planSub:"Acceso completo · Cancela cuando quieras" },
+  en:{ next:"Next", skip:"Skip", unlock:"Unlock your English potential", plan:"Get a personalized learning plan tailored to your goals", quiz3:"3 minute quiz", nativeLang:"What is your native language?", nameQ:"What's your name?", welcome:"Welcome aboard", pp1:"Let's create your", pp2:"personal plan", levelQ:"How well do you know English?", beg:"I know a little", mid:"I can have simple conversations", adv:"I speak confidently", howQ:"How have you studied English?", whyQ:"Why do you want to learn English?", strugQ:"Difficulties", topicQ:"What topics interest you?", goalQ:"How much do you practice per day?", emailQ:"Enter your email to save your plan", emailSub:"You'll receive your personalized plan for free", building:"Building your plan...", choosePlan:"Choose your plan", goodHands:"You're in good hands", source:"SOURCE", startNow:"Start now", planSub:"Full access · Cancel anytime" },
+  de:{ next:"Weiter", skip:"Überspringen", unlock:"Entfalte dein Englischpotenzial", plan:"Erhalte einen personalisierten Lernplan, der auf deine Ziele zugeschnitten ist", quiz3:"3-Minuten-Quiz", nativeLang:"Was ist deine Muttersprache?", nameQ:"Wie heißt du?", welcome:"Willkommen an Bord", pp1:"Lass uns deinen", pp2:"persönlichen Plan erstellen", levelQ:"Wie gut sprichst du Englisch?", beg:"Ich kenne ein bisschen", mid:"Ich kann einfache Gespräche führen", adv:"Ich spreche selbstbewusst", howQ:"Wie hast du Englisch gelernt?", whyQ:"Warum möchtest du Englisch lernen?", strugQ:"Schwierigkeiten", topicQ:"Welche Themen interessieren dich?", goalQ:"Wie viel übst du pro Tag?", emailQ:"Gib deine E-Mail ein, um deinen Plan zu speichern", emailSub:"Du erhältst deinen personalisierten Plan kostenlos", building:"Plan wird erstellt...", choosePlan:"Wähle deinen Plan", goodHands:"Du bist in guten Händen", source:"QUELLE", startNow:"Jetzt beginnen", planSub:"Voller Zugang · Jederzeit kündbar" },
+  fr:{ next:"Suivant", skip:"Passer", unlock:"Libérez votre potentiel en anglais", plan:"Obtenez un plan d'apprentissage personnalisé adapté à vos objectifs", quiz3:"Quiz de 3 minutes", nativeLang:"Quelle est votre langue natale ?", nameQ:"Comment vous appelez-vous ?", welcome:"Bienvenue à bord", pp1:"Créons votre", pp2:"plan personnel", levelQ:"Quel est votre niveau d'anglais ?", beg:"Je sais un peu", mid:"Je peux avoir de simples conversations", adv:"Je parle avec confiance", howQ:"Comment avez-vous étudié l'anglais ?", whyQ:"Pourquoi voulez-vous apprendre l'anglais ?", strugQ:"Difficultés", topicQ:"Quels sujets vous intéressent ?", goalQ:"Combien de temps pratiquez-vous par jour ?", emailQ:"Entrez votre email pour sauvegarder votre plan", emailSub:"Vous recevrez votre plan personnalisé gratuitement", building:"Construction de votre plan...", choosePlan:"Choisissez votre plan", goodHands:"Vous êtes entre de bonnes mains", source:"SOURCE", startNow:"Commencer maintenant", planSub:"Accès complet · Annulez quand vous voulez" },
+  it:{ next:"Avanti", skip:"Salta", unlock:"Sblocca il tuo potenziale in inglese", plan:"Ottieni un piano di apprendimento personalizzato in base ai tuoi obiettivi", quiz3:"Quiz di 3 minuti", nativeLang:"Qual è la tua lingua madre?", nameQ:"Come ti chiami?", welcome:"Benvenuto a bordo", pp1:"Creiamo il tuo", pp2:"piano personale", levelQ:"Quanto bene conosci l'inglese?", beg:"So un po'", mid:"Posso avere conversazioni semplici", adv:"Parlo con sicurezza", howQ:"Come hai studiato l'inglese?", whyQ:"Perché vuoi imparare l'inglese?", strugQ:"Difficoltà", topicQ:"Quali argomenti ti interessano?", goalQ:"Quanta pratica fai al giorno?", emailQ:"Inserisci la tua email per salvare il piano", emailSub:"Riceverai il tuo piano personalizzato gratuitamente", building:"Creazione del piano...", choosePlan:"Scegli il tuo piano", goodHands:"Sei in buone mani", source:"FONTE", startNow:"Inizia ora", planSub:"Accesso completo · Annulla quando vuoi" },
+  pt:{ next:"Próximo", skip:"Pular", unlock:"Desbloqueia o teu potencial em inglês", plan:"Obtém um plano de aprendizagem personalizado adaptado aos teus objetivos", quiz3:"Questionário de 3 minutos", nativeLang:"Qual é o teu idioma nativo?", nameQ:"Como te chamas?", welcome:"Bem-vindo a bordo", pp1:"Vamos criar o teu", pp2:"plano pessoal", levelQ:"Qual é o teu nível de inglês?", beg:"Sei um pouco", mid:"Consigo ter conversas simples", adv:"Falo com confiança", howQ:"Como estudaste inglês?", whyQ:"Por que queres aprender inglês?", strugQ:"Dificuldades", topicQ:"Que tópicos te interessam?", goalQ:"Quanto praticas por dia?", emailQ:"Introduz o teu email para guardar o plano", emailSub:"Receberás o teu plano personalizado gratuitamente", building:"Construindo o teu plano...", choosePlan:"Escolhe o teu plano", goodHands:"Estás em boas mãos", source:"FONTE", startNow:"Começar agora", planSub:"Acesso completo · Cancela quando quiseres" },
+  ru:{ next:"Далее", skip:"Пропустить", unlock:"Раскройте свой потенциал в английском", plan:"Получите персонализированный план обучения, разработанный с учётом ваших целей", quiz3:"Тест на 3 минуты", nativeLang:"Какой у вас родной язык?", nameQ:"Как вас зовут?", welcome:"Добро пожаловать", pp1:"Давайте создадим ваш", pp2:"персональный план", levelQ:"Как хорошо вы знаете английский?", beg:"Знаю немного", mid:"Могу вести простые разговоры", adv:"Говорю уверенно", howQ:"Как вы изучали английский?", whyQ:"Зачем вы хотите выучить английский?", strugQ:"Трудности", topicQ:"Какие темы вас интересуют?", goalQ:"Сколько времени вы практикуете в день?", emailQ:"Введите email для сохранения плана", emailSub:"Вы получите персонализированный план бесплатно", building:"Создаём ваш план...", choosePlan:"Выберите план", goodHands:"Вы в надёжных руках", source:"ИСТОЧНИК", startNow:"Начать сейчас", planSub:"Полный доступ · Отмена в любое время" },
+  uk:{ next:"Далі", skip:"Пропустити", unlock:"Розкрийте свій потенціал в англійській", plan:"Отримай персоналізований план навчання відповідно до своїх цілей", quiz3:"3-хвилинний тест", nativeLang:"Яка ваша рідна мова?", nameQ:"Як вас звати?", welcome:"Ласкаво просимо", pp1:"Давайте створимо ваш", pp2:"персональний план", levelQ:"Як добре ви знаєте англійську?", beg:"Знаю трохи", mid:"Можу вести прості розмови", adv:"Говорю впевнено", howQ:"Як ви вивчали англійську?", whyQ:"Навіщо ви хочете вивчити англійську?", strugQ:"Труднощі", topicQ:"Які теми вас цікавлять?", goalQ:"Скільки часу ви практикуєте щодня?", emailQ:"Введіть email для збереження плану", emailSub:"Ви отримаєте персоналізований план безкоштовно", building:"Будуємо ваш план...", choosePlan:"Оберіть план", goodHands:"Ви в надійних руках", source:"ДЖЕРЕЛО", startNow:"Почати зараз", planSub:"Повний доступ · Скасуйте будь-коли" },
+};
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function getLevelLabel(l: string) { return l==="beginner"?"A2":l==="intermediate"?"B1":"B2"; }
-function getNextLevel(l: string)  { return l==="beginner"?"B1":l==="intermediate"?"B2":"C1"; }
-function addDays(n: number) {
-  const d = new Date(); d.setDate(d.getDate()+n);
-  return d.toLocaleDateString("es-ES",{day:"numeric",month:"long"});
-}
-function stars(n: number) { return "★".repeat(n)+"☆".repeat(5-n); }
-
-// ─── Shared components ────────────────────────────────────────────────────────
-
-function Logo() {
-  return (
-    <div style={{display:"flex",alignItems:"center",gap:8}}>
-      <div style={{
-        width:36,height:36,borderRadius:10,
-        background:`linear-gradient(135deg,${G},#00D4FF)`,
-        display:"flex",alignItems:"center",justifyContent:"center",
-        fontWeight:900,fontSize:18,color:"#000",
-      }}>i</div>
-      <span style={{fontWeight:700,fontSize:17,letterSpacing:.3}}>iola Speak</span>
-    </div>
-  );
+function tr(iso:string, k:string): string {
+  return S[iso]?.[k] ?? S.es[k] ?? k;
 }
 
-function ProgressBar({ pct }: { pct: number }) {
-  return (
-    <div style={{height:3,background:"#1e1e2e",borderRadius:2,margin:"0 0 28px",overflow:"hidden"}}>
-      <div style={{height:"100%",width:`${pct}%`,background:G,borderRadius:2,transition:"width .4s ease"}} />
-    </div>
-  );
+function lbl(item: Item, langId: number): string {
+  return item.localized[String(langId)] || item.title;
 }
 
-function Btn({ children, onClick, disabled, secondary, style }: {
-  children: React.ReactNode; onClick?: ()=>void; disabled?: boolean; secondary?: boolean; style?: React.CSSProperties;
-}) {
+// ─── Shared UI ─────────────────────────────────────────────────────────────────
+const BG = "linear-gradient(180deg,#09090F 0%,#0b1a2e 100%)";
+const BASE: React.CSSProperties = { minHeight:"100vh", background:BG, display:"flex", flexDirection:"column", alignItems:"center", color:"#fff", fontFamily:"'Inter',-apple-system,sans-serif" };
+
+function NextBtn({ onClick, disabled, children }: { onClick:()=>void; disabled?:boolean; children:React.ReactNode }) {
   return (
     <button onClick={onClick} disabled={disabled} style={{
-      width:"100%",padding:"17px 0",borderRadius:50,border:"none",
-      fontWeight:800,fontSize:16,cursor:disabled?"not-allowed":"pointer",
-      background: disabled?"#222":secondary?"transparent":G,
-      color: disabled?MUTED:secondary?MUTED:"#000",
-      outline: secondary?`1px solid #333`:"none",
-      transition:"all .15s",opacity:disabled?.6:1,
-      ...style,
+      position:"fixed", bottom:24, left:"50%", transform:"translateX(-50%)",
+      width:"calc(100% - 40px)", maxWidth:480, height:56,
+      background: disabled ? "#222" : G,
+      border:"none", borderRadius:999, fontSize:17, fontWeight:700,
+      color: disabled ? "#555" : "#000", cursor: disabled ? "default" : "pointer",
+      boxShadow: disabled ? "none" : `0 0 32px ${G}55`, zIndex:100, transition:"all 0.2s",
     }}>{children}</button>
   );
 }
 
-function OptionCard({ selected, onClick, children, style }: {
-  selected?: boolean; onClick?: ()=>void; children: React.ReactNode; style?: React.CSSProperties;
-}) {
+function Radio({ on }: { on:boolean }) {
   return (
-    <button onClick={onClick} style={{
-      width:"100%",padding:"14px 16px",borderRadius:14,
-      border:`1.5px solid ${selected?G:"#222"}`,
-      background:selected?"rgba(174,234,0,0.07)":CARD,
-      color:TEXT,textAlign:"left",
-      display:"flex",alignItems:"center",justifyContent:"space-between",
-      cursor:"pointer",transition:"all .15s",fontWeight:500,fontSize:15,
-      ...style,
-    }}>
-      {children}
-      <div style={{
-        width:20,height:20,borderRadius:"50%",flexShrink:0,
-        border:`2px solid ${selected?G:"#444"}`,
-        background:selected?G:"transparent",
-        display:"flex",alignItems:"center",justifyContent:"center",
-      }}>
-        {selected && <span style={{color:"#000",fontSize:10,fontWeight:800}}>✓</span>}
-      </div>
-    </button>
+    <div style={{ width:22, height:22, borderRadius:"50%", flexShrink:0, marginLeft:"auto",
+      border: on ? "none" : "2px solid rgba(255,255,255,0.2)", background: on ? G : "transparent",
+      display:"flex", alignItems:"center", justifyContent:"center" }}>
+      {on && <span style={{ fontSize:11, color:"#000", fontWeight:900 }}>✓</span>}
+    </div>
   );
 }
 
-function AvatarRow({ avatars }: { avatars: string[] }) {
+function Card({ on, onClick, children }: { on:boolean; onClick:()=>void; children:React.ReactNode }) {
   return (
-    <div style={{display:"flex",justifyContent:"center",marginBottom:8}}>
-      {avatars.map((src,i)=>(
-        <img key={i} src={src} alt="" style={{
-          width:32,height:32,borderRadius:"50%",objectFit:"cover",
-          border:"2px solid #09090F",marginLeft:i>0?-8:0,
-        }}/>
+    <div onClick={onClick} style={{
+      background: on ? "rgba(174,234,0,0.08)" : "rgba(255,255,255,0.05)",
+      border: on ? `1.5px solid ${G}` : "1px solid rgba(255,255,255,0.08)",
+      borderRadius:16, padding:"14px 16px", display:"flex", alignItems:"center", gap:12,
+      cursor:"pointer", transition:"all 0.2s", width:"100%", marginBottom:10,
+    }}>{children}</div>
+  );
+}
+
+const PROG = ["language","name","level","how","why","struggles","topics","goal","email"];
+
+function ProgressBar({ screen }: { screen:string }) {
+  const idx = PROG.indexOf(screen);
+  if (idx < 0) return null;
+  return (
+    <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", gap:4 }}>
+      {PROG.map((_,i) => (
+        <div key={i} style={{ flex:1, height:4, borderRadius:999, background: i <= idx ? G : "rgba(255,255,255,0.1)", position:"relative" }}>
+          {i === idx && (
+            <div style={{ position:"absolute", top:"50%", right:-5, transform:"translateY(-50%)", width:12, height:12, borderRadius:"50%", background:G, display:"flex", alignItems:"center", justifyContent:"center", fontSize:7, color:"#000", fontWeight:900 }}>✓</div>
+          )}
+        </div>
       ))}
     </div>
   );
 }
 
-function CountdownTimer({ seconds }: { seconds: number }) {
-  const [rem, setRem] = useState(seconds);
-  useEffect(()=>{
-    if(rem<=0) return;
-    const id = setInterval(()=>setRem(r=>r-1),1000);
-    return ()=>clearInterval(id);
-  },[]);
-  const m = Math.floor(rem/60).toString().padStart(2,"0");
-  const s = (rem%60).toString().padStart(2,"0");
-  return <span style={{color:"#FF4444",fontWeight:800}}>{m}:{s}</span>;
+// ─── Screen components ─────────────────────────────────────────────────────────
+
+function SStart({ next, iso }: { next:()=>void; iso:string }) {
+  return (
+    <div style={{ ...BASE, justifyContent:"flex-start" }}>
+      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}`}</style>
+      <div style={{ padding:"22px 0 0", display:"flex", alignItems:"center", gap:10 }}>
+        <img src={CDN+"lola.png"} alt="" style={{ width:38, height:38, borderRadius:"50%" }} />
+        <span style={{ fontWeight:800, fontSize:18, letterSpacing:-0.5 }}>iola Speak</span>
+      </div>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"0 28px", textAlign:"center" }}>
+        <h1 style={{ fontSize:30, fontWeight:900, margin:"0 0 12px", lineHeight:1.25 }}>{tr(iso,"unlock")}</h1>
+        <p style={{ color:"#8899aa", fontSize:16, margin:"0 0 10px", lineHeight:1.6, maxWidth:380 }}>{tr(iso,"plan")}</p>
+        <p style={{ fontSize:12, fontWeight:700, letterSpacing:2, color:"#556677", margin:"0 0 28px" }}>{tr(iso,"quiz3").toUpperCase()}</p>
+        <img src={CDN+"hero.webp"} alt="" style={{ width:"min(280px,80%)", animation:"float 4s ease-in-out infinite" }} />
+      </div>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
 }
 
-// ─── Screens ──────────────────────────────────────────────────────────────────
-
-function ScreenIntro({ onNext }: { onNext: ()=>void }) {
+function SLanguage({ next, langId, setLangId }: { next:()=>void; langId:number; setLangId:(n:number)=>void }) {
+  const iso = LANGUAGES.find(l=>l.id===langId)?.iso ?? "es";
   return (
-    <div>
-      {/* Hero photo */}
-      <div style={{
-        position:"relative",width:"100%",height:260,borderRadius:24,overflow:"hidden",
-        marginBottom:24,
-      }}>
-        <img src={IMG.hero} alt="iola Speak" style={{
-          width:"100%",height:"100%",objectFit:"cover",
-        }}/>
-        {/* Dark overlay */}
-        <div style={{
-          position:"absolute",inset:0,
-          background:"linear-gradient(to bottom, rgba(9,9,15,0.2) 0%, rgba(9,9,15,0.7) 100%)",
-        }}/>
-        {/* Chat bubbles overlay */}
-        <div style={{position:"absolute",bottom:16,left:16,right:16}}>
-          <div style={{
-            background:"rgba(255,255,255,0.95)",color:"#111",
-            borderRadius:"18px 18px 18px 4px",padding:"10px 14px",
-            fontSize:13,fontWeight:600,maxWidth:200,marginBottom:8,
-          }}>
-            Hi! Can you help me practice? 👋
-          </div>
-          <div style={{
-            background:G,color:"#000",
-            borderRadius:"18px 18px 4px 18px",padding:"10px 14px",
-            fontSize:13,fontWeight:700,maxWidth:200,marginLeft:"auto",
-          }}>
-            Of course! Let's start! 🎯
-          </div>
-        </div>
-        {/* Tutor avatar */}
-        <div style={{position:"absolute",top:16,right:16}}>
-          <img src={IMG.tutor} alt="iola AI" style={{
-            width:50,height:50,borderRadius:"50%",objectFit:"cover",
-            border:`2px solid ${G}`,
-          }}/>
-          <div style={{
-            position:"absolute",bottom:0,right:0,
-            width:14,height:14,borderRadius:"50%",
-            background:"#22C55E",border:"2px solid #09090F",
-          }}/>
-        </div>
+    <div style={{ ...BASE, paddingBottom:100 }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:"32px 20px 20px", textAlign:"center" }}>{tr(iso,"nativeLang")}</h1>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, padding:"0 16px", width:"100%", maxWidth:480 }}>
+        {LANGUAGES.map(lang => {
+          const sel = lang.id === langId;
+          return (
+            <div key={lang.id} onClick={()=>setLangId(lang.id)} style={{
+              background: sel ? "rgba(174,234,0,0.1)" : "rgba(255,255,255,0.05)",
+              border: sel ? `1.5px solid ${G}` : "1px solid rgba(255,255,255,0.08)",
+              borderRadius:14, padding:"12px 6px",
+              display:"flex", flexDirection:"column", alignItems:"center", gap:6,
+              cursor:"pointer", transition:"all 0.2s", position:"relative",
+            }}>
+              <img src={lang.icon} alt={lang.name} style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover" }} />
+              <span style={{ fontSize:10, textAlign:"center", color: sel ? G : "#bbb", lineHeight:1.2, fontWeight: sel ? 700 : 400 }}>{lang.name}</span>
+              {sel && <div style={{ position:"absolute", top:4, right:4, width:14, height:14, borderRadius:"50%", background:G, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, color:"#000", fontWeight:900 }}>✓</div>}
+            </div>
+          );
+        })}
       </div>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
 
-      <Logo />
-      <h1 style={{fontSize:28,fontWeight:900,lineHeight:1.2,margin:"16px 0 10px"}}>
-        Desbloquea tu inglés<br/>
-        <span style={{color:G}}>con IA</span> en semanas
+function SVideo({ next, iso }: { next:()=>void; iso:string }) {
+  const [ready, setReady] = useState(false);
+  useEffect(()=>{ const id=setTimeout(()=>setReady(true),4000); return()=>clearTimeout(id); },[]);
+  return (
+    <div style={{ ...BASE, justifyContent:"center", padding:"20px 20px 100px" }}>
+      <div style={{ width:"100%", maxWidth:340, aspectRatio:"9/16", borderRadius:20, overflow:"hidden", background:"#000", boxShadow:"0 20px 60px rgba(0,0,0,0.7)" }}>
+        <iframe src={`https://iframe.cloudflarestream.com/${CF}?autoplay=true&muted=false`}
+          allow="autoplay; fullscreen; picture-in-picture" allowFullScreen
+          style={{ width:"100%", height:"100%", border:"none" }} />
+      </div>
+      {ready && <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>}
+    </div>
+  );
+}
+
+function SName({ next, name, setName, iso }: { next:()=>void; name:string; setName:(s:string)=>void; iso:string }) {
+  return (
+    <div style={BASE}>
+      <ProgressBar screen="name" />
+      <div style={{ flex:1, width:"100%", maxWidth:480, padding:"32px 20px 0", display:"flex", flexDirection:"column", alignItems:"center" }}>
+        <img src={CDN+"choose.svg"} alt="" style={{ width:80, height:80, marginBottom:24 }} />
+        <h1 style={{ fontSize:24, fontWeight:800, textAlign:"center", margin:"0 0 28px" }}>{tr(iso,"nameQ")}</h1>
+        <div style={{ width:"100%", display:"flex", alignItems:"center", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:14, padding:"14px 16px", gap:12 }}>
+          <span style={{ fontSize:18, opacity:0.5 }}>👤</span>
+          <input value={name} onChange={e=>setName(e.target.value)} placeholder="María"
+            style={{ flex:1, background:"none", border:"none", outline:"none", color:"#fff", fontSize:17, fontWeight:500 }} autoFocus />
+        </div>
+        <button onClick={next} style={{ marginTop:28, background:"none", border:"none", color:"#556677", fontSize:15, cursor:"pointer" }}>{tr(iso,"skip")}</button>
+      </div>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+function SPersonalPlan({ next, name, iso }: { next:()=>void; name:string; iso:string }) {
+  const [prog, setProg] = useState(0);
+  const [done, setDone] = useState(false);
+  useEffect(()=>{
+    let t0: number|null = null;
+    const dur = 2600;
+    function frame(ts:number){ if(!t0)t0=ts; const p=Math.min((ts-t0)/dur,1); setProg(p); if(p<1)requestAnimationFrame(frame); else setDone(true); }
+    requestAnimationFrame(frame);
+  },[]);
+  const W=300, H=200, N=80;
+  const pts: {x:number,y:number}[] = [];
+  for(let i=0;i<=Math.floor(prog*N);i++){
+    const f=i/N, x=W*.1+f*W*.8, e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    pts.push({x, y:H*.9-e*H*.78});
+  }
+  const cur = pts[pts.length-1];
+  const d = pts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  return (
+    <div style={{ ...BASE, justifyContent:"center", padding:"0 20px" }}>
+      <p style={{ color:"#8899aa", fontSize:16, textAlign:"center", margin:"0 0 6px" }}>
+        {tr(iso,"welcome")} <strong style={{ color:"#fff" }}>{name||"amigo"}!</strong>
+      </p>
+      <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 36px" }}>
+        {tr(iso,"pp1")} <span style={{ color:G }}>{tr(iso,"pp2")}</span>
       </h1>
-      <p style={{color:MUTED,fontSize:14,marginBottom:20,lineHeight:1.6}}>
-        Habla con confianza. La IA te corrige en tiempo real y adapta tu plan cada día.
-      </p>
-
-      {/* Social proof mini */}
-      <AvatarRow avatars={[IMG.av1,IMG.av2,IMG.av3,IMG.av4,IMG.av5,IMG.av6]}/>
-      <p style={{textAlign:"center",fontSize:12,color:MUTED,marginBottom:24}}>
-        <span style={{color:G,fontWeight:700}}>500,000+</span> estudiantes ya hablan inglés
-      </p>
-
-      <div style={{background:"rgba(174,234,0,0.07)",border:`1px solid rgba(174,234,0,0.2)`,
-        borderRadius:12,padding:"10px 14px",marginBottom:24,
-        display:"flex",alignItems:"center",gap:10,fontSize:13,}}>
-        <span>⏱️</span>
-        <span><strong style={{color:G}}>Solo 3 minutos</strong> para crear tu plan personalizado</span>
-      </div>
-
-      <Btn onClick={onNext}>Crear mi plan gratis →</Btn>
-    </div>
-  );
-}
-
-function ScreenLanguage({ selected, onSelect, onNext }: {
-  selected: string; onSelect:(l:string)=>void; onNext:()=>void;
-}) {
-  return (
-    <div>
-      <ProgressBar pct={5}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6,textAlign:"center"}}>¿Cuál es tu idioma nativo?</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Elegimos el mejor método según tu idioma</p>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:24}}>
-        {LANGUAGES.map(lang=>(
-          <button key={lang.code} onClick={()=>onSelect(lang.code)} style={{
-            padding:"14px 8px",borderRadius:14,textAlign:"center",cursor:"pointer",
-            border:`1.5px solid ${selected===lang.code?G:"#222"}`,
-            background:selected===lang.code?"rgba(174,234,0,0.08)":CARD,
-            transition:"all .15s",
-          }}>
-            <div style={{fontSize:30,marginBottom:4}}>{lang.flag}</div>
-            <div style={{fontSize:11,color:TEXT,fontWeight:500}}>{lang.name}</div>
-            {selected===lang.code&&(
-              <div style={{
-                marginTop:4,fontSize:10,color:G,fontWeight:700,
-              }}>✓ Seleccionado</div>
-            )}
-          </button>
-        ))}
-      </div>
-      <Btn onClick={onNext} disabled={!selected}>Siguiente</Btn>
-    </div>
-  );
-}
-
-function ScreenName({ name, onName, onNext, onSkip }: {
-  name:string; onName:(n:string)=>void; onNext:()=>void; onSkip:()=>void;
-}) {
-  return (
-    <div>
-      <ProgressBar pct={10}/>
-      <div style={{textAlign:"center",marginBottom:24}}>
-        <img src={IMG.tutor} alt="" style={{
-          width:72,height:72,borderRadius:"50%",objectFit:"cover",
-          border:`3px solid ${G}`,margin:"0 auto 12px",display:"block",
-        }}/>
-        <h2 style={{fontSize:22,fontWeight:800,marginBottom:6}}>¿Cómo te llamas?</h2>
-        <p style={{color:MUTED,fontSize:13}}>Tu tutora iola personalizará cada lección</p>
-      </div>
-      <input
-        type="text" placeholder="Tu nombre" value={name} onChange={e=>onName(e.target.value)}
-        style={{
-          width:"100%",padding:"16px 18px",borderRadius:14,
-          border:`1.5px solid ${name?G:"#2a2a3a"}`,
-          background:CARD,color:TEXT,fontSize:16,outline:"none",
-          marginBottom:16,boxSizing:"border-box",fontFamily:"inherit",
-        }}
-      />
-      <Btn onClick={onNext} disabled={!name.trim()}>Siguiente</Btn>
-      <button onClick={onSkip} style={{
-        width:"100%",marginTop:10,background:"none",border:"none",
-        color:MUTED,fontSize:14,cursor:"pointer",padding:"8px 0",
-      }}>Saltar</button>
-    </div>
-  );
-}
-
-function ScreenTransition({ name, onNext }: { name:string; onNext:()=>void }) {
-  const [pct, setPct] = useState(0);
-  useEffect(()=>{
-    const t = setTimeout(()=>setPct(100),100);
-    return ()=>clearTimeout(t);
-  },[]);
-  return (
-    <div style={{textAlign:"center"}}>
-      <div style={{
-        width:80,height:80,borderRadius:"50%",margin:"0 auto 20px",
-        background:`conic-gradient(${G} ${pct*3.6}deg, #1e1e2e 0deg)`,
-        display:"flex",alignItems:"center",justifyContent:"center",
-        transition:"background 1.5s ease",
-      }}>
-        <div style={{
-          width:64,height:64,borderRadius:"50%",background:DARK,
-          display:"flex",alignItems:"center",justifyContent:"center",
-          fontSize:28,
-        }}>🧠</div>
-      </div>
-      <p style={{color:G,fontWeight:700,marginBottom:6,fontSize:13,letterSpacing:1}}>
-        CREANDO TU PLAN PERSONAL
-      </p>
-      <h2 style={{fontSize:24,fontWeight:800,marginBottom:24,lineHeight:1.3}}>
-        {name?`¡Hola, ${name}! `:"¡Perfecto! "}
-        Tu plan<br/>de inglés te espera
-      </h2>
-
-      {/* S-curve progress illustration */}
-      <div style={{
-        background:CARD,borderRadius:20,padding:20,marginBottom:24,
-        border:"1px solid #1e1e2e",
-      }}>
-        <svg viewBox="0 0 280 140" style={{width:"100%"}}>
-          <defs>
-            <linearGradient id="gc" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={G}/>
-              <stop offset="100%" stopColor="#00D4FF"/>
-            </linearGradient>
-          </defs>
-          {/* Grid */}
-          {[35,70,105].map(y=><line key={y} x1="30" y1={y} x2="260" y2={y} stroke="#1e1e2e" strokeWidth="1"/>)}
-          {/* Labels Y */}
-          <text x="22" y="38" fill={MUTED} fontSize="9" textAnchor="end">C1</text>
-          <text x="22" y="73" fill={MUTED} fontSize="9" textAnchor="end">B1</text>
-          <text x="22" y="108" fill={MUTED} fontSize="9" textAnchor="end">A1</text>
-          {/* Curve */}
-          <path d="M 30 120 C 80 118 130 70 260 15" fill="none" stroke="url(#gc)" strokeWidth="3" strokeLinecap="round"/>
-          {/* Dot now */}
-          <circle cx="30" cy="120" r="7" fill={G}/>
-          <text x="30" y="135" textAnchor="middle" fill={MUTED} fontSize="9">Hoy</text>
-          {/* Dot goal */}
-          <circle cx="260" cy="15" r="7" fill="#00D4FF" stroke={DARK} strokeWidth="2"/>
-          <text x="260" y="10" textAnchor="middle" fill="#00D4FF" fontSize="9">+30 días</text>
+      <div style={{ position:"relative", width:W, height:H }}>
+        <svg width={W} height={H} style={{ position:"absolute", inset:0 }}>
+          {[1,2,3,4].map(i=><line key={i} x1={W*.1} x2={W*.9} y1={H*i/5} y2={H*i/5} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,4"/>)}
+          {[1,2,3,4].map(i=><line key={i} x1={W*i/5} x2={W*i/5} y1={H*.05} y2={H*.95} stroke="rgba(255,255,255,0.05)" strokeWidth={1} strokeDasharray="4,4"/>)}
+        </svg>
+        <div style={{ position:"absolute", top:"20%", left:"25%", width:150, height:150, background:"radial-gradient(circle,rgba(0,140,210,0.15) 0%,transparent 70%)", borderRadius:"50%", pointerEvents:"none" }}/>
+        <svg width={W} height={H} style={{ position:"absolute", inset:0 }}>
+          {pts.length>1 && <path d={d} fill="none" stroke={G} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"/>}
+          {cur && prog>.02 && <circle cx={cur.x} cy={cur.y} r={7} fill={G}/>}
+          {done && cur && <text x={cur.x+2} y={cur.y-13} fill={G} fontSize={11} fontWeight="bold">✓</text>}
         </svg>
       </div>
-      <Btn onClick={onNext}>Siguiente</Btn>
+      {done && <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>}
     </div>
   );
 }
 
-function ScreenLevel({ selected, onSelect }: { selected:string; onSelect:(v:string)=>void }) {
-  const opts = [
-    { value:"beginner",     img:IMG.beginner,     label:"Principiante",  sub:"Sé muy poco inglés" },
-    { value:"intermediate", img:IMG.intermediate, label:"Intermedio",    sub:"Puedo mantener conversaciones básicas" },
-    { value:"advanced",     img:IMG.advanced,     label:"Avanzado",      sub:"Hablo con bastante confianza" },
-  ];
+function SLevel({ next, sel, setSel, iso }: { next:()=>void; sel:number|null; setSel:(n:number)=>void; iso:string }) {
+  const opts=[{id:1,img:CDN+"Beginner.svg",lbl:tr(iso,"beg")},{id:2,img:CDN+"Intermediate.svg",lbl:tr(iso,"mid")},{id:3,img:CDN+"Advansed.svg",lbl:tr(iso,"adv")}];
   return (
-    <div>
-      <ProgressBar pct={18}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6,textAlign:"center"}}>¿Qué tan bien hablas inglés?</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Sé honesto para obtener el plan correcto</p>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+    <div style={{ ...BASE, paddingBottom:100 }}>
+      <ProgressBar screen="level"/>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px", lineHeight:1.3 }}>{tr(iso,"levelQ")}</h1>
         {opts.map(o=>(
-          <button key={o.value} onClick={()=>onSelect(o.value)} style={{
-            width:"100%",padding:"16px",borderRadius:14,textAlign:"left",cursor:"pointer",
-            border:`1.5px solid ${selected===o.value?G:"#222"}`,
-            background:selected===o.value?"rgba(174,234,0,0.07)":CARD,
-            transition:"all .15s",display:"flex",alignItems:"center",gap:14,
-          }}>
-            <img src={o.img} alt={o.label} style={{width:40,height:40,objectFit:"contain",flexShrink:0}}/>
-            <div>
-              <div style={{fontWeight:700,fontSize:15,color:TEXT}}>{o.label}</div>
-              <div style={{fontSize:12,color:MUTED,marginTop:2}}>{o.sub}</div>
-            </div>
-            {selected===o.value&&(
-              <div style={{
-                marginLeft:"auto",width:22,height:22,borderRadius:"50%",
-                background:G,display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:11,fontWeight:800,color:"#000",flexShrink:0,
-              }}>✓</div>
-            )}
-          </button>
+          <Card key={o.id} on={sel===o.id} onClick={()=>{ setSel(o.id); setTimeout(next,280); }}>
+            <img src={o.img} alt={o.lbl} style={{ width:44, height:44, objectFit:"contain" }}/>
+            <span style={{ fontSize:15, fontWeight:500 }}>{o.lbl}</span>
+            <Radio on={sel===o.id}/>
+          </Card>
         ))}
       </div>
     </div>
   );
 }
 
-function ScreenStudyMethod({ selected, onToggle, onNext }: {
-  selected:string[]; onToggle:(v:string)=>void; onNext:()=>void;
-}) {
-  const opts = [
-    { icon:"🎒", label:"En la escuela" },
-    { icon:"🎓", label:"En la universidad" },
-    { icon:"🌍", label:"Estudiando en el extranjero" },
-    { icon:"✏️", label:"Con un tutor privado" },
-    { icon:"📱", label:"Con aplicaciones" },
-  ];
+function SHow({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string; langId:number }) {
   return (
-    <div>
-      <ProgressBar pct={26}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6,textAlign:"center"}}>¿Cómo has estudiado inglés?</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Puedes elegir más de uno</p>
-      <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:24}}>
-        {opts.map(o=>(
-          <OptionCard key={o.label} selected={selected.includes(o.label)} onClick={()=>onToggle(o.label)}>
-            <span style={{display:"flex",alignItems:"center",gap:12}}>
-              <span style={{fontSize:22}}>{o.icon}</span>{o.label}
-            </span>
-          </OptionCard>
-        ))}
+    <div style={{ ...BASE, paddingBottom:100 }}>
+      <ProgressBar screen="how"/>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{tr(iso,"howQ")}</h1>
+        {HOWS.map(h=>{ const on=sel.includes(h.id); return (
+          <Card key={h.id} on={on} onClick={()=>setSel(p=>on?p.filter(x=>x!==h.id):[...p,h.id])}>
+            <img src={h.image} alt={h.title} style={{ width:38, height:38, borderRadius:10, objectFit:"cover" }}/>
+            <span style={{ fontSize:15, fontWeight:500 }}>{lbl(h,langId)}</span>
+            <Radio on={on}/>
+          </Card>
+        );})}
       </div>
-      <Btn onClick={onNext} disabled={selected.length===0}>Siguiente</Btn>
+      <NextBtn onClick={next} disabled={sel.length===0}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenBrainScience({ onNext }: { onNext:()=>void }) {
+function SBrainFocus({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div>
-      <ProgressBar pct={33}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:20,textAlign:"center",lineHeight:1.3}}>
-        Aprender inglés ejercita<br/>tu cerebro
-      </h2>
+    <div style={{ ...BASE, justifyContent:"center", padding:"0 24px", textAlign:"center" }}>
+      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}`}</style>
+      <img src={CDN+"hero.webp"} alt="" style={{ width:140, marginBottom:28, animation:"float 3s ease-in-out infinite" }}/>
+      <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 10px" }}>Aprender idiomas ejercita el cerebro</h2>
+      <p style={{ color:"#8899aa", lineHeight:1.6, marginBottom:36, maxWidth:360 }}>La ciencia confirma los beneficios cognitivos de aprender un nuevo idioma</p>
+      <div style={{ display:"flex", gap:14, width:"100%", maxWidth:360 }}>
+        {[["Enfoque y\nflexibilidad","+35%"],["Memoria","+50%"]].map(([l,v])=>(
+          <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
+            <div style={{ fontSize:36, fontWeight:900, color:G }}>{v}</div>
+            <div style={{ fontSize:13, color:"#8899aa", marginTop:6, whiteSpace:"pre-line", lineHeight:1.3 }}>{l}</div>
+          </div>
+        ))}
+      </div>
+      <p style={{ color:"#444", fontSize:11, marginTop:18, lineHeight:1.7 }}>{tr(iso,"source")}<br/>Linck et al., 2014 · Bialystock & Martin, 2014</p>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
 
-      {/* Brain photo with stats overlay */}
-      <div style={{position:"relative",borderRadius:20,overflow:"hidden",marginBottom:20}}>
-        <img src={IMG.brains} alt="Brain" style={{width:"100%",height:200,objectFit:"cover"}}/>
-        <div style={{
-          position:"absolute",inset:0,
-          background:"linear-gradient(to bottom, rgba(9,9,15,0.1) 0%, rgba(9,9,15,0.85) 100%)",
-        }}/>
-        <div style={{
-          position:"absolute",bottom:0,left:0,right:0,
-          display:"flex",justifyContent:"space-around",padding:"16px 12px",
-        }}>
-          <div style={{textAlign:"center"}}>
-            <div style={{color:G,fontSize:32,fontWeight:900,lineHeight:1}}>+35%</div>
-            <div style={{color:"rgba(255,255,255,0.7)",fontSize:11,marginTop:4}}>Enfoque</div>
-          </div>
-          <div style={{width:1,background:"rgba(255,255,255,0.1)"}}/>
-          <div style={{textAlign:"center"}}>
-            <div style={{color:G,fontSize:32,fontWeight:900,lineHeight:1}}>+50%</div>
-            <div style={{color:"rgba(255,255,255,0.7)",fontSize:11,marginTop:4}}>Memoria</div>
-          </div>
-          <div style={{width:1,background:"rgba(255,255,255,0.1)"}}/>
-          <div style={{textAlign:"center"}}>
-            <div style={{color:G,fontSize:32,fontWeight:900,lineHeight:1}}>2x</div>
-            <div style={{color:"rgba(255,255,255,0.7)",fontSize:11,marginTop:4}}>Retención</div>
-          </div>
+function SWhy({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string; langId:number }) {
+  const pick = (id:number) => { setSel(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]); setTimeout(next,300); };
+  return (
+    <div style={{ ...BASE, paddingBottom:100 }}>
+      <ProgressBar screen="why"/>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{tr(iso,"whyQ")}</h1>
+        {WHYS.map(w=>{ const on=sel.includes(w.id); return (
+          <Card key={w.id} on={on} onClick={()=>pick(w.id)}>
+            <img src={w.image} alt={w.title} style={{ width:38, height:38, borderRadius:10, objectFit:"cover" }}/>
+            <span style={{ fontSize:15, fontWeight:500 }}>{lbl(w,langId)}</span>
+            <Radio on={on}/>
+          </Card>
+        );})}
+      </div>
+    </div>
+  );
+}
+
+function SGoodHands1({ next, iso }: { next:()=>void; iso:string }) {
+  return (
+    <div style={{ ...BASE, justifyContent:"center", padding:"0 24px", textAlign:"center" }}>
+      <h1 style={{ fontSize:24, fontWeight:800, margin:"0 0 44px" }}>{tr(iso,"goodHands")}</h1>
+      <div style={{ position:"relative", width:280, height:260, margin:"0 auto 36px" }}>
+        <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:130, height:130, borderRadius:"50%", background:"rgba(0,180,210,0.12)", border:"1px solid rgba(0,180,210,0.3)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", paddingTop:14 }}>
+          <span style={{ fontSize:28 }}>🎬</span>
+          <span style={{ fontSize:10, color:"#aaa", marginTop:4, lineHeight:1.3, padding:"0 10px" }}>Interactive video lessons</span>
         </div>
+        <div style={{ position:"absolute", bottom:0, left:12, width:130, height:130, borderRadius:"50%", background:"rgba(90,90,220,0.12)", border:"1px solid rgba(90,90,220,0.3)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", paddingBottom:14 }}>
+          <span style={{ fontSize:28 }}>🤖</span>
+          <span style={{ fontSize:10, color:"#aaa", lineHeight:1.3, padding:"0 10px", textAlign:"center" }}>Artificial Intelligence</span>
+        </div>
+        <div style={{ position:"absolute", bottom:0, right:12, width:130, height:130, borderRadius:"50%", background:"rgba(160,30,120,0.12)", border:"1px solid rgba(160,30,120,0.3)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", paddingBottom:14 }}>
+          <span style={{ fontSize:28 }}>🎓</span>
+          <span style={{ fontSize:10, color:"#aaa", lineHeight:1.3, padding:"0 10px", textAlign:"center" }}>Harvard Research</span>
+        </div>
+        <div style={{ position:"absolute", top:"46%", left:"50%", transform:"translate(-50%,-30%)", fontSize:22, fontWeight:900, color:G, textShadow:`0 0 20px ${G}80` }}>iola</div>
       </div>
-
-      <div style={{
-        background:CARD,borderRadius:14,padding:"14px 16px",marginBottom:20,
-        border:"1px solid #1e1e2e",fontSize:12,color:MUTED,textAlign:"center",
-      }}>
-        📊 Fuente: Linck et al., 2014 · Bialystok & Martin, 2014
-      </div>
-      <Btn onClick={onNext}>Siguiente</Btn>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenGoal({ selected, onSelect }: { selected:string; onSelect:(v:string)=>void }) {
-  const opts = [
-    { icon:"✈️", label:"Vacaciones y viajes" },
-    { icon:"💼", label:"Trabajo y carrera" },
-    { icon:"🗽", label:"Vivir en el extranjero" },
-    { icon:"👥", label:"Hacer amigos" },
-    { icon:"🎬", label:"Entretenimiento (series, música)" },
-    { icon:"📝", label:"Aprobar un examen" },
-  ];
+function SStruggles({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string; langId:number }) {
   return (
-    <div>
-      <ProgressBar pct={40}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:20,textAlign:"center"}}>¿Por qué quieres aprender inglés?</h2>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        {opts.map(o=>(
-          <OptionCard key={o.label} selected={selected===o.label} onClick={()=>onSelect(o.label)}>
-            <span style={{display:"flex",alignItems:"center",gap:12}}>
-              <span style={{fontSize:22}}>{o.icon}</span>{o.label}
-            </span>
-          </OptionCard>
-        ))}
+    <div style={{ ...BASE, paddingBottom:100 }}>
+      <ProgressBar screen="struggles"/>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{tr(iso,"strugQ")}</h1>
+        {STRUGGLES.map(s=>{ const on=sel.includes(s.id); return (
+          <Card key={s.id} on={on} onClick={()=>setSel(p=>on?p.filter(x=>x!==s.id):[...p,s.id])}>
+            <img src={s.image} alt={s.title} style={{ width:38, height:38, borderRadius:10, objectFit:"cover" }}/>
+            <span style={{ fontSize:15, fontWeight:500 }}>{lbl(s,langId)}</span>
+            <Radio on={on}/>
+          </Card>
+        );})}
       </div>
+      <NextBtn onClick={next} disabled={sel.length===0}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenTrust({ onNext }: { onNext:()=>void }) {
+function SBrainStudy({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div style={{textAlign:"center"}}>
-      <ProgressBar pct={45}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6}}>Estás en buenas manos</h2>
-      <p style={{color:MUTED,fontSize:13,marginBottom:20}}>Tecnología de punta + método científico</p>
-
-      {/* 3 pillars with images */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}}>
-        {[
-          { img:IMG.aiImg,       icon:"🤖", label:"IA en tiempo real" },
-          { img:IMG.watch,      icon:"🎬", label:"Videos nativos" },
-          { img:IMG.remember,   icon:"🧪", label:"Método científico" },
-        ].map(p=>(
-          <div key={p.label} style={{borderRadius:14,overflow:"hidden",border:"1px solid #1e1e2e"}}>
-            <div style={{position:"relative",height:80}}>
-              <img src={p.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-              <div style={{position:"absolute",inset:0,background:"rgba(9,9,15,0.55)",
-                display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}
-              >{p.icon}</div>
-            </div>
-            <div style={{padding:"8px 6px",background:CARD,fontSize:11,fontWeight:600,textAlign:"center"}}>
-              {p.label}
-            </div>
+    <div style={{ ...BASE, justifyContent:"center", padding:"0 24px", textAlign:"center" }}>
+      <img src={CDN+"watch.webp"} alt="" style={{ width:130, height:130, objectFit:"contain", marginBottom:24 }}/>
+      <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 10px" }}>El estudio regular es la clave</h2>
+      <p style={{ color:"#8899aa", lineHeight:1.6, marginBottom:36, maxWidth:360 }}>Practicar incluso 5 minutos al día puede acelerar tu aprendizaje de manera significativa</p>
+      <div style={{ display:"flex", gap:14, width:"100%", maxWidth:360 }}>
+        {[["Retención","3x más"],["Confianza","+60%"]].map(([l,v])=>(
+          <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
+            <div style={{ fontSize:32, fontWeight:900, color:G }}>{v}</div>
+            <div style={{ fontSize:13, color:"#8899aa", marginTop:6 }}>{l}</div>
           </div>
         ))}
       </div>
-
-      {/* iola center logo */}
-      <div style={{
-        display:"inline-flex",alignItems:"center",gap:10,
-        background:`linear-gradient(135deg,rgba(174,234,0,0.1),rgba(0,212,255,0.07))`,
-        border:`1px solid rgba(174,234,0,0.2)`,borderRadius:50,
-        padding:"10px 24px",marginBottom:24,
-      }}>
-        <div style={{
-          width:32,height:32,borderRadius:8,
-          background:`linear-gradient(135deg,${G},#00D4FF)`,
-          display:"flex",alignItems:"center",justifyContent:"center",
-          fontWeight:900,fontSize:16,color:"#000",
-        }}>i</div>
-        <span style={{fontWeight:700}}>iola Speak</span>
-      </div>
-
-      <Btn onClick={onNext}>Siguiente</Btn>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenDifficulties({ selected, onToggle, onNext }: {
-  selected:string[]; onToggle:(v:string)=>void; onNext:()=>void;
-}) {
-  const opts = [
-    { icon:"😰", label:"Miedo a hablar" },
-    { icon:"👄", label:"Pronunciación" },
-    { icon:"🧱", label:"Falta de práctica" },
-    { icon:"👂", label:"Comprensión auditiva" },
-    { icon:"📖", label:"Vocabulario limitado" },
-  ];
+function STopics({ next, sel, setSel, iso }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string }) {
   return (
-    <div>
-      <ProgressBar pct={52}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6,textAlign:"center"}}>¿Qué te cuesta más?</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Elige todos los que apliquen</p>
-      <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:24}}>
-        {opts.map(o=>(
-          <OptionCard key={o.label} selected={selected.includes(o.label)} onClick={()=>onToggle(o.label)}>
-            <span style={{display:"flex",alignItems:"center",gap:12}}>
-              <span style={{fontSize:22}}>{o.icon}</span>{o.label}
-            </span>
-          </OptionCard>
-        ))}
-      </div>
-      <Btn onClick={onNext} disabled={selected.length===0}>Siguiente</Btn>
-    </div>
-  );
-}
-
-function ScreenDifficultyExplanation({ difficulty, onNext }: { difficulty:string; onNext:()=>void }) {
-  const map: Record<string, { emoji:string; title:string; body:string; img:string }> = {
-    "Miedo a hablar":      { emoji:"🎙️", img:IMG.fluency,      title:"Habla sin miedo",            body:"Practica con nuestra IA en cualquier momento, sin juicios. Cada conversación te da retroalimentación instantánea para ganar confianza rápidamente." },
-    "Pronunciación":        { emoji:"👄", img:IMG.pronunciation, title:"Pronunciación perfecta",     body:"La IA analiza cada sonido que produces y te compara con hablantes nativos en tiempo real. Mejoras fonema por fonema." },
-    "Falta de práctica":    { emoji:"⏱️", img:IMG.pickUp,       title:"15 min al día es suficiente",body:"Con solo 15 minutos diarios, iola te mantiene en constante progreso. Lecciones cortas diseñadas para tu agenda real." },
-    "Comprensión auditiva": { emoji:"🎧", img:IMG.watch,        title:"Entrena tu oído",            body:"Videos auténticos de hablantes nativos en diferentes contextos. Tu cerebro aprende el inglés real, no el de los libros." },
-    "Vocabulario limitado": { emoji:"📖", img:IMG.vocab,        title:"Más de 8.500 palabras",      body:"Repetición espaciada científicamente probada. El sistema recuerda qué palabras necesitas y las presenta en el momento perfecto." },
-  };
-  const exp = map[difficulty] || { emoji:"🤖", img:IMG.situations, title:difficulty, body:"iola Speak te ayuda a superar este obstáculo con ejercicios de IA personalizados." };
-  return (
-    <div>
-      <ProgressBar pct={58}/>
-      {/* Photo with overlay */}
-      <div style={{position:"relative",borderRadius:20,overflow:"hidden",marginBottom:20,height:180}}>
-        <img src={exp.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-        <div style={{position:"absolute",inset:0,background:"rgba(9,9,15,0.6)",
-          display:"flex",alignItems:"center",justifyContent:"center",fontSize:52}}
-        >{exp.emoji}</div>
-      </div>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:12,color:G}}>{exp.title}</h2>
-      <p style={{color:MUTED,lineHeight:1.7,marginBottom:28,fontSize:15}}>{exp.body}</p>
-      <Btn onClick={onNext}>Siguiente</Btn>
-    </div>
-  );
-}
-
-function ScreenTopics({ selected, onToggle, onNext }: {
-  selected:string[]; onToggle:(v:string)=>void; onNext:()=>void;
-}) {
-  return (
-    <div>
-      <ProgressBar pct={65}/>
-      <h2 style={{fontSize:20,fontWeight:800,marginBottom:6,textAlign:"center"}}>Elige tus temas favoritos</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Aprenderás vocabulario que usarás de verdad</p>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:24}}>
-        {TOPICS.map(t=>{
-          const isSelected = selected.includes(t.label);
-          return (
-            <button key={t.label} onClick={()=>onToggle(t.label)} style={{
-              borderRadius:14,overflow:"hidden",border:`2px solid ${isSelected?G:"transparent"}`,
-              cursor:"pointer",transition:"all .15s",background:"none",padding:0,
+    <div style={{ ...BASE, paddingBottom:100 }}>
+      <ProgressBar screen="topics"/>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 16px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 20px" }}>{tr(iso,"topicQ")}</h1>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
+          {TOPICS.map(tp=>{ const on=sel.includes(tp.id); return (
+            <div key={tp.id} onClick={()=>setSel(p=>on?p.filter(x=>x!==tp.id):[...p,tp.id])} style={{
+              background: on ? "rgba(174,234,0,0.1)" : "rgba(255,255,255,0.05)",
+              border: on ? `1.5px solid ${G}` : "1px solid rgba(255,255,255,0.08)",
+              borderRadius:14, padding:"14px 8px",
+              display:"flex", flexDirection:"column", alignItems:"center", gap:8,
+              cursor:"pointer", transition:"all 0.2s",
             }}>
-              <div style={{position:"relative",height:70}}>
-                <img src={t.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                <div style={{
-                  position:"absolute",inset:0,
-                  background:isSelected?"rgba(174,234,0,0.2)":"rgba(9,9,15,0.4)",
-                  transition:"all .15s",
-                }}/>
-                {isSelected&&(
-                  <div style={{
-                    position:"absolute",top:4,right:4,width:18,height:18,borderRadius:"50%",
-                    background:G,display:"flex",alignItems:"center",justifyContent:"center",
-                    fontSize:10,fontWeight:800,color:"#000",
-                  }}>✓</div>
-                )}
-              </div>
-              <div style={{
-                padding:"6px 4px",background:isSelected?"rgba(174,234,0,0.1)":CARD,
-                fontSize:10,fontWeight:600,textAlign:"center",color:isSelected?G:TEXT,
-              }}>{t.label}</div>
-            </button>
-          );
-        })}
-      </div>
-      <Btn onClick={onNext} disabled={selected.length===0}>Siguiente</Btn>
-    </div>
-  );
-}
-
-function ScreenSocialProof({ onNext }: { onNext:()=>void }) {
-  return (
-    <div>
-      <ProgressBar pct={70}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6,textAlign:"center"}}>Estás en buena compañía</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Miles ya hablan inglés con iola</p>
-
-      {/* Group photo */}
-      <div style={{position:"relative",borderRadius:20,overflow:"hidden",marginBottom:20,height:160}}>
-        <img src={IMG.hands} alt="Students" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-        <div style={{position:"absolute",inset:0,background:"rgba(9,9,15,0.5)"}}/>
-        <div style={{
-          position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"space-around",
-          padding:"0 16px",
-        }}>
-          {[["500k+","Estudiantes"],["4.8★","Rating"],["10k+","Reseñas"]].map(([v,l])=>(
-            <div key={l} style={{textAlign:"center"}}>
-              <div style={{color:G,fontWeight:900,fontSize:24,lineHeight:1}}>{v}</div>
-              <div style={{color:"rgba(255,255,255,0.7)",fontSize:11,marginTop:4}}>{l}</div>
+              <img src={tp.image} alt={tp.title} style={{ width:44, height:44, objectFit:"contain" }}/>
+              <span style={{ fontSize:11, textAlign:"center", color:on?G:"#bbb", fontWeight:on?700:400 }}>{tp.title}</span>
             </div>
-          ))}
+          );})}
         </div>
       </div>
-
-      {/* Testimonials */}
-      <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:24}}>
-        {TESTIMONIALS.map((t,i)=>(
-          <div key={i} style={{
-            background:CARD,borderRadius:14,padding:"14px 16px",
-            border:"1px solid #1e1e2e",display:"flex",gap:12,alignItems:"flex-start",
-          }}>
-            <img src={t.av} alt={t.name} style={{width:40,height:40,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
-                <span style={{fontWeight:700,fontSize:13}}>{t.name}</span>
-                <span style={{color:"#FFB800",fontSize:11}}>{stars(t.stars)}</span>
-              </div>
-              <p style={{color:MUTED,fontSize:12,lineHeight:1.5,margin:0}}>{t.text}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Btn onClick={onNext}>Siguiente</Btn>
+      <NextBtn onClick={next} disabled={sel.length===0}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenPracticeTime({ selected, onSelect }: { selected:string; onSelect:(v:string)=>void }) {
-  const opts = [
-    { value:"30", img:IMG.time30, label:"30 minutos al día", sub:"Progreso intensivo",           recommended:false },
-    { value:"15", img:IMG.time15, label:"15 minutos al día", sub:"Recomendado para comenzar ⭐", recommended:true  },
-    { value:"5",  img:IMG.time5,  label:"5 minutos al día",  sub:"Progreso gradual",             recommended:false },
+function SGoodHands2({ next, iso }: { next:()=>void; iso:string }) {
+  const reviews=[
+    { name:"María G.", stars:5, text:"En 3 semanas ya puedo hablar con confianza en reuniones. ¡Increíble!" },
+    { name:"Carlos R.", stars:5, text:"Las lecciones en video son únicas. Nunca aprender inglés había sido tan natural." },
+    { name:"Ana L.",    stars:5, text:"El AI me corrige en tiempo real. Perfecta para nivel intermedio." },
   ];
   return (
-    <div>
-      <ProgressBar pct={75}/>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6,textAlign:"center"}}>¿Cuánto tiempo al día?</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Elige algo que puedas mantener</p>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+    <div style={{ ...BASE, padding:"0 20px 100px" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:"32px 0 4px", textAlign:"center" }}>Más de 500K usuarios</h1>
+      <p style={{ color:"#8899aa", marginBottom:28, textAlign:"center" }}>confían en iola Speak para mejorar su inglés</p>
+      {reviews.map(r=>(
+        <div key={r.name} style={{ width:"100%", maxWidth:480, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:14, padding:16, marginBottom:12 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+            <span style={{ fontWeight:700 }}>{r.name}</span>
+            <span style={{ color:G }}>{"★".repeat(r.stars)}</span>
+          </div>
+          <p style={{ color:"#aaa", fontSize:13, margin:0, lineHeight:1.5 }}>{r.text}</p>
+        </div>
+      ))}
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+function SGoal({ next, sel, setSel, iso }: { next:()=>void; sel:number|null; setSel:(n:number)=>void; iso:string }) {
+  const opts=[{id:3,img:CDN+"30.webp",lbl:"30 min",sub:"Máximo progreso"},{id:2,img:CDN+"15.webp",lbl:"15 min",sub:"Buen avance"},{id:1,img:CDN+"5.webp",lbl:"5 min",sub:"Para empezar"}];
+  return (
+    <div style={{ ...BASE, paddingBottom:100 }}>
+      <ProgressBar screen="goal"/>
+      <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px", lineHeight:1.3 }}>{tr(iso,"goalQ")}</h1>
         {opts.map(o=>(
-          <button key={o.value} onClick={()=>onSelect(o.value)} style={{
-            width:"100%",padding:"16px",borderRadius:14,textAlign:"left",cursor:"pointer",
-            border:`1.5px solid ${selected===o.value?G:o.recommended?"rgba(174,234,0,0.3)":"#222"}`,
-            background:selected===o.value?"rgba(174,234,0,0.07)":CARD,
-            transition:"all .15s",display:"flex",alignItems:"center",gap:14,
-          }}>
-            <img src={o.img} alt={o.label} style={{width:44,height:44,objectFit:"contain",flexShrink:0}}/>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:700,fontSize:14,color:TEXT}}>{o.label}</div>
-              <div style={{fontSize:12,color:o.recommended?G:MUTED,marginTop:2}}>{o.sub}</div>
-            </div>
-            {selected===o.value&&(
-              <div style={{
-                width:22,height:22,borderRadius:"50%",background:G,
-                display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:11,fontWeight:800,color:"#000",flexShrink:0,
-              }}>✓</div>
-            )}
-          </button>
+          <Card key={o.id} on={sel===o.id} onClick={()=>{ setSel(o.id); setTimeout(next,280); }}>
+            <img src={o.img} alt={o.lbl} style={{ width:44, height:44, objectFit:"contain" }}/>
+            <div><div style={{ fontSize:16, fontWeight:700 }}>{o.lbl}</div><div style={{ fontSize:12, color:"#8899aa" }}>{o.sub}</div></div>
+            <Radio on={sel===o.id}/>
+          </Card>
         ))}
       </div>
     </div>
   );
 }
 
-function ScreenReadyForTest({ onNext }: { onNext:()=>void }) {
+function SEmail({ next, email, setEmail, iso }: { next:()=>void; email:string; setEmail:(s:string)=>void; iso:string }) {
+  const ok = /^[^@]+@[^@]+\.[^@]+$/.test(email);
   return (
-    <div style={{textAlign:"center"}}>
-      <ProgressBar pct={80}/>
-      <div style={{
-        width:100,height:100,borderRadius:"50%",margin:"0 auto 20px",
-        background:`radial-gradient(circle, rgba(174,234,0,0.15) 0%, transparent 70%)`,
-        border:`2px solid rgba(174,234,0,0.3)`,
-        display:"flex",alignItems:"center",justifyContent:"center",fontSize:44,
-      }}>🧠</div>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:12}}>¿Listo para una prueba rápida?</h2>
-      <p style={{color:MUTED,marginBottom:20,lineHeight:1.6,fontSize:14}}>
-        Identificaremos tu nivel real de vocabulario y gramática.<br/>
-        Solo toma 2 minutos y mejora mucho la precisión de tu plan.
-      </p>
-      <div style={{
-        background:"rgba(174,234,0,0.06)",border:"1px solid rgba(174,234,0,0.2)",
-        borderRadius:12,padding:"12px 16px",marginBottom:24,
-        display:"flex",alignItems:"center",gap:10,fontSize:13,textAlign:"left",
-      }}>
-        <span>💡</span>
-        <span>No te preocupes si no sabes todo — ese es el punto</span>
-      </div>
-      <Btn onClick={onNext}>Comenzar prueba</Btn>
-    </div>
-  );
-}
-
-function ScreenVocabTest({ words, selected, onToggle, onNext, level, pct }: {
-  words:string[]; selected:string[]; onToggle:(w:string)=>void; onNext:()=>void; level:string; pct:number;
-}) {
-  return (
-    <div>
-      <ProgressBar pct={pct}/>
-      <h2 style={{fontSize:20,fontWeight:800,marginBottom:4,textAlign:"center"}}>Selecciona las palabras que conozcas</h2>
-      <p style={{color:G,textAlign:"center",marginBottom:20,fontWeight:700,fontSize:13}}>{level}</p>
-      <div style={{display:"flex",flexWrap:"wrap",gap:10,justifyContent:"center",marginBottom:24}}>
-        {words.map(w=>(
-          <button key={w} onClick={()=>onToggle(w)} style={{
-            padding:"10px 18px",borderRadius:50,cursor:"pointer",fontWeight:600,fontSize:14,
-            border:`1.5px solid ${selected.includes(w)?G:"#2a2a3a"}`,
-            background:selected.includes(w)?"rgba(174,234,0,0.12)":CARD,
-            color:selected.includes(w)?G:TEXT,transition:"all .15s",
-          }}>{w}</button>
-        ))}
-      </div>
-      <Btn onClick={onNext}>Siguiente</Btn>
-    </div>
-  );
-}
-
-function ScreenGrammar({ q, qIndex, total, onAnswer }: {
-  q:{question:string;options:string[];correct:string}; qIndex:number; total:number; onAnswer:(a:string)=>void;
-}) {
-  const [chosen, setChosen] = useState<string|null>(null);
-  const handle = (opt:string)=>{ if(chosen) return; setChosen(opt); setTimeout(()=>onAnswer(opt),700); };
-  const sentence = q.question.split("___");
-  return (
-    <div>
-      <ProgressBar pct={88+qIndex*2}/>
-      <p style={{color:MUTED,textAlign:"center",marginBottom:16,fontSize:13}}>Gramática · Pregunta {qIndex+1} de {total}</p>
-      <div style={{
-        background:CARD,borderRadius:16,padding:"20px",marginBottom:24,
-        textAlign:"center",lineHeight:2,fontSize:16,border:"1px solid #1e1e2e",
-      }}>
-        {sentence[0]}
-        <span style={{
-          display:"inline-block",minWidth:90,borderBottom:`2px solid ${G}`,
-          margin:"0 4px",color:chosen||"transparent",fontWeight:700,color:G,
-        }}>{chosen||"    "}</span>
-        {sentence[1]}
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        {q.options.map(opt=>{
-          const isCorrect = opt===q.correct, isChosen = opt===chosen;
-          let bg=CARD, border="#222", color=TEXT;
-          if(chosen){
-            if(isCorrect){bg="rgba(174,234,0,0.1)";border=G;color=G;}
-            else if(isChosen){bg="rgba(255,68,68,0.08)";border="#FF4444";color="#FF4444";}
-          }
-          return (
-            <button key={opt} onClick={()=>handle(opt)} style={{
-              width:"100%",padding:"14px",borderRadius:14,
-              border:`1.5px solid ${border}`,background:bg,color,
-              textAlign:"center",cursor:chosen?"default":"pointer",
-              fontWeight:600,fontSize:15,transition:"all .2s",
-            }}>
-              {chosen&&isCorrect&&"✓ "}{opt}{chosen&&isChosen&&!isCorrect&&" ✗"}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function ScreenTestComplete({ level, onNext }: { level:string; onNext:()=>void }) {
-  const cur = getLevelLabel(level), nxt = getNextLevel(level);
-  return (
-    <div style={{textAlign:"center"}}>
-      <div style={{
-        display:"inline-block",background:"rgba(174,234,0,0.1)",border:`1px solid ${G}`,
-        borderRadius:50,padding:"6px 18px",fontSize:12,fontWeight:800,color:G,
-        marginBottom:16,letterSpacing:1,
-      }}>🎉 ¡PRUEBA COMPLETADA!</div>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:20}}>Tu nivel estimado</h2>
-
-      <div style={{
-        background:CARD,borderRadius:20,padding:24,marginBottom:20,
-        border:"1px solid #1e1e2e",
-      }}>
-        <div style={{display:"flex",justifyContent:"center",gap:40,marginBottom:20}}>
-          <div>
-            <div style={{color:MUTED,fontSize:11,marginBottom:4}}>Nivel actual</div>
-            <div style={{fontSize:48,fontWeight:900,color:TEXT}}>{cur}</div>
-          </div>
-          <div style={{display:"flex",alignItems:"center",fontSize:24}}>→</div>
-          <div>
-            <div style={{color:MUTED,fontSize:11,marginBottom:4}}>Tu objetivo</div>
-            <div style={{fontSize:48,fontWeight:900,color:G}}>{nxt}</div>
-          </div>
-        </div>
-        <div style={{
-          background:"rgba(174,234,0,0.06)",borderRadius:10,padding:"10px 14px",
-          fontSize:13,color:MUTED,
-        }}>
-          Con iola Speak llegarás a <strong style={{color:G}}>{nxt}</strong> el <strong style={{color:TEXT}}>{addDays(30)}</strong>
+    <div style={BASE}>
+      <ProgressBar screen="email"/>
+      <div style={{ flex:1, width:"100%", maxWidth:480, padding:"32px 20px 0", display:"flex", flexDirection:"column", alignItems:"center" }}>
+        <img src={CDN+"ai.webp"} alt="" style={{ width:110, height:110, objectFit:"contain", marginBottom:20 }}/>
+        <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 8px" }}>{tr(iso,"emailQ")}</h1>
+        <p style={{ color:"#8899aa", textAlign:"center", marginBottom:24, fontSize:14 }}>{tr(iso,"emailSub")}</p>
+        <div style={{ width:"100%", display:"flex", alignItems:"center", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:14, padding:"14px 16px", gap:12 }}>
+          <span style={{ fontSize:18, opacity:0.6 }}>✉️</span>
+          <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="tu@email.com" type="email"
+            style={{ flex:1, background:"none", border:"none", outline:"none", color:"#fff", fontSize:16 }} autoFocus/>
         </div>
       </div>
-
-      <svg viewBox="0 0 280 80" style={{width:"100%",marginBottom:20}}>
-        <path d="M 20 70 C 80 68 140 35 260 10" fill="none" stroke="#1e1e2e" strokeWidth="2"/>
-        <path d="M 20 70 C 80 68 140 35 260 10" fill="none" stroke={G} strokeWidth="3" strokeDasharray="300" strokeDashoffset="80"/>
-        <circle cx="20" cy="70" r="7" fill={G}/>
-        <text x="20" y="80" textAnchor="middle" fill={MUTED} fontSize="9">Hoy</text>
-        <circle cx="260" cy="10" r="7" fill="#00D4FF"/>
-        <text x="260" y="8" textAnchor="middle" fill="#00D4FF" fontSize="9">{addDays(30)}</text>
-      </svg>
-
-      <Btn onClick={onNext}>Ver mi plan completo</Btn>
+      <NextBtn onClick={next} disabled={!ok}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenWhatToExpect({ slide, onNext }: { slide:number; onNext:()=>void }) {
-  const slides = [
-    { period:"Semana 1", value:"120", unit:"nuevas palabras",       scenario:"Presentarte en inglés",                     img:IMG.week1   },
-    { period:"Semana 4", value:"24",  unit:"situaciones dominadas", scenario:"Hacer un pedido en un restaurante",          img:IMG.week4   },
-    { period:"Mes 12",   value:"",    unit:"Fluidez natural",       scenario:"Hablar con confianza en cualquier situación",img:IMG.month12 },
-  ];
-  const s = slides[slide];
-  return (
-    <div>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:20,textAlign:"center"}}>Qué puedes esperar</h2>
-      {/* Photo card */}
-      <div style={{position:"relative",borderRadius:20,overflow:"hidden",marginBottom:20,height:200}}>
-        <img src={s.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-        <div style={{
-          position:"absolute",inset:0,
-          background:"linear-gradient(to bottom, rgba(9,9,15,0) 30%, rgba(9,9,15,0.9) 100%)",
-        }}/>
-        <div style={{position:"absolute",top:14,left:14}}>
-          <span style={{
-            background:G,color:"#000",fontWeight:800,fontSize:12,
-            padding:"4px 12px",borderRadius:50,
-          }}>{s.period}</span>
-        </div>
-        <div style={{position:"absolute",bottom:16,left:16,right:16,textAlign:"center"}}>
-          {s.value&&<div style={{fontSize:52,fontWeight:900,color:TEXT,lineHeight:1}}>{s.value}</div>}
-          <div style={{color:"rgba(255,255,255,0.8)",fontSize:14,marginTop:4}}>{s.unit}</div>
-        </div>
-      </div>
-      <div style={{
-        background:CARD,borderRadius:14,padding:"14px 16px",marginBottom:24,
-        border:"1px solid #1e1e2e",display:"flex",alignItems:"center",gap:10,
-      }}>
-        <span style={{fontSize:20}}>🎯</span>
-        <div>
-          <div style={{color:G,fontSize:11,fontWeight:700,marginBottom:2}}>APRENDE A</div>
-          <div style={{fontWeight:700,fontSize:14}}>{s.scenario}</div>
-        </div>
-      </div>
-      {/* Dot indicators */}
-      <div style={{display:"flex",justifyContent:"center",gap:8,marginBottom:20}}>
-        {[0,1,2].map(i=>(
-          <div key={i} style={{
-            width:i===slide?24:8,height:8,borderRadius:4,
-            background:i===slide?G:"#222",transition:"all .3s",
-          }}/>
-        ))}
-      </div>
-      <Btn onClick={onNext}>Siguiente</Btn>
-    </div>
-  );
-}
-
-function ScreenVideoTestimonial({ onNext }: { onNext:()=>void }) {
-  const [playing, setPlaying] = useState(false);
-  return (
-    <div>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:6,textAlign:"center"}}>Escucha a nuestros estudiantes</h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Resultados reales en semanas</p>
-
-      {/* Video embed */}
-      <div style={{
-        position:"relative",borderRadius:20,overflow:"hidden",marginBottom:16,
-        aspectRatio:"16/9",background:"#000",cursor:"pointer",
-      }} onClick={()=>setPlaying(true)}>
-        {!playing?(
-          <>
-            <img src={IMG.videoThumb} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-            <div style={{position:"absolute",inset:0,background:"rgba(9,9,15,0.45)"}}/>
-            <div style={{
-              position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",
-            }}>
-              <div style={{
-                width:68,height:68,borderRadius:"50%",
-                background:"rgba(174,234,0,0.95)",
-                display:"flex",alignItems:"center",justifyContent:"center",
-                boxShadow:`0 0 40px rgba(174,234,0,0.4)`,
-              }}>
-                <svg viewBox="0 0 24 24" fill="#000" style={{width:28,height:28,marginLeft:4}}>
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </div>
-            </div>
-          </>
-        ):(
-          <iframe
-            src={`https://iframe.cloudflarestream.com/${CF_VIDEO_ID}?autoplay=true&muted=false`}
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-            style={{width:"100%",height:"100%",border:"none"}}
-          />
-        )}
-      </div>
-
-      {/* Mini testimonials */}
-      <div style={{display:"flex",gap:8,marginBottom:20,overflowX:"auto",paddingBottom:4}}>
-        {TESTIMONIALS.map((t,i)=>(
-          <div key={i} style={{
-            flexShrink:0,width:180,background:CARD,borderRadius:12,padding:12,
-            border:"1px solid #1e1e2e",
-          }}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-              <img src={t.av} alt={t.name} style={{width:28,height:28,borderRadius:"50%",objectFit:"cover"}}/>
-              <span style={{fontWeight:700,fontSize:12}}>{t.name}</span>
-            </div>
-            <div style={{color:"#FFB800",fontSize:10,marginBottom:4}}>{stars(t.stars)}</div>
-            <p style={{color:MUTED,fontSize:11,lineHeight:1.4,margin:0}}>{t.text}</p>
-          </div>
-        ))}
-      </div>
-      <Btn onClick={onNext}>Siguiente</Btn>
-    </div>
-  );
-}
-
-function ScreenAIChat({ onNext }: { onNext:()=>void }) {
-  const [step, setStep] = useState(0);
-  const messages = [
-    "📈 Estoy analizando tu perfil... Veo que tienes potencial real para llegar a B2 rápido.",
-    "🎯 Tu plan incluye lecciones cortas de video, práctica de conversación con IA y ejercicios de pronunciación.",
-    "⏱️ ¡Ya casi listo! Estoy preparando tu programa de sesiones diarias personalizadas.",
-  ];
+function SBuilding({ next, iso }: { next:()=>void; iso:string }) {
+  const steps=["Analizando tu nivel...","Personalizando contenido...","Generando tu plan..."];
+  const [si, setSi] = useState(0);
+  const [pct, setPct] = useState(0);
   useEffect(()=>{
-    if(step<messages.length){ const t=setTimeout(()=>setStep(s=>s+1),1500); return ()=>clearTimeout(t); }
-  },[step]);
-  const ready = step>=messages.length;
+    const t1=setTimeout(()=>setSi(1),1100);
+    const t2=setTimeout(()=>setSi(2),2300);
+    const t3=setTimeout(()=>{ setPct(100); setTimeout(next,500); },3400);
+    let p=0; const iv=setInterval(()=>{ p=Math.min(p+1.6,100); setPct(Math.round(p)); if(p>=100)clearInterval(iv); },55);
+    return()=>{ clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);clearInterval(iv); };
+  },[]);
   return (
-    <div>
-      <h2 style={{fontSize:22,fontWeight:800,marginBottom:24,textAlign:"center"}}>Toques finales</h2>
-      {/* Tutor header */}
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
-        <div style={{position:"relative",flexShrink:0}}>
-          <img src={IMG.tutor} alt="iola" style={{width:48,height:48,borderRadius:"50%",objectFit:"cover",border:`2px solid ${G}`}}/>
-          <div style={{position:"absolute",bottom:0,right:0,width:12,height:12,borderRadius:"50%",background:"#22C55E",border:"2px solid #09090F"}}/>
+    <div style={{ ...BASE, justifyContent:"center", padding:"0 28px", textAlign:"center" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, marginBottom:48 }}>{tr(iso,"building")}</h1>
+      {steps.map((s,i)=>(
+        <div key={s} style={{ display:"flex", alignItems:"center", gap:14, marginBottom:20, opacity:i<=si?1:0.2, transition:"opacity 0.5s", width:"100%", maxWidth:340, textAlign:"left" }}>
+          <div style={{ width:22, height:22, borderRadius:"50%", flexShrink:0, background:i<=si?G:"rgba(255,255,255,0.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, color:"#000", fontWeight:900 }}>
+            {i<si?"✓":i===si?"·":""}
+          </div>
+          <span style={{ fontSize:15, color:i<=si?"#fff":"#444" }}>{s}</span>
         </div>
-        <div>
-          <div style={{fontWeight:700,fontSize:14}}>iola IA</div>
-          <div style={{color:G,fontSize:11,fontWeight:600}}>● En línea ahora</div>
-        </div>
+      ))}
+      <div style={{ width:"100%", maxWidth:340, height:6, background:"rgba(255,255,255,0.1)", borderRadius:999, marginTop:28 }}>
+        <div style={{ width:`${pct}%`, height:"100%", background:G, borderRadius:999, transition:"width 0.1s" }}/>
       </div>
+      <div style={{ marginTop:8, fontSize:13, color:G, fontWeight:700 }}>{pct}%</div>
+    </div>
+  );
+}
 
-      <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:24,minHeight:220}}>
-        {messages.slice(0,step).map((msg,i)=>(
-          <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",animation:"fadeIn .4s ease-out"}}>
-            <img src={IMG.tutor} alt="" style={{width:32,height:32,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>
-            <div style={{
-              background:CARD2,borderRadius:"18px 18px 18px 4px",
-              padding:"12px 16px",fontSize:14,lineHeight:1.6,
-              border:"1px solid #1e1e2e",maxWidth:"85%",
-            }}>{msg}</div>
+function SExpect({ next, week, iso }: { next:()=>void; week:1|4|12|"12m"; iso:string }) {
+  const D={
+    1:   { img:CDN+"week1.webp",   title:"Semana 1",  sub:"Primeras palabras y frases básicas",      bullets:["100+ palabras nuevas","Comprensión básica","Pronunciación mejorada"] },
+    4:   { img:CDN+"week4.webp",   title:"Semana 4",  sub:"Conversaciones simples con confianza",    bullets:["500+ palabras activas","Gramática sólida","Escucha real mejorada"] },
+    12:  { img:CDN+"week12.webp",  title:"Semana 12", sub:"Fluidez en situaciones cotidianas",       bullets:["1200+ palabras","Hablas sin traducir mentalmente","Confianza real"] },
+    "12m":{ img:CDN+"month12.webp",title:"12 meses",  sub:"Dominio avanzado del inglés",            bullets:["Nivel B2-C1 sólido","Inglés fluido y natural","Listo para el mundo"] },
+  }[week];
+  return (
+    <div style={{ ...BASE, padding:"0 20px 100px" }}>
+      <div style={{ width:"100%", maxWidth:480, paddingTop:28 }}>
+        <img src={D.img} alt="" style={{ width:"100%", borderRadius:20, marginBottom:24, objectFit:"cover", maxHeight:220 }}/>
+        <h2 style={{ fontSize:24, fontWeight:800, margin:"0 0 6px" }}>{D.title}</h2>
+        <p style={{ color:"#8899aa", marginBottom:24, fontSize:15 }}>{D.sub}</p>
+        {D.bullets.map(b=>(
+          <div key={b} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
+            <div style={{ width:24, height:24, borderRadius:"50%", background:"rgba(174,234,0,0.1)", border:`1px solid ${G}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, color:G, flexShrink:0 }}>✓</div>
+            <span style={{ fontSize:15 }}>{b}</span>
           </div>
         ))}
-        {step<messages.length&&(
-          <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
-            <img src={IMG.tutor} alt="" style={{width:32,height:32,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>
-            <div style={{background:CARD2,borderRadius:"18px 18px 18px 4px",padding:"14px 20px",border:"1px solid #1e1e2e"}}>
-              <div style={{display:"flex",gap:5,alignItems:"center",height:18}}>
-                {[0,1,2].map(i=>(
-                  <div key={i} style={{
-                    width:8,height:8,borderRadius:"50%",background:G,
-                    animation:`bounce .8s ease-in-out ${i*.2}s infinite`,
-                  }}/>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-      <Btn onClick={onNext} disabled={!ready}>{ready?"Siguiente":"Procesando..."}</Btn>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenEmail({ email, onEmail, onNext }: {
-  email:string; onEmail:(e:string)=>void; onNext:()=>void;
-}) {
-  const code = useRef(Math.random().toString(36).substring(2,7).toUpperCase()).current;
+function SLevelUp({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div>
-      {/* Plan ready banner */}
-      <div style={{
-        background:`linear-gradient(135deg,rgba(174,234,0,0.15),rgba(0,212,255,0.07))`,
-        border:`1px solid rgba(174,234,0,0.25)`,borderRadius:20,
-        padding:"20px 16px",marginBottom:24,textAlign:"center",
-      }}>
-        <div style={{fontSize:36,marginBottom:8}}>✅</div>
-        <div style={{fontWeight:900,fontSize:18,marginBottom:4}}>
-          ¡Tu plan <span style={{color:G}}>#{code}</span> está listo!
+    <div style={{ ...BASE, justifyContent:"center", padding:"0 24px", textAlign:"center" }}>
+      <div style={{ fontSize:60, marginBottom:16 }}>🚀</div>
+      <h1 style={{ fontSize:28, fontWeight:900, margin:"0 0 14px", background:`linear-gradient(135deg,${G},#00e5ff)`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>¡Tu plan está listo!</h1>
+      <p style={{ color:"#8899aa", fontSize:16, lineHeight:1.7, marginBottom:36, maxWidth:340 }}>Hemos creado un plan personalizado basado en tus respuestas para llevarte al siguiente nivel en inglés.</p>
+      {[[CDN+"fluency.webp","Fluidez garantizada"],[CDN+"pronunciation.webp","Pronunciación perfecta"],[CDN+"vocab.webp","Vocabulario amplio"]].map(([img,l])=>(
+        <div key={l} style={{ display:"flex", alignItems:"center", gap:14, marginBottom:14, width:"100%", maxWidth:340 }}>
+          <img src={img} alt="" style={{ width:36, height:36, objectFit:"contain" }}/>
+          <span style={{ fontSize:15, fontWeight:500 }}>{l}</span>
+          <span style={{ marginLeft:"auto", color:G, fontSize:18 }}>✓</span>
         </div>
-        <div style={{color:MUTED,fontSize:13}}>Personalizado para tu nivel y objetivos</div>
-      </div>
-
-      <AvatarRow avatars={[IMG.av1,IMG.av2,IMG.av3,IMG.av4]}/>
-      <p style={{textAlign:"center",color:MUTED,fontSize:12,marginBottom:20}}>
-        Únete a <strong style={{color:TEXT}}>500,000+</strong> estudiantes de iola Speak
-      </p>
-
-      <div style={{position:"relative",marginBottom:16}}>
-        <span style={{position:"absolute",left:16,top:"50%",transform:"translateY(-50%)",fontSize:18}}>✉️</span>
-        <input type="email" placeholder="Tu email" value={email} onChange={e=>onEmail(e.target.value)}
-          style={{
-            width:"100%",padding:"16px 18px 16px 48px",borderRadius:14,
-            border:`1.5px solid ${email?G:"#2a2a3a"}`,
-            background:CARD,color:TEXT,fontSize:16,outline:"none",
-            boxSizing:"border-box",fontFamily:"inherit",
-          }}
-        />
-      </div>
-      <Btn onClick={onNext} disabled={!email.includes("@")}>Obtener mi plan personalizado →</Btn>
-      <p style={{color:MUTED,fontSize:11,marginTop:12,lineHeight:1.6,textAlign:"center"}}>
-        Al continuar, aceptas los <u style={{cursor:"pointer"}}>Términos de uso</u> y{" "}
-        <u style={{cursor:"pointer"}}>Política de privacidad</u> de iola Speak
-      </p>
+      ))}
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
 }
 
-function ScreenPaywall({ selectedPlan, onSelectPlan }: {
-  selectedPlan:string; onSelectPlan:(id:string)=>void;
-}) {
+function SChoosePlan({ iso }: { iso:string }) {
+  const [selPlan, setSelPlan] = useState("month");
+  const cur = PLANS.find(p=>p.id===selPlan)!;
   return (
-    <div>
-      {/* Urgency header */}
-      <div style={{
-        background:"rgba(255,68,68,0.08)",border:"1px solid rgba(255,68,68,0.2)",
-        borderRadius:12,padding:"10px 14px",marginBottom:20,
-        display:"flex",alignItems:"center",gap:10,fontSize:13,
-      }}>
-        <span>⏰</span>
-        <span>Oferta especial termina en <CountdownTimer seconds={600}/></span>
-      </div>
-
-      <h2 style={{fontSize:22,fontWeight:900,textAlign:"center",marginBottom:6,lineHeight:1.3}}>
-        ¡Elige tu plan y<br/>comienza hoy!
-      </h2>
-      <p style={{color:MUTED,textAlign:"center",fontSize:13,marginBottom:20}}>Cancela cuando quieras. Sin compromisos.</p>
-
-      {/* Plans */}
-      <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:20}}>
-        {PLANS.map(plan=>(
-          <div key={plan.id} onClick={()=>onSelectPlan(plan.id)} style={{
-            borderRadius:16,border:`2px solid ${selectedPlan===plan.id?G:"#222"}`,
-            background:selectedPlan===plan.id?"rgba(174,234,0,0.05)":CARD,
-            padding:"16px 18px",cursor:"pointer",transition:"all .15s",position:"relative",
+    <div style={{ ...BASE, padding:"0 20px 40px" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:"32px 0 6px", textAlign:"center" }}>{tr(iso,"choosePlan")}</h1>
+      <p style={{ color:"#8899aa", marginBottom:24, textAlign:"center", fontSize:14 }}>{tr(iso,"planSub")}</p>
+      <div style={{ width:"100%", maxWidth:480 }}>
+        {PLANS.map(p=>(
+          <div key={p.id} onClick={()=>setSelPlan(p.id)} style={{
+            background: p.id===selPlan ? "rgba(174,234,0,0.08)" : "rgba(255,255,255,0.05)",
+            border: p.id===selPlan ? `1.5px solid ${G}` : "1px solid rgba(255,255,255,0.08)",
+            borderRadius:16, padding:"18px 16px", marginBottom:12,
+            cursor:"pointer", transition:"all 0.2s", position:"relative",
+            display:"flex", alignItems:"center", gap:14,
           }}>
-            {plan.popular&&(
-              <div style={{
-                position:"absolute",top:-12,left:"50%",transform:"translateX(-50%)",
-                background:G,color:"#000",fontSize:11,fontWeight:800,
-                padding:"3px 16px",borderRadius:50,letterSpacing:.5,whiteSpace:"nowrap",
-              }}>⭐ EL MÁS POPULAR</div>
-            )}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <div style={{
-                  width:22,height:22,borderRadius:"50%",flexShrink:0,
-                  border:`2px solid ${selectedPlan===plan.id?G:"#444"}`,
-                  background:selectedPlan===plan.id?G:"transparent",
-                  display:"flex",alignItems:"center",justifyContent:"center",
-                }}>
-                  {selectedPlan===plan.id&&<span style={{color:"#000",fontSize:10,fontWeight:900}}>✓</span>}
-                </div>
-                <div>
-                  <div style={{fontWeight:800,fontSize:15}}>{plan.label}</div>
-                  <div style={{
-                    display:"inline-block",background:"rgba(174,234,0,0.12)",color:G,
-                    fontSize:10,fontWeight:800,padding:"2px 8px",borderRadius:10,marginTop:3,
-                  }}>{plan.save}</div>
-                  <div style={{color:MUTED,fontSize:12,marginTop:3}}>
-                    <s style={{marginRight:4}}>{plan.originalTotal}</s>
-                    <strong style={{color:TEXT}}>{plan.saleTotal}</strong>
-                  </div>
+            {p.popular && <div style={{ position:"absolute", top:-10, right:16, background:G, color:"#000", fontSize:10, fontWeight:900, padding:"2px 12px", borderRadius:999 }}>MÁS POPULAR</div>}
+            <Radio on={p.id===selPlan}/>
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline" }}>
+                <span style={{ fontSize:17, fontWeight:700 }}>{p.label}</span>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ fontSize:12, color:"#555", textDecoration:"line-through" }}>{p.orig}</div>
+                  <div style={{ fontSize:22, fontWeight:900, color:p.id===selPlan?G:"#fff" }}>{p.sale}</div>
                 </div>
               </div>
-              <div style={{textAlign:"right",flexShrink:0}}>
-                <div style={{fontWeight:900,fontSize:26,color:TEXT,lineHeight:1}}>{plan.perDay}</div>
-                <div style={{color:MUTED,fontSize:11}}>por día</div>
+              <div style={{ display:"flex", justifyContent:"space-between", marginTop:4 }}>
+                <span style={{ fontSize:12, color:"#8899aa" }}>{p.per}</span>
+                <span style={{ fontSize:11, color:G, fontWeight:700 }}>{p.save}</span>
               </div>
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Guarantee */}
-      <div style={{
-        background:"rgba(34,197,94,0.06)",border:"1px solid rgba(34,197,94,0.2)",
-        borderRadius:12,padding:"12px 16px",marginBottom:20,
-        display:"flex",alignItems:"center",gap:12,
-      }}>
-        <span style={{fontSize:28,flexShrink:0}}>🛡️</span>
-        <div>
-          <div style={{fontWeight:700,fontSize:13,color:"#22C55E"}}>Garantía de 14 días</div>
-          <div style={{color:MUTED,fontSize:12,marginTop:2}}>
-            Si no estás satisfecho, te devolvemos el 100% del dinero. Sin preguntas.
-          </div>
+        <button onClick={()=>alert("Redirigiendo al pago...")}
+          style={{ width:"100%", height:56, background:G, border:"none", borderRadius:999, fontSize:17, fontWeight:700, color:"#000", cursor:"pointer", boxShadow:`0 0 32px ${G}55`, marginTop:8 }}>
+          {tr(iso,"startNow")} · {cur.sale}
+        </button>
+        <div style={{ display:"flex", justifyContent:"center", gap:24, marginTop:16, color:"#556677", fontSize:12 }}>
+          <span>🔒 Pago seguro</span><span>↩ Garantía 7 días</span><span>✕ Sin compromiso</span>
         </div>
       </div>
-
-      <button style={{
-        width:"100%",padding:"18px 0",borderRadius:50,border:"none",
-        background:`linear-gradient(135deg,${G},#88D400)`,
-        color:"#000",fontWeight:900,fontSize:18,cursor:"pointer",marginBottom:8,
-        boxShadow:`0 4px 24px rgba(174,234,0,0.3)`,
-      }}>
-        Obtener mi plan →
-      </button>
-
-      <div style={{
-        textAlign:"center",color:MUTED,fontSize:12,
-        display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginBottom:20,
-      }}>
-        🔒 Pago seguro · Visa · Mastercard · PayPal
-      </div>
-
-      {/* What you get */}
-      <h3 style={{fontSize:16,fontWeight:800,marginBottom:14,color:G}}>Qué obtienes con iola Speak</h3>
-      <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:28}}>
-        {[
-          ["🎬","Lecciones de video con hablantes nativos"],
-          ["🤖","IA que te corrige en tiempo real"],
-          ["🎙️","Entrenamiento de pronunciación"],
-          ["📖","Más de 8.500 palabras con repetición espaciada"],
-          ["📊","Plan personalizado que evoluciona contigo"],
-          ["✅","Conversaciones en situaciones reales"],
-        ].map(([icon,text])=>(
-          <div key={text as string} style={{display:"flex",alignItems:"flex-start",gap:10,fontSize:14}}>
-            <span style={{flexShrink:0}}>{icon}</span>
-            <span>{text}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Comparison */}
-      <h3 style={{fontSize:16,fontWeight:800,marginBottom:14,textAlign:"center"}}>
-        50× más barato que un tutor
-      </h3>
-      <div style={{borderRadius:16,overflow:"hidden",border:"1px solid #1e1e2e",marginBottom:28}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",background:"#141420",padding:"10px 16px",fontWeight:700,fontSize:13}}>
-          <span style={{color:G}}>iola Speak</span>
-          <span style={{textAlign:"right",color:MUTED}}>Tutor privado</span>
-        </div>
-        {[
-          ["Retroalimentación instantánea","Con demora"],
-          ["Disponible 24/7","Agenda con días de anticipación"],
-          ["Voces y acentos variados","Un solo acento"],
-          ["Sin presión ni estrés","Puede ser estresante"],
-          ["Desde $0.39/día","$30–80/hora"],
-        ].map(([a,b],i)=>(
-          <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",padding:"10px 16px",borderTop:"1px solid #1e1e2e",fontSize:12}}>
-            <span>✅ {a}</span>
-            <span style={{textAlign:"right",color:MUTED}}>❌ {b}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Social proof bottom */}
-      <AvatarRow avatars={[IMG.av1,IMG.av2,IMG.av3,IMG.av4,IMG.av5,IMG.av6]}/>
-      <p style={{textAlign:"center",color:MUTED,fontSize:12,marginBottom:24}}>
-        <strong style={{color:G}}>500,000+</strong> estudiantes ya abrieron el mundo con iola Speak
-      </p>
-
-      <button style={{
-        width:"100%",padding:"18px 0",borderRadius:50,border:"none",
-        background:`linear-gradient(135deg,${G},#88D400)`,
-        color:"#000",fontWeight:900,fontSize:18,cursor:"pointer",
-        boxShadow:`0 4px 24px rgba(174,234,0,0.3)`,marginBottom:20,
-      }}>
-        Obtener mi plan →
-      </button>
-
-      <p style={{color:MUTED,fontSize:11,textAlign:"center",lineHeight:1.6}}>
-        La suscripción se renueva automáticamente. Cancela 24h antes del próximo periodo para no ser cobrado.
-      </p>
     </div>
   );
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ─── Route + Main ──────────────────────────────────────────────────────────────
+export const Route = createFileRoute("/quiz")({
+  component: IolaQuiz,
+});
+
+type Screen = "start"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"goodHands2"|"goal"|"email"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
+
+const FLOW: Screen[] = ["start","language","video","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","goodHands2","goal","email","building","expect1","expect4","expect12","expect12m","levelUp","choosePlan"];
+
 export default function IolaQuiz() {
-  const [screen, setScreen] = useState(0);
-  const topRef = useRef<HTMLDivElement>(null);
-  const [state, setState] = useState<QuizState>({
-    language:"es", name:"", level:"", studyMethod:[], goal:"",
-    difficulties:[], topics:[], practiceTime:"",
-    vocabA1:[], vocabB1:[], vocabC1:[], email:"", selectedPlan:"month",
-  });
+  const [step,   setStep]   = useState(0);
+  const [langId, setLangId] = useState(71);
+  const [name,   setName]   = useState("");
+  const [email,  setEmail]  = useState("");
+  const [level,  setLevel]  = useState<number|null>(null);
+  const [hows,   setHows]   = useState<number[]>([]);
+  const [whys,   setWhys]   = useState<number[]>([]);
+  const [strugs, setStrugs] = useState<number[]>([]);
+  const [topics, setTopics] = useState<number[]>([]);
+  const [goal,   setGoal]   = useState<number|null>(null);
 
-  const next = () => {
-    setScreen(s=>s+1);
-    topRef.current?.scrollIntoView({behavior:"smooth"});
-  };
-  const toggle = (key: keyof QuizState, val: string) => setState(s=>{
-    const arr = s[key] as string[];
-    return {...s, [key]: arr.includes(val)?arr.filter(x=>x!==val):[...arr,val]};
-  });
-  const set = (key: keyof QuizState, val: string) => setState(s=>({...s,[key]:val}));
-
-  const screens: React.ReactNode[] = [
-    <ScreenIntro onNext={next}/>,
-    <ScreenLanguage selected={state.language} onSelect={v=>set("language",v)} onNext={next}/>,
-    <ScreenName name={state.name} onName={v=>set("name",v)} onNext={next} onSkip={next}/>,
-    <ScreenTransition name={state.name} onNext={next}/>,
-    <ScreenLevel selected={state.level} onSelect={v=>{set("level",v);setTimeout(next,350);}}/>,
-    <ScreenStudyMethod selected={state.studyMethod} onToggle={v=>toggle("studyMethod",v)} onNext={next}/>,
-    <ScreenBrainScience onNext={next}/>,
-    <ScreenGoal selected={state.goal} onSelect={v=>{set("goal",v);setTimeout(next,350);}}/>,
-    <ScreenTrust onNext={next}/>,
-    <ScreenDifficulties selected={state.difficulties} onToggle={v=>toggle("difficulties",v)} onNext={next}/>,
-    <ScreenDifficultyExplanation difficulty={state.difficulties[0]||"Falta de práctica"} onNext={next}/>,
-    <ScreenTopics selected={state.topics} onToggle={v=>toggle("topics",v)} onNext={next}/>,
-    <ScreenSocialProof onNext={next}/>,
-    <ScreenPracticeTime selected={state.practiceTime} onSelect={v=>{set("practiceTime",v);setTimeout(next,350);}}/>,
-    <ScreenReadyForTest onNext={next}/>,
-    <ScreenVocabTest words={VOCAB_A1} selected={state.vocabA1} onToggle={w=>toggle("vocabA1",w)} onNext={next} level="A1–A2 · Principiante" pct={82}/>,
-    <ScreenVocabTest words={VOCAB_B1} selected={state.vocabB1} onToggle={w=>toggle("vocabB1",w)} onNext={next} level="B1–B2 · Intermedio" pct={85}/>,
-    <ScreenVocabTest words={VOCAB_C1} selected={state.vocabC1} onToggle={w=>toggle("vocabC1",w)} onNext={next} level="C1–C2 · Avanzado" pct={88}/>,
-    ...GRAMMAR_QUESTIONS.map((q,i)=>(
-      <ScreenGrammar key={`g${i}`} q={q} qIndex={i} total={GRAMMAR_QUESTIONS.length} onAnswer={()=>next()}/>
-    )),
-    <ScreenTestComplete level={state.level} onNext={next}/>,
-    <ScreenWhatToExpect slide={0} onNext={next}/>,
-    <ScreenWhatToExpect slide={1} onNext={next}/>,
-    <ScreenWhatToExpect slide={2} onNext={next}/>,
-    <ScreenVideoTestimonial onNext={next}/>,
-    <ScreenAIChat onNext={next}/>,
-    <ScreenEmail email={state.email} onEmail={v=>set("email",v)} onNext={next}/>,
-    <ScreenPaywall selectedPlan={state.selectedPlan} onSelectPlan={v=>set("selectedPlan",v)}/>,
-  ];
+  const next = () => setStep(s=>Math.min(s+1,FLOW.length-1));
+  const iso  = LANGUAGES.find(l=>l.id===langId)?.iso ?? "es";
+  const sc   = FLOW[step];
 
   return (
-    <div style={{background:DARK,color:TEXT,minHeight:"100vh",fontFamily:"Inter,system-ui,sans-serif"}}>
-      <style>{`
-        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-        *{box-sizing:border-box}
-        input,button{font-family:inherit}
-        ::-webkit-scrollbar{width:0}
-      `}</style>
-      <div ref={topRef}/>
-      <div style={{maxWidth:430,margin:"0 auto",padding:"28px 18px 60px",minHeight:"100vh"}}>
-        {/* Top logo bar */}
-        {screen>0&&(
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
-            <Logo/>
-            <div style={{color:MUTED,fontSize:12}}>{screen}/{screens.length-1}</div>
-          </div>
-        )}
-        <div key={screen} style={{animation:"fadeIn .3s ease-out"}}>
-          {screens[Math.min(screen,screens.length-1)]}
-        </div>
-      </div>
-    </div>
+    <>
+      {sc==="start"        && <SStart       next={next} iso={iso} />}
+      {sc==="language"     && <SLanguage    next={next} langId={langId} setLangId={setLangId} />}
+      {sc==="video"        && <SVideo       next={next} iso={iso} />}
+      {sc==="name"         && <SName        next={next} name={name} setName={setName} iso={iso} />}
+      {sc==="personalPlan" && <SPersonalPlan next={next} name={name} iso={iso} />}
+      {sc==="level"        && <SLevel       next={next} sel={level} setSel={setLevel} iso={iso} />}
+      {sc==="how"          && <SHow         next={next} sel={hows}  setSel={setHows}  iso={iso} langId={langId} />}
+      {sc==="brainFocus"   && <SBrainFocus  next={next} iso={iso} />}
+      {sc==="why"          && <SWhy         next={next} sel={whys}  setSel={setWhys}  iso={iso} langId={langId} />}
+      {sc==="goodHands1"   && <SGoodHands1  next={next} iso={iso} />}
+      {sc==="struggles"    && <SStruggles   next={next} sel={strugs} setSel={setStrugs} iso={iso} langId={langId} />}
+      {sc==="brainStudy"   && <SBrainStudy  next={next} iso={iso} />}
+      {sc==="topics"       && <STopics      next={next} sel={topics} setSel={setTopics} iso={iso} />}
+      {sc==="goodHands2"   && <SGoodHands2  next={next} iso={iso} />}
+      {sc==="goal"         && <SGoal        next={next} sel={goal} setSel={setGoal} iso={iso} />}
+      {sc==="email"        && <SEmail       next={next} email={email} setEmail={setEmail} iso={iso} />}
+      {sc==="building"     && <SBuilding    next={next} iso={iso} />}
+      {sc==="expect1"      && <SExpect      next={next} week={1}     iso={iso} />}
+      {sc==="expect4"      && <SExpect      next={next} week={4}     iso={iso} />}
+      {sc==="expect12"     && <SExpect      next={next} week={12}    iso={iso} />}
+      {sc==="expect12m"    && <SExpect      next={next} week={"12m"} iso={iso} />}
+      {sc==="levelUp"      && <SLevelUp     next={next} iso={iso} />}
+      {sc==="choosePlan"   && <SChoosePlan  iso={iso} />}
+    </>
   );
 }
