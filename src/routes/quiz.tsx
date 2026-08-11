@@ -841,14 +841,347 @@ function SChoosePlan({ iso }: { iso:string }) {
   );
 }
 
+// ─── Mini S-curve shared by test result screens ────────────────────────────────
+function MiniCurve({ label1, val1, label2, val2 }: { label1:string; val1:string; label2:string; val2:string }) {
+  const [prog, setProg] = useState(0);
+  const [done, setDone] = useState(false);
+  useEffect(()=>{
+    let t0: number|null = null;
+    const dur = 1800;
+    function frame(ts:number){ if(!t0)t0=ts; const p=Math.min((ts-t0)/dur,1); setProg(p); if(p<1)requestAnimationFrame(frame); else setDone(true); }
+    requestAnimationFrame(frame);
+  },[]);
+  const W=320, H=200, N=100;
+  const fullPts = Array.from({length:N+1},(_,i)=>{ const f=i/N,x=W*.05+f*W*.9,e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2; return {x,y:H*.92-e*H*.78}; });
+  const stop = 0.45;
+  const greenPts = fullPts.slice(0, Math.floor(prog*stop*N)+1);
+  const cur = greenPts[greenPts.length-1];
+  const dFull = fullPts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const dGreen = greenPts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  return (
+    <div style={{ width:"100%", maxWidth:420, margin:"0 auto" }}>
+      <div style={{ display:"flex", justifyContent:"space-around", marginBottom:8 }}>
+        <div style={{ textAlign:"center" }}>
+          <div style={{ fontSize:11, color:"#8899aa" }}>{label1}</div>
+          <div style={{ fontSize:28, fontWeight:900 }}>{val1}</div>
+        </div>
+        <div style={{ textAlign:"center" }}>
+          <div style={{ fontSize:11, color:"#8899aa" }}>{label2}</div>
+          <div style={{ fontSize:28, fontWeight:900, color:"#334" }}>{val2}</div>
+        </div>
+      </div>
+      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display:"block" }}>
+        <path d={dFull} fill="none" stroke="rgba(180,180,180,0.2)" strokeWidth={2} strokeLinecap="round"/>
+        {greenPts.length>1 && <path d={dGreen} fill="none" stroke={G} strokeWidth={3} strokeLinecap="round"/>}
+        {cur && prog>.01 && <circle cx={cur.x} cy={cur.y} r={8} fill={G}/>}
+        {done && cur && <text x={cur.x-4} y={cur.y+4} fill="#000" fontSize={10} fontWeight="900">✓</text>}
+        {/* X-axis labels */}
+        <text x={W*.05} y={H} fill="#556677" fontSize={10} textAnchor="middle">Hoy</text>
+        <text x={W*.95} y={H} fill="#556677" fontSize={10} textAnchor="middle">1 mes</text>
+        {/* Next milestone dot */}
+        <circle cx={fullPts[Math.floor(N*0.6)].x} cy={fullPts[Math.floor(N*0.6)].y} r={6} fill="none" stroke="#334" strokeWidth={2}/>
+      </svg>
+    </div>
+  );
+}
+
+// ─── Goal chart screen (animated 3-line chart) ─────────────────────────────────
+function SGoalChart({ next, iso }: { next:()=>void; iso:string }) {
+  const [prog, setProg] = useState(0);
+  useEffect(()=>{
+    let t0: number|null = null;
+    function frame(ts:number){ if(!t0)t0=ts; const p=Math.min((ts-t0)/2200,1); setProg(p); if(p<1)requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+  },[]);
+  const W=340, H=200, N=100;
+  const LINES = [
+    { color:G,         speed:1.0, height:0.85 },
+    { color:"#00bcd4", speed:0.7, height:0.55 },
+    { color:"#9c27b0", speed:0.45, height:0.32 },
+  ];
+  const makePts = (maxH:number) => Array.from({length:N+1},(_,i)=>{
+    const f=i/N, x=W*.04+f*W*.92, e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    return {x, y:H*.95-e*H*maxH};
+  });
+  const GOAL_Q: Record<string,string> = {
+    es:"¿Cuál es su objetivo de práctica oral?",en:"What is your oral practice goal?",de:"Was ist dein Übungsziel?",
+    fr:"Quel est ton objectif de pratique orale?",it:"Qual è il tuo obiettivo di pratica orale?",
+    pt:"Qual é o teu objetivo de prática oral?",ru:"Какова твоя цель практики?",uk:"Яка твоя мета практики?",
+    bg:"Каква е целта ти за практика?",zh:"你的口语练习目标是什么？",cs:"Jaký je tvůj cíl praxe?",
+    fi:"Mikä on harjoitustavoitteesi?",el:"Ποιος είναι ο στόχος εξάσκησής σου;",id:"Apa tujuan latihan oralmu?",
+    ja:"口頭練習の目標は何ですか？",ko:"구어 연습 목표는 무엇인가요?",pl:"Jaki jest twój cel ćwiczeń?",
+    sv:"Vad är ditt övningsmål?",tr:"Sözlü pratik hedefiniz ne?",
+  };
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px" }}>
+      <h1 style={{ fontSize:20, fontWeight:800, textAlign:"center", margin:0, lineHeight:1.3 }}>{GOAL_Q[iso]??GOAL_Q.es}</h1>
+      <div style={{ position:"relative", width:"100%", maxWidth:380 }}>
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display:"block" }}>
+          {[1,2,3].map(i=><line key={i} x1={W*.04} x2={W*.96} y1={H*i/4} y2={H*i/4} stroke="rgba(255,255,255,0.05)" strokeWidth={1}/>)}
+          {LINES.map((line,li)=>{
+            const allPts = makePts(line.height);
+            const visible = allPts.slice(0, Math.floor(prog * line.speed * N) + 1);
+            if(visible.length < 2) return null;
+            const d = visible.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+            const last = visible[visible.length-1];
+            return (
+              <g key={li}>
+                <path d={d} fill="none" stroke={line.color} strokeWidth={li===0?3:2} strokeLinecap="round" opacity={li===0?1:0.7}/>
+                {prog>.3 && <circle cx={last.x} cy={last.y} r={5} fill={line.color} opacity={li===0?1:0.6}/>}
+              </g>
+            );
+          })}
+          <text x={W*.04} y={H+14} fill="#556677" fontSize={10}>Hoy</text>
+          <text x={W*.96} y={H+14} fill="#556677" fontSize={10} textAnchor="end">1 mes</text>
+        </svg>
+      </div>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+// ─── Ask test intro ─────────────────────────────────────────────────────────────
+function SAskTest({ next, iso }: { next:()=>void; iso:string }) {
+  const TITLE: Record<string,string> = {
+    es:"¿Listo para una prueba de 2 minutos?",en:"Ready for a 2-minute test?",de:"Bereit für einen 2-Minuten-Test?",
+    fr:"Prêt pour un test de 2 minutes?",it:"Pronto per un test di 2 minuti?",pt:"Pronto para um teste de 2 minutos?",
+    ru:"Готов к 2-минутному тесту?",uk:"Готовий до 2-хвилинного тесту?",bg:"Готов за 2-минутен тест?",
+    zh:"准备好接受2分钟测试了吗？",cs:"Připraven na 2minutový test?",fi:"Valmis 2 minuutin testiin?",
+    el:"Έτοιμος για δοκιμασία 2 λεπτών;",id:"Siap untuk tes 2 menit?",ja:"2分間のテストの準備はできていますか？",
+    ko:"2분 테스트 준비됐나요?",pl:"Gotowy na 2-minutowy test?",sv:"Redo för ett 2-minuters test?",tr:"2 dakikalık teste hazır mısın?",
+  };
+  const SUB: Record<string,string> = {
+    es:"Obtenga una estimación de su nivel de vocabulario y gramática",en:"Get an estimate of your vocabulary and grammar level",
+    de:"Schätz dein Vokabular- und Grammatiklevel ein",fr:"Obtenez une estimation de votre niveau de vocabulaire et de grammaire",
+    it:"Ottieni una stima del tuo livello di vocabolario e grammatica",pt:"Obtenha uma estimativa do teu nível de vocabulário e gramática",
+    ru:"Оцени уровень своего словарного запаса и грамматики",uk:"Оціни свій рівень словникового запасу та граматики",
+    bg:"Получи оценка на нивото на речника и граматиката си",zh:"获取您的词汇和语法水平估计",
+    cs:"Získejte odhad svého slovního a gramatického úrovně",fi:"Arvioi sanasto- ja kieliopitasosi",
+    el:"Αποκτήστε μια εκτίμηση του επιπέδου λεξιλογίου και γραμματικής σας",id:"Dapatkan perkiraan tingkat kosakata dan tata bahasa Anda",
+    ja:"語彙と文法レベルの推定を取得する",ko:"어휘와 문법 수준 추정값 얻기",pl:"Uzyskaj szacunkowy poziom słownictwa i gramatyki",
+    sv:"Få en uppskattning av din vokabulär och grammatiknivå",tr:"Kelime ve dilbilgisi seviyenizin tahminini alın",
+  };
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"32px 24px 100px", textAlign:"center" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:0, lineHeight:1.3 }}>{TITLE[iso]??TITLE.es}</h1>
+      <img src="https://ai.lolaspeak.com/Images/Brains.webp" alt="" style={{ width:"70%", maxWidth:260, objectFit:"contain" }}/>
+      <p style={{ color:"#8899aa", fontSize:15, lineHeight:1.6, margin:0, maxWidth:320 }}>{SUB[iso]??SUB.es}</p>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+// ─── Vocabulary test (3 levels) ─────────────────────────────────────────────────
+const VOCAB_LEVELS = [
+  {
+    level:"A1-A2", label:"Nivel principiante",
+    words:["because","booking","excellent","pay","strawberry","usual","wife","yesterday"],
+  },
+  {
+    level:"B1-B2", label:"Nivel intermedio",
+    words:["avoid","charisma","emphasize","excitement","impact","maintain","stunning","trustworthy"],
+  },
+  {
+    level:"C1-C2", label:"Nivel avanzado",
+    words:["ascertain","frolic","opaque","opulent","proprietary","scrutinize","tranquility","viability"],
+  },
+];
+
+function SVocabTest({ next, iso }: { next:()=>void; iso:string }) {
+  const [lvl, setLvl] = useState(0);
+  const [sel, setSel] = useState<Record<number,string[]>>({0:[],1:[],2:[]});
+  const TITLE: Record<string,string> = {
+    es:"Seleccione todas las palabras que conozca",en:"Select all the words you know",
+    de:"Wähle alle Wörter, die du kennst",fr:"Sélectionnez tous les mots que vous connaissez",
+    it:"Seleziona tutte le parole che conosci",pt:"Selecione todas as palavras que conhece",
+    ru:"Выберите все слова, которые знаете",uk:"Виберіть усі слова, які знаєте",
+    bg:"Изберете всички думи, които познавате",zh:"选择您认识的所有单词",cs:"Vyberte všechna slova, která znáte",
+    fi:"Valitse kaikki sanat, jotka tunnet",el:"Επιλέξτε όλες τις λέξεις που γνωρίζετε",
+    id:"Pilih semua kata yang Anda ketahui",ja:"知っている単語をすべて選択してください",
+    ko:"알고 있는 모든 단어를 선택하세요",pl:"Wybierz wszystkie słowa, które znasz",
+    sv:"Välj alla ord du känner till",tr:"Bildiğiniz tüm kelimeleri seçin",
+  };
+  const LVL_LABEL: Record<string,string[]> = {
+    es:["A1-A2 Nivel principiante","B1-B2 Nivel intermedio","C1-C2 Nivel avanzado"],
+    en:["A1-A2 Beginner level","B1-B2 Intermediate level","C1-C2 Advanced level"],
+    de:["A1-A2 Anfängerniveau","B1-B2 Mittelstufe","C1-C2 Fortgeschrittenes Niveau"],
+    fr:["A1-A2 Niveau débutant","B1-B2 Niveau intermédiaire","C1-C2 Niveau avancé"],
+  };
+  const cur = VOCAB_LEVELS[lvl];
+  const curSel = sel[lvl];
+  const toggle = (w:string) => setSel(s=>({ ...s, [lvl]: curSel.includes(w) ? curSel.filter(x=>x!==w) : [...curSel,w] }));
+  const advance = () => { if(lvl < VOCAB_LEVELS.length-1) setLvl(l=>l+1); else next(); };
+  const lvlLabels = LVL_LABEL[iso] ?? LVL_LABEL.es;
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px" }}>
+      <ProgressBar screen="level"/>
+      <div style={{ width:"100%", maxWidth:480, flex:1, display:"flex", flexDirection:"column" }}>
+        <h1 style={{ fontSize:20, fontWeight:800, textAlign:"center", margin:"12px 0 6px", lineHeight:1.3 }}>{TITLE[iso]??TITLE.es}</h1>
+        <p style={{ color:"#8899aa", textAlign:"center", fontSize:13, margin:"0 0 16px" }}>{lvlLabels[lvl]}</p>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, padding:"0 4px" }}>
+          {cur.words.map(w=>{
+            const on = curSel.includes(w);
+            return (
+              <div key={w} onClick={()=>toggle(w)} style={{
+                padding:"14px 12px", borderRadius:30, cursor:"pointer",
+                background: on ? "rgba(174,234,0,0.12)" : "rgba(255,255,255,0.06)",
+                border: on ? `1.5px solid ${G}` : "1px solid rgba(255,255,255,0.1)",
+                display:"flex", alignItems:"center", justifyContent:"space-between",
+                fontSize:15, fontWeight:500, transition:"all 0.15s",
+              }}>
+                <span>{w}</span>
+                {on && <span style={{ color:G, fontSize:13, fontWeight:900 }}>✓</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <NextBtn onClick={advance}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+// ─── Vocabulary results ─────────────────────────────────────────────────────────
+function SVocabResults({ next, iso }: { next:()=>void; iso:string }) {
+  const TITLE: Record<string,string> = {
+    es:"¡Selección de palabras completada!",en:"Word selection completed!",de:"Wortauswahl abgeschlossen!",
+    fr:"Sélection de mots terminée!",it:"Selezione di parole completata!",pt:"Seleção de palavras concluída!",
+    ru:"Выбор слов завершён!",uk:"Вибір слів завершено!",bg:"Изборът на думи е завършен!",
+    zh:"词汇选择完成！",cs:"Výběr slov dokončen!",fi:"Sanojen valinta valmis!",
+    el:"Ολοκληρώθηκε η επιλογή λέξεων!",id:"Pemilihan kata selesai!",ja:"単語選択が完了しました！",
+    ko:"단어 선택이 완료되었습니다!",pl:"Wybór słów zakończony!",sv:"Ordval slutfört!",tr:"Kelime seçimi tamamlandı!",
+  };
+  const EST: Record<string,string> = { es:"Su vocabulario estimado",en:"Your estimated vocabulary",de:"Ihr geschätzter Wortschatz",fr:"Votre vocabulaire estimé",it:"Il tuo vocabolario stimato",pt:"O teu vocabulário estimado",ru:"Ваш примерный словарный запас",uk:"Ваш орієнтовний словниковий запас",bg:"Вашият приблизителен речник",zh:"您的估计词汇量",cs:"Váš odhadovaný slovník",fi:"Arvioitu sanastosi",el:"Εκτιμώμενο λεξιλόγιό σας",id:"Perkiraan kosakata Anda",ja:"推定語彙",ko:"추정 어휘",pl:"Szacowane słownictwo",sv:"Ditt uppskattade ordförråd",tr:"Tahmini kelime dağarcığınız" };
+  const NEXT_HIT: Record<string,string> = { es:"Próximo hito",en:"Next milestone",de:"Nächster Meilenstein",fr:"Prochain jalon",it:"Prossimo traguardo",pt:"Próximo marco",ru:"Следующий рубеж",uk:"Наступний рубіж",bg:"Следваща цел",zh:"下一个里程碑",cs:"Další milník",fi:"Seuraava virstanpylväs",el:"Επόμενο ορόσημο",id:"Tonggak berikutnya",ja:"次のマイルストーン",ko:"다음 이정표",pl:"Kolejny kamień milowy",sv:"Nästa milstolpe",tr:"Sonraki dönüm noktası" };
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px", textAlign:"center" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>{TITLE[iso]??TITLE.es}</h1>
+      <MiniCurve label1={EST[iso]??EST.es} val1="3500 palabras" label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="3750 palabras"/>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
+// ─── Grammar test ───────────────────────────────────────────────────────────────
+type GrammarQ = { type:"text"; sentence:string; blank:string; options:string[]; answer:string } | { type:"image"; question:string; options:{emoji:string;word:string}[]; answer:string };
+
+const GRAMMAR_QS: GrammarQ[] = [
+  { type:"image", question:'¿Qué sustantivo suele llevar "an" (en lugar de "a")?', options:[{emoji:"🍎",word:"apple"},{emoji:"🐱",word:"cat"},{emoji:"🎩",word:"hat"},{emoji:"🚗",word:"car"}], answer:"apple" },
+  { type:"text",  sentence:"My brother ___ eleven years old.", blank:"___", options:["are","is","be","am"], answer:"is" },
+  { type:"text",  sentence:"We ___ to school every morning.", blank:"___", options:["go","goes","is going","gone"], answer:"go" },
+  { type:"text",  sentence:"Look! The children ___ football in the yard.", blank:"___", options:["played","have played","play","are playing"], answer:"are playing" },
+  { type:"image", question:"¿Qué sustantivo es siempre plural en inglés?", options:[{emoji:"✂️",word:"scissors"},{emoji:"🏠",word:"house"},{emoji:"📚",word:"books"},{emoji:"🔑",word:"key"}], answer:"scissors" },
+  { type:"text",  sentence:"I can't talk now; I ___ dinner.", blank:"___", options:["cook","am cooking","cooked","have cooked"], answer:"am cooking" },
+  { type:"text",  sentence:"It was the ___ movie I had ever seen.", blank:"___", options:["scary","scariest","more scary","most scary"], answer:"scariest" },
+  { type:"text",  sentence:"The report ___ by Friday, so please hurry.", blank:"___", options:["must finish","must be finished","has finished","was finishing"], answer:"must be finished" },
+  { type:"text",  sentence:"That's the author ___ book won the prize last year.", blank:"___", options:["who","whose","which","whom"], answer:"whose" },
+  { type:"text",  sentence:"If I ___ you, I wouldn't ignore that email.", blank:"___", options:["am","were","had been","will be"], answer:"were" },
+  { type:"image", question:'¿Qué sustantivo se usa con "much" en vez de "many"?', options:[{emoji:"💰",word:"money"},{emoji:"📚",word:"books"},{emoji:"🪑",word:"chair"},{emoji:"🍎",word:"apple"}], answer:"money" },
+  { type:"text",  sentence:"Hardly ___ left the house when the storm broke.", blank:"___", options:["I had","had I","I have","have I"], answer:"had I" },
+];
+
+function SGrammarTest({ next, iso }: { next:()=>void; iso:string }) {
+  const [qi, setQi] = useState(0);
+  const [picked, setPicked] = useState<string|null>(null);
+  const q = GRAMMAR_QS[qi];
+  const TITLE: Record<string,string> = {
+    es:"Seleccione la opción correcta",en:"Choose the correct option",de:"Wähle die richtige Option",
+    fr:"Choisissez la bonne option",it:"Scegli l'opzione corretta",pt:"Escolha a opção correta",
+    ru:"Выберите правильный вариант",uk:"Виберіть правильний варіант",
+  };
+
+  const choose = (opt:string) => {
+    setPicked(opt);
+    setTimeout(()=>{
+      if(qi < GRAMMAR_QS.length-1){ setQi(i=>i+1); setPicked(null); }
+      else next();
+    }, 400);
+  };
+
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px" }}>
+      <ProgressBar screen="level"/>
+      <div style={{ width:"100%", maxWidth:480, flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+        {q.type==="image" ? (
+          <>
+            <h2 style={{ fontSize:18, fontWeight:700, textAlign:"center", margin:"0 0 24px", lineHeight:1.4 }}>{q.question}</h2>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, width:"100%" }}>
+              {q.options.map(o=>{
+                const isP = picked===o.word;
+                return (
+                  <div key={o.word} onClick={()=>!picked&&choose(o.word)} style={{
+                    borderRadius:16, background: isP ? "rgba(174,234,0,0.15)" : "rgba(255,255,255,0.06)",
+                    border: isP ? `2px solid ${G}` : "1px solid rgba(255,255,255,0.1)",
+                    padding:"20px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:8,
+                    cursor:"pointer", transition:"all 0.2s",
+                  }}>
+                    <span style={{ fontSize:44 }}>{o.emoji}</span>
+                    <span style={{ fontSize:13, color:"#aaa" }}>{o.word}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <>
+            <p style={{ fontSize:18, fontWeight:500, textAlign:"center", lineHeight:1.8, margin:"0 0 24px", padding:"0 8px" }}>
+              {q.sentence.split("___").map((part,i,arr)=>(
+                <span key={i}>
+                  {part}
+                  {i<arr.length-1 && <span style={{ display:"inline-block", width:100, height:22, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:4, verticalAlign:"middle", margin:"0 4px" }}/>}
+                </span>
+              ))}
+            </p>
+            <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+              {q.options.map(o=>{
+                const isP = picked===o;
+                return (
+                  <div key={o} onClick={()=>!picked&&choose(o)} style={{
+                    padding:"16px", borderRadius:14, textAlign:"center", fontSize:16, fontWeight:500,
+                    background: isP ? "rgba(174,234,0,0.15)" : "rgba(255,255,255,0.06)",
+                    border: isP ? `2px solid ${G}` : "1px solid rgba(255,255,255,0.1)",
+                    cursor:"pointer", transition:"all 0.2s",
+                  }}>{o}</div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+      <button onClick={next} style={{ background:"none", border:"none", color:"#556677", fontSize:14, cursor:"pointer" }}>Saltar</button>
+    </div>
+  );
+}
+
+// ─── Grammar results ────────────────────────────────────────────────────────────
+function SGrammarResults({ next, iso }: { next:()=>void; iso:string }) {
+  const TITLE: Record<string,string> = {
+    es:"¡Prueba de gramática completada!",en:"Grammar test completed!",de:"Grammatiktest abgeschlossen!",
+    fr:"Test de grammaire terminé!",it:"Test di grammatica completato!",pt:"Teste de gramática concluído!",
+    ru:"Тест по грамматике завершён!",uk:"Тест з граматики завершено!",bg:"Граматическият тест е завършен!",
+    zh:"语法测试完成！",cs:"Gramatický test dokončen!",fi:"Kieliopitesti valmis!",
+    el:"Δοκιμή γραμματικής ολοκληρώθηκε!",id:"Tes tata bahasa selesai!",ja:"文法テストが完了しました！",
+    ko:"문법 테스트가 완료되었습니다!",pl:"Test gramatyczny ukończony!",sv:"Grammatiktest slutfört!",tr:"Gramer testi tamamlandı!",
+  };
+  const LVL: Record<string,string> = { es:"Su nivel estimado",en:"Your estimated level",de:"Ihr geschätztes Niveau",fr:"Votre niveau estimé",it:"Il tuo livello stimato",pt:"O teu nível estimado",ru:"Ваш расчётный уровень",uk:"Ваш розрахунковий рівень",bg:"Вашето приблизително ниво",zh:"您的估计水平",cs:"Vaše odhadovaná úroveň",fi:"Arvioitu tasosi",el:"Εκτιμώμενο επίπεδό σας",id:"Tingkat perkiraan Anda",ja:"推定レベル",ko:"추정 수준",pl:"Twój szacunkowy poziom",sv:"Din uppskattade nivå",tr:"Tahmini seviyeniz" };
+  const NEXT_HIT: Record<string,string> = { es:"Próximo hito",en:"Next milestone",de:"Nächster Meilenstein",fr:"Prochain jalon",it:"Prossimo traguardo",pt:"Próximo marco",ru:"Следующий рубеж",uk:"Наступний рубіж",bg:"Следваща цел",zh:"下一个里程碑",cs:"Další milník",fi:"Seuraava virstanpylväs",el:"Επόμενο ορόσημο",id:"Tonggak berikutnya",ja:"次のマイルストーン",ko:"다음 이정표",pl:"Kolejny kamień milowy",sv:"Nästa milstolpe",tr:"Sonraki dönüm noktası" };
+  return (
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px", textAlign:"center" }}>
+      <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>{TITLE[iso]??TITLE.es}</h1>
+      <MiniCurve label1={LVL[iso]??LVL.es} val1="A1" label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="A2"/>
+      <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
+    </div>
+  );
+}
+
 // ─── Route + Main ──────────────────────────────────────────────────────────────
 export const Route = createFileRoute("/quiz")({
   component: IolaQuiz,
 });
 
-type Screen = "start"|"gender"|"ageRange"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"appBenefits"|"program"|"goodHands2"|"goal"|"email"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
+type Screen = "start"|"gender"|"ageRange"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"appBenefits"|"program"|"goodHands2"|"goalChart"|"goal"|"askTest"|"vocabTest"|"vocabResults"|"grammarTest"|"grammarResults"|"email"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
 
-const FLOW: Screen[] = ["start","gender","ageRange","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","appBenefits","program","goodHands2","goal","email","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
+const FLOW: Screen[] = ["start","gender","ageRange","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","appBenefits","program","goodHands2","goalChart","goal","askTest","vocabTest","vocabResults","grammarTest","grammarResults","email","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
 
 export default function IolaQuiz() {
   const [step,   setStep]   = useState(0);
@@ -885,9 +1218,15 @@ export default function IolaQuiz() {
       {sc==="topics"       && <STopics       next={next} sel={topics} setSel={setTopics} iso={iso} />}
       {sc==="appBenefits"  && <SAppBenefits next={next} iso={iso} />}
       {sc==="program"      && <SProgram     next={next} iso={iso} />}
-      {sc==="goodHands2"   && <SGoodHands2  next={next} iso={iso} />}
-      {sc==="goal"         && <SGoal        next={next} sel={goal} setSel={setGoal} iso={iso} />}
-      {sc==="email"        && <SEmail       next={next} email={email} setEmail={setEmail} iso={iso} />}
+      {sc==="goodHands2"   && <SGoodHands2    next={next} iso={iso} />}
+      {sc==="goalChart"    && <SGoalChart    next={next} iso={iso} />}
+      {sc==="goal"         && <SGoal         next={next} sel={goal} setSel={setGoal} iso={iso} />}
+      {sc==="askTest"      && <SAskTest      next={next} iso={iso} />}
+      {sc==="vocabTest"    && <SVocabTest    next={next} iso={iso} />}
+      {sc==="vocabResults" && <SVocabResults next={next} iso={iso} />}
+      {sc==="grammarTest"  && <SGrammarTest  next={next} iso={iso} />}
+      {sc==="grammarResults" && <SGrammarResults next={next} iso={iso} />}
+      {sc==="email"        && <SEmail        next={next} email={email} setEmail={setEmail} iso={iso} />}
       {sc==="building"     && <SBuilding    next={next} iso={iso} />}
       {sc==="expect1"      && <SExpect      next={next} week={1}     iso={iso} />}
       {sc==="expect4"      && <SExpect      next={next} week={4}     iso={iso} />}
