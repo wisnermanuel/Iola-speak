@@ -667,7 +667,7 @@ export const Route = createFileRoute("/quiz")({
 
 type Screen = "start"|"language"|"video"|"name"|"personalPlan"|"level"|"how"|"brainFocus"|"why"|"goodHands1"|"struggles"|"brainStudy"|"topics"|"goodHands2"|"goal"|"email"|"building"|"expect1"|"expect4"|"expect12"|"expect12m"|"levelUp"|"choosePlan";
 
-const FLOW: Screen[] = ["start","language","video","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","goodHands2","goal","email","building","expect1","expect4","expect12","expect12m","levelUp","choosePlan"];
+const FLOW: Screen[] = ["start","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","goodHands2","goal","email","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
 
 export default function IolaQuiz() {
   const [step,   setStep]   = useState(0);
