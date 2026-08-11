@@ -78,9 +78,9 @@ const TOPICS = [
 ];
 
 const PLANS = [
-  { id:"week",    label:"1 semana", save:"AHORRA 40%", orig:"$14.99", sale:"$8.99",  per:"$1.28 / día", popular:false },
-  { id:"month",   label:"1 mes",    save:"AHORRA 50%", orig:"$29.99", sale:"$14.99", per:"$0.50 / día", popular:true  },
-  { id:"quarter", label:"3 meses",  save:"AHORRA 49%", orig:"$69.99", sale:"$34.99", per:"$0.39 / día", popular:false },
+  { id:"week",    label:"1 semana", save:"AHORRE 47%", orig:"$2.14",  sale:"$1.14", perDay:"Por día", fullOrig:"$14.99", fullSale:"$7.99",  popular:false },
+  { id:"month",   label:"1 mes",    save:"AHORRE 57%", orig:"$1.00",  sale:"$0.43", perDay:"Por día", fullOrig:"$29.99", fullSale:"$12.99", popular:true  },
+  { id:"quarter", label:"3 meses",  save:"AHORRE 56%", orig:"$0.78",  sale:"$0.33", perDay:"Por día", fullOrig:"$69.99", fullSale:"$29.99", popular:false },
 ];
 
 // ─── i18n ──────────────────────────────────────────────────────────────────────
@@ -796,46 +796,256 @@ function SLevelUp({ next, iso }: { next:()=>void; iso:string }) {
   );
 }
 
+function PlanCard({ p, sel, onSel }: { p:typeof PLANS[0]; sel:boolean; onSel:()=>void }) {
+  return (
+    <div onClick={onSel} style={{
+      position:"relative", borderRadius:16, marginBottom:10, cursor:"pointer",
+      border: sel ? `2px solid ${G}` : "1.5px solid rgba(255,255,255,0.12)",
+      background: sel ? "#0d1a00" : "#111",
+      overflow:"visible",
+    }}>
+      {p.popular && (
+        <div style={{ position:"absolute", top:-13, left:"50%", transform:"translateX(-50%)",
+          background:G, color:"#000", fontSize:11, fontWeight:900, padding:"3px 18px", borderRadius:999, whiteSpace:"nowrap" }}>
+          EL MÁS POPULAR
+        </div>
+      )}
+      <div style={{ display:"flex", alignItems:"center", gap:14, padding:"18px 16px" }}>
+        {/* Radio */}
+        <div style={{ width:20, height:20, borderRadius:"50%", border:`2px solid ${sel?G:"#444"}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          {sel && <div style={{ width:10, height:10, borderRadius:"50%", background:G }}/>}
+        </div>
+        {/* Label + discount badge */}
+        <div style={{ flex:1 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+            <span style={{ fontSize:16, fontWeight:700 }}>{p.label}</span>
+            <span style={{ fontSize:11, fontWeight:800, color:sel?G:"#888", background:sel?"rgba(174,234,0,0.12)":"rgba(255,255,255,0.07)", padding:"2px 8px", borderRadius:999 }}>{p.save}</span>
+          </div>
+          <div style={{ fontSize:12, color:"#666" }}>{p.fullOrig} <span style={{ textDecoration:"line-through" }}>{p.fullOrig}</span> {p.fullSale}</div>
+        </div>
+        {/* Price per day */}
+        <div style={{ textAlign:"right", flexShrink:0 }}>
+          <div style={{ fontSize:12, color:"#666", textDecoration:"line-through" }}>{p.orig}</div>
+          <div style={{ fontSize:26, fontWeight:900, color:sel?G:"#fff", lineHeight:1 }}>
+            <span style={{ fontSize:16, fontWeight:700 }}>$</span>{p.sale.replace("$","")}
+          </div>
+          <div style={{ fontSize:11, color:"#888" }}>{p.perDay}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const FEATURES = [
+  "Hable en lecciones de video interactivas",
+  "Reciba retroalimentación de la IA",
+  "Mejore su pronunciación",
+  "Amplíe su vocabulario (más de 8.500 palabras)",
+  "Mire videos con hablantes nativos",
+  "Siga su plan personalizado",
+  "Conviértase en un hablante seguro",
+];
+
+const REVIEWS = [
+  { name:"Antonina", text:"Aplicación para practicar las conversaciones necesarias para vivir en EE. UU. 🙂 Es una pena que no existiera cuando me acababa de mudar." },
+  { name:"Ekaterina", text:"Gran aplicación para practicar conversaciones. Puedes trabajar a tu ritmo sin limitaciones." },
+  { name:"Lubov",    text:"Una app que te hace hablar de una forma muy suave, sin estrés." },
+];
+
+const COMPARE_ROWS = [
+  { feat:"Retroalimentación instantánea", lola:true, tutor:true  },
+  { feat:"Practique en cualquier momento, incluso por 5 minutos", lola:true, tutor:false },
+  { feat:"Aprenda a entender diferentes voces y acentos", lola:true, tutor:false },
+  { feat:"Sin estrés", lola:true, tutor:false },
+  { feat:"50 veces más barato", lola:true, tutor:false },
+];
+
+const FAQS = [
+  { q:"¿Por qué necesito la app?",   a:"Lola Speak te ayuda a practicar inglés real a tu ritmo, con IA que corrige tu pronunciación y gramática al instante." },
+  { q:"¿Cómo accedo a la app?",      a:"Después del pago recibirás un enlace para descargar la app en App Store o Google Play." },
+  { q:"¿Cómo cancelo mi suscripción?", a:"Puedes cancelar en cualquier momento desde la configuración de tu cuenta en la tienda de apps." },
+];
+
 function SChoosePlan({ iso }: { iso:string }) {
   const [selPlan, setSelPlan] = useState("month");
-  const cur = PLANS.find(p=>p.id===selPlan)!;
+  const [openFaq, setOpenFaq] = useState<number|null>(null);
+
   return (
-    <div style={{ ...BASE, padding:"0 20px 40px" }}>
-      <h1 style={{ fontSize:22, fontWeight:800, margin:"32px 0 6px", textAlign:"center" }}>{tr(iso,"choosePlan")}</h1>
-      <p style={{ color:"#8899aa", marginBottom:24, textAlign:"center", fontSize:14 }}>{tr(iso,"planSub")}</p>
-      <div style={{ width:"100%", maxWidth:480 }}>
+    <div style={{ ...BASE, overflowY:"auto", padding:0, justifyContent:"flex-start" }}>
+      <style>{`
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        .cp-section{animation:fadeIn 0.4s ease both}
+      `}</style>
+
+      {/* ── Pink discount banner ── */}
+      <div style={{ width:"100%", background:"#d63384", padding:"12px 20px", display:"flex", alignItems:"center", gap:10, justifyContent:"center" }}>
+        <span style={{ fontSize:22 }}>🎁</span>
+        <span style={{ fontSize:16, fontWeight:800, color:"#fff" }}>Descuento único de 57% aplicado</span>
+      </div>
+
+      <div style={{ padding:"0 20px", width:"100%", maxWidth:480, alignSelf:"center" }}>
+
+        {/* ── Headline ── */}
+        <h1 style={{ fontSize:22, fontWeight:900, textAlign:"center", margin:"24px 0 20px", lineHeight:1.3 }}>
+          ¡Obtenga su plan personal antes de que desaparezca!
+        </h1>
+
+        {/* ── Plan cards ── */}
         {PLANS.map(p=>(
-          <div key={p.id} onClick={()=>setSelPlan(p.id)} style={{
-            background: p.id===selPlan ? "rgba(174,234,0,0.08)" : "rgba(255,255,255,0.05)",
-            border: p.id===selPlan ? `1.5px solid ${G}` : "1px solid rgba(255,255,255,0.08)",
-            borderRadius:16, padding:"18px 16px", marginBottom:12,
-            cursor:"pointer", transition:"all 0.2s", position:"relative",
-            display:"flex", alignItems:"center", gap:14,
-          }}>
-            {p.popular && <div style={{ position:"absolute", top:-10, right:16, background:G, color:"#000", fontSize:10, fontWeight:900, padding:"2px 12px", borderRadius:999 }}>MÁS POPULAR</div>}
-            <Radio on={p.id===selPlan}/>
-            <div style={{ flex:1 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline" }}>
-                <span style={{ fontSize:17, fontWeight:700 }}>{p.label}</span>
-                <div style={{ textAlign:"right" }}>
-                  <div style={{ fontSize:12, color:"#555", textDecoration:"line-through" }}>{p.orig}</div>
-                  <div style={{ fontSize:22, fontWeight:900, color:p.id===selPlan?G:"#fff" }}>{p.sale}</div>
-                </div>
+          <PlanCard key={p.id} p={p} sel={selPlan===p.id} onSel={()=>setSelPlan(p.id)}/>
+        ))}
+
+        {/* ── CTA ── */}
+        <div style={{ margin:"16px 0 8px", textAlign:"center" }}>
+          <div style={{ fontSize:12, color:"#888", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+            <span>🔒</span> Your payment is secured
+          </div>
+          <button onClick={()=>alert("Redirigiendo al pago...")} style={{
+            width:"100%", height:56, background:G, border:"none", borderRadius:14,
+            fontSize:18, fontWeight:800, color:"#000", cursor:"pointer",
+          }}>Obtenga mi plan</button>
+          <p style={{ fontSize:11, color:"#556", marginTop:10, lineHeight:1.6 }}>
+            ¡Descuento aplicado! La suscripción se renovará automáticamente a $29.99 a menos que se cancele 24 horas antes de que finalice el período elegido.
+          </p>
+          <p style={{ fontSize:11, color:"#557", marginTop:4 }}>
+            <span style={{ color:"#4af", textDecoration:"underline", cursor:"pointer" }}>Terms of Use</span>
+            {" & "}
+            <span style={{ color:"#4af", textDecoration:"underline", cursor:"pointer" }}>Privacy Policy</span>
+          </p>
+        </div>
+
+        {/* ── Qué obtiene ── */}
+        <div style={{ marginTop:32 }}>
+          <h2 style={{ fontSize:20, fontWeight:800, textAlign:"center", marginBottom:16 }}>
+            <span style={{ color:"#00d4ff" }}>Qué obtiene con{"\n"}Lola Speak</span>
+          </h2>
+          {FEATURES.map(f=>(
+            <div key={f} style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:14 }}>
+              <span style={{ color:"#00d4ff", fontSize:16, flexShrink:0 }}>•</span>
+              <span style={{ fontSize:15, fontWeight:600 }}>{f}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Hasta 50 veces más barato ── */}
+        <div style={{ marginTop:32, textAlign:"center" }}>
+          <h2 style={{ fontSize:22, fontWeight:900, color:"#00d4ff", lineHeight:1.3, marginBottom:4 }}>
+            Hasta 50 veces<br/>más barato que un tutor
+          </h2>
+        </div>
+
+        {/* ── Comparison table ── */}
+        <div style={{ marginTop:20, borderRadius:16, overflow:"hidden", border:"1px solid rgba(255,255,255,0.1)" }}>
+          {/* Header */}
+          <div style={{ display:"flex", background:"rgba(255,255,255,0.05)" }}>
+            <div style={{ flex:1, padding:"12px 16px", fontSize:13, fontWeight:700, color:"#00d4ff" }}>Lola Speak</div>
+            <div style={{ width:1, background:"rgba(255,255,255,0.1)" }}/>
+            <div style={{ flex:1, padding:"12px 16px", fontSize:13, fontWeight:700, color:"#888" }}>Tutor</div>
+          </div>
+          {COMPARE_ROWS.map((r,i)=>(
+            <div key={i} style={{ display:"flex", borderTop:"1px solid rgba(255,255,255,0.07)" }}>
+              <div style={{ flex:1, padding:"12px 16px", fontSize:13, display:"flex", alignItems:"flex-start", gap:8 }}>
+                <span style={{ color:G, flexShrink:0 }}>✓</span>{r.feat}
               </div>
-              <div style={{ display:"flex", justifyContent:"space-between", marginTop:4 }}>
-                <span style={{ fontSize:12, color:"#8899aa" }}>{p.per}</span>
-                <span style={{ fontSize:11, color:G, fontWeight:700 }}>{p.save}</span>
+              <div style={{ width:1, background:"rgba(255,255,255,0.07)" }}/>
+              <div style={{ flex:1, padding:"12px 16px", fontSize:13, display:"flex", alignItems:"flex-start", gap:8 }}>
+                {r.tutor
+                  ? <><span style={{ color:G, flexShrink:0 }}>✓</span>{r.feat}</>
+                  : <span style={{ color:"#e55", fontSize:16 }}>✕</span>
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Social proof ── */}
+        <div style={{ display:"flex", justifyContent:"center", gap:32, margin:"28px 0", textAlign:"center" }}>
+          <div>
+            <div style={{ fontSize:20, fontWeight:900 }}>2m+</div>
+            <div style={{ fontSize:12, color:"#888" }}>Students</div>
+          </div>
+          <div>
+            <div style={{ fontSize:20, fontWeight:900 }}>125 000+</div>
+            <div style={{ fontSize:12, color:"#888" }}>⭐⭐⭐⭐⭐</div>
+          </div>
+        </div>
+
+        {/* ── App store badges ── */}
+        <div style={{ display:"flex", justifyContent:"center", gap:20, marginBottom:32 }}>
+          {["Google Play","App Store"].map(s=>(
+            <div key={s} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:12, padding:"10px 20px", fontSize:13, fontWeight:600, textAlign:"center" }}>
+              {s==="Google Play"?"▶ ":"🍎 "}{s}
+            </div>
+          ))}
+        </div>
+
+        {/* ── Reviews ── */}
+        <h2 style={{ fontSize:18, fontWeight:800, textAlign:"center", marginBottom:16 }}>Únase a la comunidad</h2>
+        {REVIEWS.map(r=>(
+          <div key={r.name} style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"16px", marginBottom:12 }}>
+            <p style={{ fontSize:14, lineHeight:1.6, margin:"0 0 12px" }}>{r.text}</p>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <div style={{ width:36, height:36, borderRadius:"50%", background:"#334", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:700 }}>{r.name[0]}</div>
+              <div>
+                <div style={{ fontSize:13, fontWeight:700 }}>{r.name}</div>
+                <div style={{ color:"#f90", fontSize:12 }}>★★★★★</div>
               </div>
             </div>
           </div>
         ))}
-        <button onClick={()=>alert("Redirigiendo al pago...")}
-          style={{ width:"100%", height:56, background:G, border:"none", borderRadius:999, fontSize:17, fontWeight:700, color:"#000", cursor:"pointer", boxShadow:`0 0 32px ${G}55`, marginTop:8 }}>
-          {tr(iso,"startNow")} · {cur.sale}
-        </button>
-        <div style={{ display:"flex", justifyContent:"center", gap:24, marginTop:16, color:"#556677", fontSize:12 }}>
-          <span>🔒 Pago seguro</span><span>↩ Garantía 7 días</span><span>✕ Sin compromiso</span>
+
+        {/* ── Guarantee ── */}
+        <div style={{ marginTop:28, textAlign:"center" }}>
+          <div style={{ width:80, height:80, borderRadius:"50%", border:"4px solid #f90", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", margin:"0 auto 16px", fontSize:10, fontWeight:800, color:"#f90", lineHeight:1.2 }}>
+            <div style={{ fontSize:18 }}>14</div>
+            <div>DAYS</div>
+            <div>GUARANTEE</div>
+          </div>
+          <h3 style={{ color:"#00d4ff", fontSize:18, fontWeight:800, marginBottom:10 }}>Garantía de devolución del dinero</h3>
+          <p style={{ fontSize:14, color:"#aaa", lineHeight:1.7 }}>
+            Siga el programa y logre un progreso increíble en su inglés – o le devolvemos el dinero, sin preguntas.{" "}
+            <strong style={{ color:"#fff" }}>Solo avísenos dentro de los 14 días si el programa no era lo que esperaba para obtener un reembolso completo.</strong>{" "}
+            Con los excelentes comentarios que recibimos, ¡confiamos en que mejorará su inglés!
+          </p>
         </div>
+
+        {/* ── FAQ ── */}
+        <div style={{ marginTop:32 }}>
+          <h2 style={{ color:"#00d4ff", fontSize:20, fontWeight:800, textAlign:"center", marginBottom:16 }}>Preguntas frecuentes</h2>
+          {FAQS.map((f,i)=>(
+            <div key={i} onClick={()=>setOpenFaq(openFaq===i?null:i)} style={{ borderBottom:"1px solid rgba(255,255,255,0.08)", padding:"16px 0", cursor:"pointer" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span style={{ fontSize:15, fontWeight:600 }}>{f.q}</span>
+                <span style={{ fontSize:20, color:"#888", transform:openFaq===i?"rotate(180deg)":"none", transition:"transform 0.2s" }}>⌄</span>
+              </div>
+              {openFaq===i && <p style={{ fontSize:14, color:"#aaa", margin:"10px 0 0", lineHeight:1.6 }}>{f.a}</p>}
+            </div>
+          ))}
+        </div>
+
+        {/* ── Bottom repeat headline + plans ── */}
+        <div style={{ marginTop:36, marginBottom:8 }}>
+          <h2 style={{ fontSize:20, fontWeight:900, textAlign:"center", marginBottom:20 }}>¡Obtenga su plan personal antes de que desaparezca!</h2>
+          {PLANS.map(p=>(
+            <PlanCard key={p.id} p={p} sel={selPlan===p.id} onSel={()=>setSelPlan(p.id)}/>
+          ))}
+          <div style={{ marginTop:12, textAlign:"center", fontSize:12, color:"#888", display:"flex", alignItems:"center", justifyContent:"center", gap:6, marginBottom:12 }}>
+            <span>🔒</span> Your payment is secured
+          </div>
+          <button onClick={()=>alert("Redirigiendo al pago...")} style={{
+            width:"100%", height:56, background:G, border:"none", borderRadius:14,
+            fontSize:18, fontWeight:800, color:"#000", cursor:"pointer", marginBottom:8,
+          }}>Obtenga mi plan</button>
+          <p style={{ fontSize:11, color:"#556", textAlign:"center", lineHeight:1.6 }}>
+            ¡Descuento aplicado! La suscripción se renovará automáticamente a $29.99 a menos que se cancele 24 horas antes de que finalice el período elegido.
+          </p>
+          <p style={{ fontSize:11, color:"#557", textAlign:"center", marginTop:4, marginBottom:32 }}>
+            <span style={{ color:"#4af", textDecoration:"underline", cursor:"pointer" }}>Terms of Use</span>
+            {" & "}
+            <span style={{ color:"#4af", textDecoration:"underline", cursor:"pointer" }}>Privacy Policy</span>
+          </p>
+        </div>
+
       </div>
     </div>
   );
