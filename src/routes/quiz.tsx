@@ -421,20 +421,14 @@ function SGoodHands1({ next, iso }: { next:()=>void; iso:string }) {
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"32px 24px 100px", textAlign:"center" }}>
       <h1 style={{ fontSize:24, fontWeight:800, margin:0 }}>{tr(iso,"goodHands")}</h1>
-      <div style={{ position:"relative", width:280, height:260, margin:"0 auto 36px" }}>
-        <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:130, height:130, borderRadius:"50%", background:"rgba(0,180,210,0.12)", border:"1px solid rgba(0,180,210,0.3)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", paddingTop:14 }}>
-          <span style={{ fontSize:28 }}>🎬</span>
-          <span style={{ fontSize:10, color:"#aaa", marginTop:4, lineHeight:1.3, padding:"0 10px" }}>Interactive video lessons</span>
+      <div style={{ position:"relative", width:"100%", maxWidth:420, margin:"0 auto", aspectRatio:"520/418" }}>
+        <div style={{ width:"100%", height:"100%", backgroundImage:`url(https://cdn-eu.lolaenglish.com/web-images%2Fhands.webp)`, backgroundSize:"contain", backgroundRepeat:"no-repeat", backgroundPosition:"center" }}/>
+        {/* Claude logo overlaid where ChatGPT appears — bottom-left circle ~22% from left, 68% from top */}
+        <div style={{ position:"absolute", left:"22%", top:"68%", transform:"translate(-50%,-50%)", width:"10%", aspectRatio:"1", borderRadius:"50%", background:"#D97A4F", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.5)" }}>
+          <svg viewBox="0 0 24 24" style={{ width:"60%", height:"60%", fill:"#fff" }} xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.45 9.52c-.37-1.02-1.02-1.9-1.87-2.53a5.14 5.14 0 0 0-2.96-.93c-.7 0-1.38.14-2.01.41L9.3 7.05a5.2 5.2 0 0 0-2.53 2.53 5.14 5.14 0 0 0-.41 2.01c0 1.05.3 2.07.87 2.95l.41.66-.41 1.52 1.57-.41.66.4c.88.57 1.9.87 2.95.87.7 0 1.38-.14 2.01-.41l1.31-.58a5.2 5.2 0 0 0 2.53-2.53c.27-.63.41-1.31.41-2.01 0-1.05-.3-2.07-.87-2.95l.19-.58zm-1.66 4.67a3.77 3.77 0 0 1-1.83 1.83l-1.31.58c-.46.2-.95.3-1.45.3-.75 0-1.48-.2-2.12-.59l-1.3-.81-1.22.32.32-1.22-.81-1.3a3.73 3.73 0 0 1-.59-2.12c0-.5.1-.99.3-1.45l.58-1.31a3.77 3.77 0 0 1 1.83-1.83l1.31-.58c.46-.2.95-.3 1.45-.3.75 0 1.48.2 2.12.59l.13.08c.55.36.99.86 1.28 1.46l.29.67c.2.46.3.95.3 1.45 0 .5-.1.99-.3 1.45l-.19.47z"/>
+          </svg>
         </div>
-        <div style={{ position:"absolute", bottom:0, left:12, width:130, height:130, borderRadius:"50%", background:"rgba(90,90,220,0.12)", border:"1px solid rgba(90,90,220,0.3)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", paddingBottom:14 }}>
-          <span style={{ fontSize:28 }}>🤖</span>
-          <span style={{ fontSize:10, color:"#aaa", lineHeight:1.3, padding:"0 10px", textAlign:"center" }}>Artificial Intelligence</span>
-        </div>
-        <div style={{ position:"absolute", bottom:0, right:12, width:130, height:130, borderRadius:"50%", background:"rgba(160,30,120,0.12)", border:"1px solid rgba(160,30,120,0.3)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", paddingBottom:14 }}>
-          <span style={{ fontSize:28 }}>🎓</span>
-          <span style={{ fontSize:10, color:"#aaa", lineHeight:1.3, padding:"0 10px", textAlign:"center" }}>Harvard Research</span>
-        </div>
-        <div style={{ position:"absolute", top:"46%", left:"50%", transform:"translate(-50%,-30%)", fontSize:22, fontWeight:900, color:G, textShadow:`0 0 20px ${G}80` }}>iola</div>
       </div>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
