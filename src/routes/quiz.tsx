@@ -382,7 +382,7 @@ function SBrainFocus({ next, iso }: { next:()=>void; iso:string }) {
       <h2 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"16px 0 0", lineHeight:1.3 }}>Aprender idiomas ejercita el cerebro</h2>
       {/* Image left + stats right */}
       <div style={{ flex:1, display:"flex", alignItems:"center", gap:16, width:"100%", maxWidth:460 }}>
-        <img src={CDN+"hero.webp"} alt="" style={{ width:"45%", maxWidth:180, objectFit:"contain", flexShrink:0 }}/>
+        <img src="https://ai.lolaspeak.com/Images/Brains.webp" alt="" style={{ width:"45%", maxWidth:180, objectFit:"contain", flexShrink:0 }}/>
         <div style={{ flex:1, display:"flex", flexDirection:"column", gap:16 }}>
           {[["Enfoque y\nflexibilidad","+35%"],["Memoria","+50%"]].map(([l,v])=>(
             <div key={l}>
