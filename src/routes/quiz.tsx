@@ -377,24 +377,22 @@ function SHow({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[];
 
 function SBrainFocus({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 24px 100px", textAlign:"center" }}>
-      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}`}</style>
-      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <img src={CDN+"hero.webp"} alt="" style={{ width:"65vw", maxWidth:260, animation:"float 3s ease-in-out infinite" }}/>
-      </div>
-      <div style={{ width:"100%", maxWidth:400 }}>
-        <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 8px" }}>Aprender idiomas ejercita el cerebro</h2>
-        <p style={{ color:"#8899aa", lineHeight:1.6, margin:"0 0 24px", maxWidth:340, marginInline:"auto" }}>La ciencia confirma los beneficios cognitivos de aprender un nuevo idioma</p>
-        <div style={{ display:"flex", gap:14, width:"100%", marginBottom:14 }}>
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 20px 100px" }}>
+      <ProgressBar screen="how"/>
+      <h2 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"16px 0 0", lineHeight:1.3 }}>Aprender idiomas ejercita el cerebro</h2>
+      {/* Image left + stats right */}
+      <div style={{ flex:1, display:"flex", alignItems:"center", gap:16, width:"100%", maxWidth:460 }}>
+        <img src={CDN+"hero.webp"} alt="" style={{ width:"45%", maxWidth:180, objectFit:"contain", flexShrink:0 }}/>
+        <div style={{ flex:1, display:"flex", flexDirection:"column", gap:16 }}>
           {[["Enfoque y\nflexibilidad","+35%"],["Memoria","+50%"]].map(([l,v])=>(
-            <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
-              <div style={{ fontSize:38, fontWeight:900, color:G }}>{v}</div>
-              <div style={{ fontSize:13, color:"#8899aa", marginTop:6, whiteSpace:"pre-line", lineHeight:1.3 }}>{l}</div>
+            <div key={l}>
+              <div style={{ fontSize:13, fontWeight:700, color:"#fff", whiteSpace:"pre-line", lineHeight:1.3, marginBottom:4 }}>{l}</div>
+              <div style={{ fontSize:42, fontWeight:900, color:G, lineHeight:1 }}>{v}</div>
             </div>
           ))}
         </div>
-        <p style={{ color:"#444", fontSize:11, lineHeight:1.7, margin:0 }}>{tr(iso,"source")}<br/>Linck et al., 2014 · Bialystock & Martin, 2014</p>
       </div>
+      <p style={{ color:"#444", fontSize:11, lineHeight:1.7, textAlign:"center", margin:0 }}>{tr(iso,"source")}<br/>Linck et al., 2014 · Bialystock & Martin, 2014</p>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
