@@ -116,7 +116,8 @@ function lbl(item: Item, langId: number): string {
 
 // ─── Shared UI ─────────────────────────────────────────────────────────────────
 const BG = "linear-gradient(180deg,#09090F 0%,#0b1a2e 100%)";
-const BASE: React.CSSProperties = { minHeight:"100vh", background:BG, display:"flex", flexDirection:"column", alignItems:"center", color:"#fff", fontFamily:"'Inter',-apple-system,sans-serif" };
+const BASE: React.CSSProperties = { height:"100dvh", background:BG, display:"flex", flexDirection:"column", alignItems:"center", color:"#fff", fontFamily:"'Inter',-apple-system,sans-serif", overflow:"hidden" };
+const SCROLL: React.CSSProperties = { ...BASE, overflowY:"auto", overflowX:"hidden", height:"100dvh" };
 
 function NextBtn({ onClick, disabled, children }: { onClick:()=>void; disabled?:boolean; children:React.ReactNode }) {
   return (
@@ -194,7 +195,7 @@ function SStart({ next, iso }: { next:()=>void; iso:string }) {
 function SLanguage({ next, langId, setLangId }: { next:()=>void; langId:number; setLangId:(n:number)=>void }) {
   const iso = LANGUAGES.find(l=>l.id===langId)?.iso ?? "es";
   return (
-    <div style={{ ...BASE, paddingBottom:100 }}>
+    <div style={{ ...SCROLL, paddingBottom:100 }}>
       <style>{`
         .lang-card { transition: transform 0.15s, background 0.15s; }
         .lang-card:active { transform: scale(0.94); }
@@ -352,7 +353,7 @@ function SLevel({ next, sel, setSel, iso }: { next:()=>void; sel:number|null; se
 
 function SHow({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string; langId:number }) {
   return (
-    <div style={{ ...BASE, paddingBottom:100 }}>
+    <div style={{ ...SCROLL, paddingBottom:100 }}>
       <ProgressBar screen="how"/>
       <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
         <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{tr(iso,"howQ")}</h1>
@@ -371,20 +372,24 @@ function SHow({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[];
 
 function SBrainFocus({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div style={{ ...BASE, justifyContent:"center", padding:"0 24px", textAlign:"center" }}>
-      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}`}</style>
-      <img src={CDN+"hero.webp"} alt="" style={{ width:140, marginBottom:28, animation:"float 3s ease-in-out infinite" }}/>
-      <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 10px" }}>Aprender idiomas ejercita el cerebro</h2>
-      <p style={{ color:"#8899aa", lineHeight:1.6, marginBottom:36, maxWidth:360 }}>La ciencia confirma los beneficios cognitivos de aprender un nuevo idioma</p>
-      <div style={{ display:"flex", gap:14, width:"100%", maxWidth:360 }}>
-        {[["Enfoque y\nflexibilidad","+35%"],["Memoria","+50%"]].map(([l,v])=>(
-          <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
-            <div style={{ fontSize:36, fontWeight:900, color:G }}>{v}</div>
-            <div style={{ fontSize:13, color:"#8899aa", marginTop:6, whiteSpace:"pre-line", lineHeight:1.3 }}>{l}</div>
-          </div>
-        ))}
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 24px 100px", textAlign:"center" }}>
+      <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}`}</style>
+      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <img src={CDN+"hero.webp"} alt="" style={{ width:"65vw", maxWidth:260, animation:"float 3s ease-in-out infinite" }}/>
       </div>
-      <p style={{ color:"#444", fontSize:11, marginTop:18, lineHeight:1.7 }}>{tr(iso,"source")}<br/>Linck et al., 2014 · Bialystock & Martin, 2014</p>
+      <div style={{ width:"100%", maxWidth:400 }}>
+        <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 8px" }}>Aprender idiomas ejercita el cerebro</h2>
+        <p style={{ color:"#8899aa", lineHeight:1.6, margin:"0 0 24px", maxWidth:340, marginInline:"auto" }}>La ciencia confirma los beneficios cognitivos de aprender un nuevo idioma</p>
+        <div style={{ display:"flex", gap:14, width:"100%", marginBottom:14 }}>
+          {[["Enfoque y\nflexibilidad","+35%"],["Memoria","+50%"]].map(([l,v])=>(
+            <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
+              <div style={{ fontSize:38, fontWeight:900, color:G }}>{v}</div>
+              <div style={{ fontSize:13, color:"#8899aa", marginTop:6, whiteSpace:"pre-line", lineHeight:1.3 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{ color:"#444", fontSize:11, lineHeight:1.7, margin:0 }}>{tr(iso,"source")}<br/>Linck et al., 2014 · Bialystock & Martin, 2014</p>
+      </div>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
@@ -393,7 +398,7 @@ function SBrainFocus({ next, iso }: { next:()=>void; iso:string }) {
 function SWhy({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string; langId:number }) {
   const pick = (id:number) => { setSel(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]); setTimeout(next,300); };
   return (
-    <div style={{ ...BASE, paddingBottom:100 }}>
+    <div style={{ ...SCROLL, paddingBottom:100 }}>
       <ProgressBar screen="why"/>
       <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
         <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{tr(iso,"whyQ")}</h1>
@@ -411,8 +416,8 @@ function SWhy({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[];
 
 function SGoodHands1({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div style={{ ...BASE, justifyContent:"center", padding:"0 24px", textAlign:"center" }}>
-      <h1 style={{ fontSize:24, fontWeight:800, margin:"0 0 44px" }}>{tr(iso,"goodHands")}</h1>
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"32px 24px 100px", textAlign:"center" }}>
+      <h1 style={{ fontSize:24, fontWeight:800, margin:0 }}>{tr(iso,"goodHands")}</h1>
       <div style={{ position:"relative", width:280, height:260, margin:"0 auto 36px" }}>
         <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:130, height:130, borderRadius:"50%", background:"rgba(0,180,210,0.12)", border:"1px solid rgba(0,180,210,0.3)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", paddingTop:14 }}>
           <span style={{ fontSize:28 }}>🎬</span>
@@ -435,7 +440,7 @@ function SGoodHands1({ next, iso }: { next:()=>void; iso:string }) {
 
 function SStruggles({ next, sel, setSel, iso, langId }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string; langId:number }) {
   return (
-    <div style={{ ...BASE, paddingBottom:100 }}>
+    <div style={{ ...SCROLL, paddingBottom:100 }}>
       <ProgressBar screen="struggles"/>
       <div style={{ width:"100%", maxWidth:480, padding:"28px 20px 0" }}>
         <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 24px" }}>{tr(iso,"strugQ")}</h1>
@@ -454,17 +459,21 @@ function SStruggles({ next, sel, setSel, iso, langId }: { next:()=>void; sel:num
 
 function SBrainStudy({ next, iso }: { next:()=>void; iso:string }) {
   return (
-    <div style={{ ...BASE, justifyContent:"center", padding:"0 24px", textAlign:"center" }}>
-      <img src={CDN+"watch.webp"} alt="" style={{ width:130, height:130, objectFit:"contain", marginBottom:24 }}/>
-      <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 10px" }}>El estudio regular es la clave</h2>
-      <p style={{ color:"#8899aa", lineHeight:1.6, marginBottom:36, maxWidth:360 }}>Practicar incluso 5 minutos al día puede acelerar tu aprendizaje de manera significativa</p>
-      <div style={{ display:"flex", gap:14, width:"100%", maxWidth:360 }}>
-        {[["Retención","3x más"],["Confianza","+60%"]].map(([l,v])=>(
-          <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
-            <div style={{ fontSize:32, fontWeight:900, color:G }}>{v}</div>
-            <div style={{ fontSize:13, color:"#8899aa", marginTop:6 }}>{l}</div>
-          </div>
-        ))}
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 24px 100px", textAlign:"center" }}>
+      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <img src={CDN+"watch.webp"} alt="" style={{ width:"55vw", maxWidth:220, objectFit:"contain" }}/>
+      </div>
+      <div style={{ width:"100%", maxWidth:400 }}>
+        <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 8px" }}>El estudio regular es la clave</h2>
+        <p style={{ color:"#8899aa", lineHeight:1.6, margin:"0 0 20px", maxWidth:340, marginInline:"auto" }}>Practicar incluso 5 minutos al día puede acelerar tu aprendizaje de manera significativa</p>
+        <div style={{ display:"flex", gap:14, width:"100%" }}>
+          {[["Retención","3x más"],["Confianza","+60%"]].map(([l,v])=>(
+            <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
+              <div style={{ fontSize:32, fontWeight:900, color:G }}>{v}</div>
+              <div style={{ fontSize:13, color:"#8899aa", marginTop:6 }}>{l}</div>
+            </div>
+          ))}
+        </div>
       </div>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
@@ -473,7 +482,7 @@ function SBrainStudy({ next, iso }: { next:()=>void; iso:string }) {
 
 function STopics({ next, sel, setSel, iso }: { next:()=>void; sel:number[]; setSel:(fn:(p:number[])=>number[])=>void; iso:string }) {
   return (
-    <div style={{ ...BASE, paddingBottom:100 }}>
+    <div style={{ ...SCROLL, paddingBottom:100 }}>
       <ProgressBar screen="topics"/>
       <div style={{ width:"100%", maxWidth:480, padding:"28px 16px 0" }}>
         <h1 style={{ fontSize:22, fontWeight:800, textAlign:"center", margin:"0 0 20px" }}>{tr(iso,"topicQ")}</h1>
