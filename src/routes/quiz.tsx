@@ -1385,32 +1385,73 @@ function SGrammarResults({ next, iso }: { next:()=>void; iso:string }) {
 }
 
 // ─── LexTest ───────────────────────────────────────────────────────────────────
+// Images use large emoji in photo-card style to simulate real photos
 type LexQ =
-  | { type:"images";    prompt:string; partEmojis:string[]; opts:string[]; ans:string }
-  | { type:"stress";    prompt:string; icon:string;         opts:string[]; ans:string }
-  | { type:"split";     prompt:string; word:string;         grid:{e:string}[]; ans:string }
-  | { type:"form";      prompt:string; icon:string;         opts:string[]; ans:string }
+  | { type:"images";    prompt:string; opts:{e:string;word:string}[]; ans:string }
+  | { type:"stress";    prompt:string; icon:string; opts:string[]; ans:string }
+  | { type:"split";     prompt:string; word:string; partA:string; opts:{e:string;label:string}[]; ans:string }
+  | { type:"form";      prompt:string; icon:string; opts:string[]; ans:string }
   | { type:"synonym";   prompt:string; icon:string; word:string; opts:string[]; ans:string }
-  | { type:"sentiment"; prompt:string; word:string;         ans:"pos"|"neg" }
-  | { type:"compound";  prompt:string; word:string; partA:string; opts:{e1:string;e2:string}[]; ans:number }
-  | { type:"basket";    prompt:string; icon:string;         opts:string[]; ans:string };
+  | { type:"sentiment"; prompt:string; word:string; ans:"pos"|"neg" }
+  | { type:"compound";  prompt:string; word:string; partsA:{e:string;label:string}[]; partsB:{e:string;label:string}[]; ans:{a:string;b:string} }
+  | { type:"basket";    prompt:string; icon:string; opts:string[]; ans:string };
 
 const LEX_QS: LexQ[] = [
-  { type:"images",    prompt:"Elija las imágenes correctas",           partEmojis:["🗝️","🧱"],       opts:["keystone","skateboard","keyboard","snowboard"],                                        ans:"keystone"  },
-  { type:"stress",    prompt:"Elija la pronunciación correcta",         icon:"💿",                    opts:["REcord","reCORD"],                                                                     ans:"REcord"    },
-  { type:"split",     prompt:"Elija las imágenes correctas",            word:"teacher",               grid:[{e:"☕"},{e:"🎾"},{e:"🧊"},{e:"🪑"}],                                                 ans:"☕"         },
-  { type:"form",      prompt:"Elija la opción correcta",                icon:"👫",                    opts:["makeup","make up"],                                                                   ans:"makeup"    },
-  { type:"synonym",   prompt:"Elija el sinónimo",                       icon:"😀", word:"happy",      opts:["sad","curious","angry","joyful"],                                                     ans:"joyful"    },
-  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"lazy",                  ans:"neg" },
-  { type:"compound",  prompt:"Elija las imágenes correctas",            word:"honeymoon", partA:"🍎", opts:[{e1:"🌙",e2:"🍎"},{e1:"🐤",e2:"🍯"},{e1:"🍯",e2:"🌙"},{e1:"🍎",e2:"🐤"}],           ans:2           },
-  { type:"basket",    prompt:"Elija la opción correcta",                icon:"🧺",                    opts:["PROduce","proDUCE"],                                                                  ans:"PROduce"   },
-  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"ambitious",             ans:"pos" },
+  // 1 — images: pick the word that matches two emoji hints
+  { type:"images", prompt:"Elija la imagen correcta",
+    opts:[{e:"🗝️🧱",word:"keystone"},{e:"🛹",word:"skateboard"},{e:"⌨️",word:"keyboard"},{e:"🏂",word:"snowboard"}],
+    ans:"keystone" },
+  // 2 — stress: pick correct syllable stress
+  { type:"stress", prompt:"Elija la pronunciación correcta", icon:"💿",
+    opts:["REcord","reCORD"], ans:"REcord" },
+  // 3 — split: word = part A + part B. Pick the right part B image
+  { type:"split", prompt:"Elija la imagen correcta", word:"teacher",
+    partA:"teach", opts:[{e:"☕",label:"er"},{e:"🎾",label:"or"},{e:"🧊",label:"ar"},{e:"🪑",label:"ir"}], ans:"☕" },
+  // 4 — form: one word or two?
+  { type:"form", prompt:"Elija la opción correcta", icon:"💄",
+    opts:["makeup","make up"], ans:"makeup" },
+  // 5 — synonym
+  { type:"synonym", prompt:"Elija el sinónimo", icon:"😀", word:"happy",
+    opts:["sad","curious","angry","joyful"], ans:"joyful" },
+  // 6 — sentiment
+  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"lazy", ans:"neg" },
+  // 7 — compound: tap part A image + tap part B image → they combine into the word
+  { type:"compound", prompt:"Elija las imágenes correctas", word:"honeymoon",
+    partsA:[{e:"🍯",label:"honey"},{e:"🌻",label:"sun"},{e:"🌊",label:"sea"},{e:"🍎",label:"apple"}],
+    partsB:[{e:"🌙",label:"moon"},{e:"🐤",label:"bird"},{e:"☁️",label:"cloud"},{e:"⭐",label:"star"}],
+    ans:{a:"honey",b:"moon"} },
+  // 8 — basket (stress)
+  { type:"basket", prompt:"Elija la pronunciación correcta", icon:"🥦",
+    opts:["PROduce","proDUCE"], ans:"PROduce" },
+  // 9 — sentiment
+  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"ambitious", ans:"pos" },
 ];
 
+// ── Card used by images/split/compound ──────────────────────────────────────
+function EmojiCard({ e, label, selected, correct, wrong, onClick }: {
+  e:string; label:string; selected:boolean; correct?:boolean; wrong?:boolean; onClick:()=>void
+}) {
+  const bg  = wrong ? "rgba(239,68,68,0.18)" : selected||correct ? "rgba(174,234,0,0.18)" : "rgba(255,255,255,0.07)";
+  const bdr = wrong ? "2px solid #ef4444"    : selected||correct ? `2px solid ${G}`       : "1.5px solid rgba(255,255,255,0.12)";
+  return (
+    <div onClick={onClick} style={{
+      borderRadius:20, background:bg, border:bdr, cursor:"pointer",
+      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+      gap:8, padding:"18px 8px", transition:"all 0.15s",
+    }}>
+      <span style={{ fontSize:48, lineHeight:1 }}>{e}</span>
+      <span style={{ fontSize:13, fontWeight:600, color:"#ccc", textAlign:"center" }}>{label}</span>
+    </div>
+  );
+}
+
 function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
-  const [qi,     setQi]     = useState(0);
-  const [picked, setPicked] = useState<string|number|null>(null);
-  const [secs,   setSecs]   = useState(0);
+  const [qi,       setQi]       = useState(0);
+  const [picked,   setPicked]   = useState<string|null>(null);   // general answer
+  const [cpA,      setCpA]      = useState<string|null>(null);   // compound part A
+  const [cpB,      setCpB]      = useState<string|null>(null);   // compound part B
+  const [feedback, setFeedback] = useState<"ok"|"err"|null>(null);
+  const [secs,     setSecs]     = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => setSecs(s => s + 1), 1000);
@@ -1422,150 +1463,234 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
   const mm    = String(Math.floor(secs / 60)).padStart(2, "0");
   const ss    = String(secs % 60).padStart(2, "0");
 
-  function choose(val: string | number) {
-    if (picked !== null) return;
-    setPicked(val);
-    setTimeout(() => {
-      if (qi < total - 1) { setQi(i => i + 1); setPicked(null); }
-      else next();
-    }, 400);
-  }
-
-  function skipQ() {
-    if (qi < total - 1) { setQi(i => i + 1); setPicked(null); }
+  function advance() {
+    if (qi < total - 1) { setQi(i => i + 1); setPicked(null); setCpA(null); setCpB(null); setFeedback(null); }
     else next();
   }
 
-  const BTN: React.CSSProperties = {
-    width:"100%", padding:"16px", borderRadius:14, fontSize:17, fontWeight:700,
-    background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.12)",
-    color:"#fff", cursor:"pointer", textAlign:"center",
+  function choose(val: string, isCorrect: boolean) {
+    if (picked !== null || feedback !== null) return;
+    setPicked(val);
+    setFeedback(isCorrect ? "ok" : "err");
+    setTimeout(advance, 700);
+  }
+
+  // compound: two-step selection
+  function chooseCpA(label: string) {
+    if (cpA !== null) return;
+    setCpA(label);
+  }
+  function chooseCpB(label: string) {
+    if (cpA === null || cpB !== null) return;
+    const q2 = q as Extract<LexQ,{type:"compound"}>;
+    setCpB(label);
+    const ok = cpA === q2.ans.a && label === q2.ans.b;
+    setFeedback(ok ? "ok" : "err");
+    setTimeout(advance, 900);
+  }
+
+  const CARD: React.CSSProperties = {
+    padding:"16px", borderRadius:14, fontSize:17, fontWeight:700,
+    background:"rgba(255,255,255,0.07)", border:"1.5px solid rgba(255,255,255,0.12)",
+    color:"#fff", cursor:"pointer", textAlign:"center", width:"100%",
   };
-  const BTN_SEL: React.CSSProperties = { ...BTN, background:"rgba(174,234,0,0.15)", border:`2px solid ${G}` };
+  const CARD_OK:  React.CSSProperties = { ...CARD, background:`rgba(174,234,0,0.18)`, border:`2px solid ${G}` };
+  const CARD_ERR: React.CSSProperties = { ...CARD, background:"rgba(239,68,68,0.18)", border:"2px solid #ef4444" };
 
   return (
     <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:80 }}>
-      <style>{`@keyframes lexPulse{0%,100%{opacity:1}50%{opacity:0.6}}`}</style>
-      {/* Progress dots */}
-      <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", gap:6, alignItems:"center" }}>
+      <style>{`
+        @keyframes lexBounce{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+        .lex-bounce{animation:lexBounce 0.3s ease}
+      `}</style>
+
+      {/* Progress bar (dots) */}
+      <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", gap:5 }}>
         {Array.from({length:total},(_,i) => (
           <div key={i} style={{
-            flex:1, height:4, borderRadius:999,
+            flex:1, height:5, borderRadius:999,
             background: i < qi ? "#2563eb" : i===qi ? G : "rgba(255,255,255,0.12)",
+            transition:"background 0.3s",
           }}/>
         ))}
       </div>
-      {/* Timer */}
-      <div style={{ textAlign:"center", padding:"24px 20px 8px" }}>
-        <div style={{ fontSize:34, fontWeight:700, fontFamily:"monospace", letterSpacing:2 }}>{mm}:{ss}</div>
-        <div style={{ fontSize:15, color:"#ccc", marginTop:6 }}>{q.prompt}</div>
+
+      {/* Timer + prompt */}
+      <div style={{ textAlign:"center", padding:"20px 20px 0" }}>
+        <div style={{ fontSize:36, fontWeight:700, fontFamily:"monospace", letterSpacing:3 }}>{mm}:{ss}</div>
+        <div style={{ fontSize:15, color:"#ccc", marginTop:8, lineHeight:1.4 }}>{q.prompt}</div>
       </div>
 
-      {/* Question */}
-      <div style={{ width:"100%", maxWidth:480, padding:"0 20px", flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:20 }}>
-        {q.type==="images" && <>
-          <div style={{ display:"flex", alignItems:"center", gap:16, fontSize:52 }}>
-            {q.partEmojis.map((e,i)=><span key={i}>{e}</span>)}
-          </div>
-          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
-            {q.opts.map(o=>(
-              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}>{o}</div>
-            ))}
-          </div>
-        </>}
+      {/* ─── Question body ─── */}
+      <div style={{ width:"100%", maxWidth:480, padding:"20px 20px 0", display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
 
-        {q.type==="stress" && <>
-          <div style={{ fontSize:80 }}>{q.icon}</div>
-          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
-            {q.opts.map(o=>(
-              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}
-                dangerouslySetInnerHTML={{__html: o.replace(/([A-Z]+)/g, m=>`<span style="font-weight:900;color:${G}">${m}</span>`)}}/>
-            ))}
+        {/* IMAGES — 2×2 photo-card grid */}
+        {q.type==="images" && (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, width:"100%" }}>
+            {q.opts.map(o => {
+              const isP = picked===o.word;
+              const ok  = feedback==="ok" && isP;
+              const err = feedback==="err" && isP;
+              return <EmojiCard key={o.word} e={o.e} label={o.word} selected={isP} correct={ok} wrong={err}
+                onClick={()=>!picked && choose(o.word, o.word===q.ans)}/>;
+            })}
           </div>
-        </>}
+        )}
 
-        {q.type==="split" && <>
-          <div style={{ fontSize:26, fontWeight:800 }}>{q.word}</div>
-          <div style={{ display:"flex", gap:10 }}>
-            <div style={{ width:72, height:72, borderRadius:16, background:"rgba(255,255,255,0.08)", border:"1.5px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:36 }}>?</div>
-            <span style={{ fontSize:28, alignSelf:"center", color:"#aaa" }}>+</span>
-            <div style={{ width:72, height:72, borderRadius:16, background:"rgba(255,255,255,0.08)", border:"1.5px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:36 }}>?</div>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
-            {q.grid.map((cell,i)=>(
-              <div key={i} onClick={()=>choose(cell.e)} style={{
-                ...(picked===cell.e ? BTN_SEL : BTN), padding:"24px 12px",
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:44,
-              }}>{cell.e}</div>
-            ))}
-          </div>
-        </>}
+        {/* STRESS / BASKET — icon + 2 text buttons */}
+        {(q.type==="stress"||q.type==="basket") && (
+          <>
+            <div style={{ fontSize:90, lineHeight:1 }}>{q.icon}</div>
+            <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+              {q.opts.map(o => {
+                const isP = picked===o;
+                const ok  = feedback==="ok" && isP;
+                const err = feedback==="err" && isP;
+                return (
+                  <div key={o} onClick={()=>!picked&&choose(o, o===q.ans)}
+                    style={ok ? CARD_OK : err ? CARD_ERR : CARD}
+                    dangerouslySetInnerHTML={{__html: o.replace(/([A-Z]{2,})/g, m=>`<span style="font-size:22px;font-weight:900;color:${G}">${m}</span>`)}}/>
+                );
+              })}
+            </div>
+          </>
+        )}
 
-        {q.type==="form" && <>
-          <div style={{ fontSize:80 }}>{q.icon}</div>
-          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
-            {q.opts.map(o=>(
-              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}>{o}</div>
-            ))}
-          </div>
-        </>}
+        {/* FORM — icon + 2 text options */}
+        {q.type==="form" && (
+          <>
+            <div style={{ fontSize:90, lineHeight:1 }}>{q.icon}</div>
+            <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+              {q.opts.map(o => {
+                const isP = picked===o;
+                const ok  = feedback==="ok" && isP;
+                const err = feedback==="err" && isP;
+                return <div key={o} onClick={()=>!picked&&choose(o, o===q.ans)} style={ok?CARD_OK:err?CARD_ERR:CARD}>{o}</div>;
+              })}
+            </div>
+          </>
+        )}
 
-        {q.type==="synonym" && <>
-          <div style={{ fontSize:72 }}>{q.icon}</div>
-          <div style={{ fontSize:26, fontWeight:800 }}>{q.word}</div>
-          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
-            {q.opts.map(o=>(
-              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}>{o}</div>
-            ))}
-          </div>
-        </>}
+        {/* SYNONYM — icon + word + 4 options */}
+        {q.type==="synonym" && (
+          <>
+            <div style={{ fontSize:80, lineHeight:1 }}>{q.icon}</div>
+            <div style={{ fontSize:28, fontWeight:900, letterSpacing:1 }}>{q.word}</div>
+            <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
+              {q.opts.map(o => {
+                const isP = picked===o;
+                const ok  = feedback==="ok" && isP;
+                const err = feedback==="err" && isP;
+                return <div key={o} onClick={()=>!picked&&choose(o, o===q.ans)} style={ok?CARD_OK:err?CARD_ERR:CARD}>{o}</div>;
+              })}
+            </div>
+          </>
+        )}
 
-        {q.type==="sentiment" && <>
-          <div style={{ fontSize:36, fontWeight:900, letterSpacing:1 }}>{q.word}</div>
-          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
-            {(["pos","neg"] as const).map(v=>(
-              <div key={v} onClick={()=>choose(v)} style={{
-                ...(picked===v ? BTN_SEL : BTN),
-                background: picked===v ? (v==="pos"?"rgba(174,234,0,0.15)":"rgba(239,68,68,0.15)") : "rgba(255,255,255,0.08)",
-                border: picked===v ? `2px solid ${v==="pos"?G:"#ef4444"}` : "1px solid rgba(255,255,255,0.12)",
-                padding:"28px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:6,
-              }}>
-                <span style={{ fontSize:40 }}>{v==="pos"?"👍":"👎"}</span>
-                <span style={{ fontSize:17, fontWeight:700 }}>{v==="pos"?"Positiva":"Negativa"}</span>
+        {/* SENTIMENT — word + thumbs up/down */}
+        {q.type==="sentiment" && (
+          <>
+            <div style={{ fontSize:44, fontWeight:900, letterSpacing:2, marginBottom:8 }}>{q.word}</div>
+            <div style={{ width:"100%", display:"flex", gap:12 }}>
+              {(["pos","neg"] as const).map(v => {
+                const isP = picked===v;
+                const ok  = feedback==="ok" && isP;
+                const err = feedback==="err" && isP;
+                const color = v==="pos" ? G : "#ef4444";
+                return (
+                  <div key={v} onClick={()=>!picked&&choose(v, v===q.ans)} style={{
+                    flex:1, borderRadius:20, padding:"28px 12px",
+                    background: (ok||err) ? (ok?"rgba(174,234,0,0.18)":"rgba(239,68,68,0.18)") : "rgba(255,255,255,0.07)",
+                    border: (ok||err) ? `2px solid ${ok?G:"#ef4444"}` : "1.5px solid rgba(255,255,255,0.12)",
+                    cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:10,
+                  }}>
+                    <span style={{ fontSize:52 }}>{v==="pos"?"👍":"👎"}</span>
+                    <span style={{ fontSize:16, fontWeight:700, color }}>{v==="pos"?"Positivo":"Negativo"}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* SPLIT — word = partA + ? → pick correct image for partB */}
+        {q.type==="split" && (
+          <>
+            {/* Combination display */}
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
+              <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"12px 18px", fontSize:18, fontWeight:700 }}>{q.partA}</div>
+              <span style={{ fontSize:24, color:"#888" }}>+</span>
+              <div style={{ width:64, height:52, borderRadius:12, background:picked?"rgba(174,234,0,0.15)":"rgba(255,255,255,0.08)",
+                border:picked?`2px solid ${G}`:"1.5px dashed rgba(255,255,255,0.2)",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:30 }}>
+                {picked ? q.opts.find(o=>o.e===picked)?.e ?? "?" : "?"}
               </div>
-            ))}
-          </div>
-        </>}
+              <span style={{ fontSize:22, color:"#888" }}>=</span>
+              <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"12px 18px", fontSize:18, fontWeight:700 }}>{q.word}</div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, width:"100%" }}>
+              {q.opts.map(o => {
+                const isP = picked===o.e;
+                const ok  = feedback==="ok" && isP;
+                const err = feedback==="err" && isP;
+                return <EmojiCard key={o.e} e={o.e} label={o.label} selected={isP} correct={ok} wrong={err}
+                  onClick={()=>!picked&&choose(o.e, o.e===q.ans)}/>;
+              })}
+            </div>
+          </>
+        )}
 
-        {q.type==="compound" && <>
-          <div style={{ fontSize:24, fontWeight:800 }}>{q.word}</div>
-          <div style={{ display:"flex", alignItems:"center", gap:10, fontSize:46 }}>
-            <span>{q.partA}</span>
-            <span style={{ fontSize:24, color:"#aaa" }}>+</span>
-            <span>❓</span>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
-            {q.opts.map((o,i)=>(
-              <div key={i} onClick={()=>choose(i)} style={{
-                ...(picked===i ? BTN_SEL : BTN), padding:"18px 8px",
-                display:"flex", alignItems:"center", justifyContent:"center", gap:4, fontSize:34,
-              }}>{o.e1}<span style={{fontSize:14,color:"#aaa"}}>+</span>{o.e2}</div>
-            ))}
-          </div>
-        </>}
+        {/* COMPOUND — two-step: tap part A → tap part B → combine */}
+        {q.type==="compound" && (() => {
+          const q2 = q as Extract<LexQ,{type:"compound"}>;
+          return (
+            <>
+              {/* Combined word display */}
+              <div style={{ fontSize:22, fontWeight:900, marginBottom:4, textAlign:"center", letterSpacing:1 }}>{q2.word}</div>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                <div style={{
+                  width:72, height:72, borderRadius:16, fontSize:38, display:"flex", alignItems:"center", justifyContent:"center",
+                  background: cpA ? "rgba(174,234,0,0.15)" : "rgba(255,255,255,0.08)",
+                  border: cpA ? `2px solid ${G}` : "1.5px dashed rgba(255,255,255,0.2)",
+                }}>{cpA ? q2.partsA.find(p=>p.label===cpA)?.e ?? "?" : "?"}</div>
+                <span style={{ fontSize:24, color:"#888" }}>+</span>
+                <div style={{
+                  width:72, height:72, borderRadius:16, fontSize:38, display:"flex", alignItems:"center", justifyContent:"center",
+                  background: cpB ? (feedback==="ok"?"rgba(174,234,0,0.15)":"rgba(239,68,68,0.15)") : "rgba(255,255,255,0.08)",
+                  border: cpB ? (feedback==="ok"?`2px solid ${G}`:"2px solid #ef4444") : "1.5px dashed rgba(255,255,255,0.2)",
+                }}>{cpB ? q2.partsB.find(p=>p.label===cpB)?.e ?? "?" : "?"}</div>
+              </div>
 
-        {q.type==="basket" && <>
-          <div style={{ fontSize:80 }}>{q.icon}</div>
-          <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
-            {q.opts.map(o=>(
-              <div key={o} onClick={()=>choose(o)} style={picked===o?BTN_SEL:BTN}
-                dangerouslySetInnerHTML={{__html: o.replace(/([A-Z]+)/g, m=>`<span style="font-weight:900;color:${G}">${m}</span>`)}}/>
-            ))}
-          </div>
-        </>}
+              {/* Part A grid (shown when no A selected yet) */}
+              {!cpA && (
+                <>
+                  <div style={{ fontSize:13, color:"#888", marginBottom:4 }}>Seleccione la primera parte:</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
+                    {q2.partsA.map(p=>(
+                      <EmojiCard key={p.label} e={p.e} label={p.label} selected={false} onClick={()=>chooseCpA(p.label)}/>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Part B grid (shown after A selected) */}
+              {cpA && !cpB && (
+                <>
+                  <div style={{ fontSize:13, color:"#888", marginBottom:4 }}>Ahora la segunda parte:</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
+                    {q2.partsB.map(p=>(
+                      <EmojiCard key={p.label} e={p.e} label={p.label} selected={false} onClick={()=>chooseCpB(p.label)}/>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          );
+        })()}
+
       </div>
 
-      <button onClick={skipQ} style={{ background:"none", border:"none", color:"#556677", fontSize:15, cursor:"pointer", padding:"12px 0" }}>
+      <button onClick={advance} style={{ background:"none", border:"none", color:"#556677", fontSize:14, cursor:"pointer", padding:"12px 0" }}>
         {tr(iso,"skip")}
       </button>
     </div>
