@@ -7,25 +7,26 @@ const CF  = "75b2bc08bf7b942ba7c1d5582f937ab0";
 const G   = "#AEEA00";
 
 const LANGUAGES = [
-  { id:71, iso:"es", name:"Español",       icon:GCS+"spain_J6q4m4B.png" },
-  { id:67, iso:"bg", name:"Bulgarian",      icon:GCS+"bulgaria_UnvHOUX.png" },
-  { id:96, iso:"zh", name:"Chinese",        icon:GCS+"china_R8GnlTm.png" },
-  { id:68, iso:"cs", name:"Czech",          icon:GCS+"czech_republic_O4ayRIR.png" },
-  { id:69, iso:"de", name:"Deutsch",        icon:GCS+"germany_H56jXL4.png" },
-  { id:97, iso:"en", name:"English",        icon:GCS+"Globe_Showing_Americas_sfMQFno.png" },
-  { id:94, iso:"uk", name:"Українська",     icon:GCS+"ukraine_FQtX9TE.png" },
-  { id:72, iso:"fi", name:"Finnish",        icon:GCS+"finland_Gxthusg.png" },
-  { id:73, iso:"fr", name:"Français",       icon:GCS+"france_lwYfTCr.png" },
-  { id:70, iso:"el", name:"Greek (modern)", icon:GCS+"greece_NvBUlwu.png" },
-  { id:76, iso:"id", name:"Indonesian",     icon:GCS+"indonesia_xfhfHrh.png" },
-  { id:77, iso:"it", name:"Italian",        icon:GCS+"italy_tTy3Oxj.png" },
-  { id:79, iso:"ja", name:"Japanese",       icon:GCS+"japan_f90mLqQ.png" },
-  { id:82, iso:"ko", name:"Korean",         icon:GCS+"south_korea_0uTBFCK.png" },
-  { id:86, iso:"pl", name:"Polish",         icon:GCS+"poland_ibRsVmf.png" },
-  { id:87, iso:"pt", name:"Portuguese",     icon:GCS+"portugal_RlfmN9d.png" },
-  { id:89, iso:"ru", name:"Русский",        icon:GCS+"russia_3vg3oKY.png" },
-  { id:90, iso:"sv", name:"Swedish",        icon:GCS+"sweden_2jwEXlz.png" },
-  { id:93, iso:"tr", name:"Turkish",        icon:GCS+"turkey_SiNtSwZ.png" },
+  { id:71, iso:"es", name:"Español",       icon:GCS+"spain_J6q4m4B.png",              emoji:false },
+  { id:67, iso:"bg", name:"Bulgarian",     icon:GCS+"bulgaria_UnvHOUX.png",           emoji:false },
+  { id:96, iso:"zh", name:"Chinese",       icon:GCS+"china_R8GnlTm.png",              emoji:false },
+  { id:68, iso:"cs", name:"Czech",         icon:GCS+"czech_republic_O4ayRIR.png",     emoji:false },
+  { id:69, iso:"de", name:"Deutsch",       icon:GCS+"germany_H56jXL4.png",            emoji:false },
+  { id:97, iso:"en", name:"English",       icon:GCS+"Globe_Showing_Americas_sfMQFno.png", emoji:false },
+  { id:94, iso:"uk", name:"Українська",    icon:GCS+"ukraine_FQtX9TE.png",            emoji:false },
+  { id:72, iso:"fi", name:"Finnish",       icon:GCS+"finland_Gxthusg.png",            emoji:false },
+  { id:73, iso:"fr", name:"Français",      icon:GCS+"france_lwYfTCr.png",             emoji:false },
+  { id:70, iso:"el", name:"Greek (modern)",icon:GCS+"greece_NvBUlwu.png",             emoji:false },
+  { id:76, iso:"id", name:"Indonesian",    icon:GCS+"indonesia_xfhfHrh.png",          emoji:false },
+  { id:77, iso:"it", name:"Italian",       icon:GCS+"italy_tTy3Oxj.png",              emoji:false },
+  { id:79, iso:"ja", name:"Japanese",      icon:GCS+"japan_f90mLqQ.png",              emoji:false },
+  { id:82, iso:"ko", name:"Korean",        icon:GCS+"south_korea_0uTBFCK.png",        emoji:false },
+  { id:86, iso:"pl", name:"Polish",        icon:GCS+"poland_ibRsVmf.png",             emoji:false },
+  { id:87, iso:"pt", name:"Portuguese",    icon:GCS+"portugal_RlfmN9d.png",           emoji:false },
+  { id:89, iso:"ru", name:"Русский",       icon:GCS+"russia_3vg3oKY.png",             emoji:false },
+  { id:90, iso:"sv", name:"Swedish",       icon:GCS+"sweden_2jwEXlz.png",             emoji:false },
+  { id:93, iso:"tr", name:"Turkish",       icon:GCS+"turkey_SiNtSwZ.png",             emoji:false },
+  { id:98, iso:"en", name:"Other",         icon:GCS+"Globe_Showing_Americas_sfMQFno.png", emoji:false },
 ];
 
 type Item = { id:number; title:string; image:string; localized:Record<string,string> };
@@ -183,21 +184,39 @@ function SLanguage({ next, langId, setLangId }: { next:()=>void; langId:number; 
   const iso = LANGUAGES.find(l=>l.id===langId)?.iso ?? "es";
   return (
     <div style={{ ...BASE, paddingBottom:100 }}>
-      <h1 style={{ fontSize:22, fontWeight:800, margin:"32px 20px 20px", textAlign:"center" }}>{tr(iso,"nativeLang")}</h1>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, padding:"0 16px", width:"100%", maxWidth:480 }}>
+      <style>{`
+        .lang-card { transition: transform 0.15s, background 0.15s; }
+        .lang-card:active { transform: scale(0.94); }
+      `}</style>
+      <h1 style={{ fontSize:20, fontWeight:800, margin:"28px 20px 18px", textAlign:"center" }}>{tr(iso,"nativeLang")}</h1>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:6, padding:"0 10px", width:"100%", maxWidth:500 }}>
         {LANGUAGES.map(lang => {
           const sel = lang.id === langId;
           return (
-            <div key={lang.id} onClick={()=>setLangId(lang.id)} style={{
-              background: sel ? "rgba(174,234,0,0.1)" : "rgba(255,255,255,0.05)",
-              border: sel ? `1.5px solid ${G}` : "1px solid rgba(255,255,255,0.08)",
-              borderRadius:14, padding:"12px 6px",
-              display:"flex", flexDirection:"column", alignItems:"center", gap:6,
-              cursor:"pointer", transition:"all 0.2s", position:"relative",
+            <div key={lang.id} className="lang-card" onClick={()=>setLangId(lang.id)} style={{
+              background: sel ? "rgba(70,90,60,0.85)" : "rgba(30,32,38,0.9)",
+              borderRadius:16,
+              padding:"14px 4px 10px",
+              display:"flex", flexDirection:"column", alignItems:"center", gap:7,
+              cursor:"pointer", position:"relative",
+              boxShadow: sel ? `0 0 0 2px ${G}` : "0 0 0 1px rgba(255,255,255,0.06)",
             }}>
-              <img src={lang.icon} alt={lang.name} style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover" }} />
-              <span style={{ fontSize:10, textAlign:"center", color: sel ? G : "#bbb", lineHeight:1.2, fontWeight: sel ? 700 : 400 }}>{lang.name}</span>
-              {sel && <div style={{ position:"absolute", top:4, right:4, width:14, height:14, borderRadius:"50%", background:G, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, color:"#000", fontWeight:900 }}>✓</div>}
+              {sel && (
+                <div style={{
+                  position:"absolute", top:6, right:6, width:16, height:16,
+                  borderRadius:"50%", background:G,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:9, color:"#000", fontWeight:900, lineHeight:1,
+                }}>✓</div>
+              )}
+              <img src={lang.icon} alt={lang.name} style={{
+                width:44, height:44, borderRadius:"50%", objectFit:"cover",
+                boxShadow:"0 2px 8px rgba(0,0,0,0.5)",
+              }} />
+              <span style={{
+                fontSize:9.5, textAlign:"center", lineHeight:1.25, fontWeight: sel ? 700 : 500,
+                color: sel ? G : "rgba(255,255,255,0.85)", padding:"0 2px",
+              }}>{lang.name}</span>
             </div>
           );
         })}
