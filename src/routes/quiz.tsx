@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { supabase, getActiveSubscription } from "../lib/supabase";
 
 const CDN = "https://cdn-eu.lolaenglish.com/web-images%2F";
 const GCS = "https://storage.googleapis.com/cdn-eu.lolaenglish.com/";
@@ -690,6 +691,18 @@ function SGoal({ next, sel, setSel, iso }: { next:()=>void; sel:number|null; set
 
 function SEmail({ next, email, setEmail, iso }: { next:()=>void; email:string; setEmail:(s:string)=>void; iso:string }) {
   const ok = /^[^@]+@[^@]+\.[^@]+$/.test(email);
+  const [loading, setLoading] = useState(false);
+
+  async function handleNext() {
+    if (!ok) return;
+    setLoading(true);
+    try {
+      await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+    } catch (_) {}
+    setLoading(false);
+    next();
+  }
+
   return (
     <div style={BASE}>
       <ProgressBar screen="email"/>
@@ -703,7 +716,7 @@ function SEmail({ next, email, setEmail, iso }: { next:()=>void; email:string; s
             style={{ flex:1, background:"none", border:"none", outline:"none", color:"#fff", fontSize:16 }} autoFocus/>
         </div>
       </div>
-      <NextBtn onClick={next} disabled={!ok}>{tr(iso,"next")}</NextBtn>
+      <NextBtn onClick={handleNext} disabled={!ok || loading}>{loading ? "..." : tr(iso,"next")}</NextBtn>
     </div>
   );
 }
@@ -1386,50 +1399,78 @@ function SGrammarResults({ next, iso }: { next:()=>void; iso:string }) {
 
 // ─── LexTest ───────────────────────────────────────────────────────────────────
 // Images use large emoji in photo-card style to simulate real photos
+// Real Lola lexTest question types (from data.json)
 type LexQ =
-  | { type:"images";    prompt:string; opts:{e:string;word:string}[]; ans:string }
-  | { type:"stress";    prompt:string; icon:string; opts:string[]; ans:string }
-  | { type:"split";     prompt:string; word:string; partA:string; opts:{e:string;label:string}[]; ans:string }
-  | { type:"form";      prompt:string; icon:string; opts:string[]; ans:string }
-  | { type:"synonym";   prompt:string; icon:string; word:string; opts:string[]; ans:string }
-  | { type:"sentiment"; prompt:string; word:string; ans:"pos"|"neg" }
-  | { type:"compound";  prompt:string; word:string; partsA:{e:string;label:string}[]; partsB:{e:string;label:string}[]; ans:{a:string;b:string} }
-  | { type:"basket";    prompt:string; icon:string; opts:string[]; ans:string };
+  | { type:"word_by_image";     prompt:string; img:string; opts:{word:string;correct:boolean}[] }
+  | { type:"combine_by_images"; prompt:string; imgs:string[]; word:string; opts:{word:string;correct:boolean}[] }
+  | { type:"combine_by_word";   prompt:string; word:string; opts:{img:string;pos:number|null}[] }
+  | { type:"synonym";           prompt:string; img:string; word:string; opts:{word:string;correct:boolean}[] }
+  | { type:"pos_neg";           prompt:string; word:string; isPositive:boolean };
 
+const LEXT = "https://cdn-eu.lolaenglish.com/lextTest%2F";
 const LEX_QS: LexQ[] = [
-  // 1 — images: pick the word that matches two emoji hints
-  { type:"images", prompt:"Elija la imagen correcta",
-    opts:[{e:"🗝️🧱",word:"keystone"},{e:"🛹",word:"skateboard"},{e:"⌨️",word:"keyboard"},{e:"🏂",word:"snowboard"}],
-    ans:"keystone" },
-  // 2 — stress: pick correct syllable stress
-  { type:"stress", prompt:"Elija la pronunciación correcta", icon:"💿",
-    opts:["REcord","reCORD"], ans:"REcord" },
-  // 3 — split: word = part A + part B. Pick the right part B image
-  { type:"split", prompt:"Elija la imagen correcta", word:"teacher",
-    partA:"teach", opts:[{e:"☕",label:"er"},{e:"🎾",label:"or"},{e:"🧊",label:"ar"},{e:"🪑",label:"ir"}], ans:"☕" },
-  // 4 — form: one word or two?
-  { type:"form", prompt:"Elija la opción correcta", icon:"💄",
-    opts:["makeup","make up"], ans:"makeup" },
-  // 5 — synonym
-  { type:"synonym", prompt:"Elija el sinónimo", icon:"😀", word:"happy",
-    opts:["sad","curious","angry","joyful"], ans:"joyful" },
-  // 6 — sentiment
-  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"lazy", ans:"neg" },
-  // 7 — compound: tap part A image + tap part B image → they combine into the word
-  { type:"compound", prompt:"Elija las imágenes correctas", word:"honeymoon",
-    partsA:[{e:"🍯",label:"honey"},{e:"🌻",label:"sun"},{e:"🌊",label:"sea"},{e:"🍎",label:"apple"}],
-    partsB:[{e:"🌙",label:"moon"},{e:"🐤",label:"bird"},{e:"☁️",label:"cloud"},{e:"⭐",label:"star"}],
-    ans:{a:"honey",b:"moon"} },
-  // 8 — basket (stress)
-  { type:"basket", prompt:"Elija la pronunciación correcta", icon:"🥦",
-    opts:["PROduce","proDUCE"], ans:"PROduce" },
-  // 9 — sentiment
-  { type:"sentiment", prompt:"¿El significado es positivo o negativo?", word:"ambitious", ans:"pos" },
+  // 1 — word_by_image: image of meat → choose meat vs meet
+  { type:"word_by_image", prompt:"Elija la opción correcta",
+    img: LEXT+"Meat_.webp?alt=media&token=462e7a23-b7bc-4200-9c0a-a10d5409f437",
+    opts:[{word:"meet",correct:false},{word:"meat",correct:true}] },
+
+  // 2 — combine_by_images: images of key + board → choose compound word
+  { type:"combine_by_images", prompt:"Elija las imágenes correctas", word:"keyboard",
+    imgs:[
+      LEXT+"Key.webp?alt=media&token=9acc1a68-66be-4e53-b5a0-86c5445e2de2",
+      LEXT+"board.webp?alt=media&token=abb0698d-ec6d-43ed-84b5-31d6af3d9c61",
+    ],
+    opts:[{word:"keystone",correct:false},{word:"skateboard",correct:false},{word:"keyboard",correct:true},{word:"snowboard",correct:false}] },
+
+  // 3 — word_by_image: image of record → choose stress: REcord vs reCORD
+  { type:"word_by_image", prompt:"Elija la pronunciación correcta",
+    img: LEXT+"Record.webp?alt=media&token=e825eaaf-4139-41a5-8c82-0f2189181898",
+    opts:[{word:"REcord",correct:true},{word:"reCORD",correct:false}] },
+
+  // 4 — combine_by_word: word "teacher" → pick Tea (pos=0) + Chair (pos=1) from 4 images
+  { type:"combine_by_word", prompt:"Elija las imágenes correctas", word:"teacher",
+    opts:[
+      {img: LEXT+"Tea.webp?alt=media&token=fb50da19-2a15-4724-abfd-e8c400ac3e0d",    pos:0},
+      {img: LEXT+"ball.webp?alt=media&token=c9eb6d37-8cf2-4b0b-be70-bbdb7e04088d",   pos:null},
+      {img: LEXT+"Icecube.webp?alt=media&token=04fd06e9-db99-4dc3-8e7c-9ebdda996dd2",pos:null},
+      {img: LEXT+"Chair.webp?alt=media&token=adfc4187-4d21-4b64-957e-ddbdeddec7d8",  pos:1},
+    ] },
+
+  // 5 — word_by_image: image of couple → makeup vs make up
+  { type:"word_by_image", prompt:"Elija la opción correcta",
+    img: LEXT+"Couple.webp?alt=media&token=c351eae6-fc76-42aa-a3a6-6731b97a576e",
+    opts:[{word:"makeup",correct:false},{word:"make up",correct:true}] },
+
+  // 6 — synonym: image of happy + word → choose joyful
+  { type:"synonym", prompt:"Elija el sinónimo",
+    img: LEXT+"happy.webp?alt=media&token=89c5be98-4c6c-4fd9-ae53-5dfc3e5ed6b9",
+    word:"happy",
+    opts:[{word:"sad",correct:false},{word:"curious",correct:false},{word:"angry",correct:false},{word:"joyful",correct:true}] },
+
+  // 7 — pos_neg: lazy
+  { type:"pos_neg", prompt:"¿El significado es positivo o negativo?", word:"lazy", isPositive:false },
+
+  // 8 — combine_by_word: word "honeymoon" → pick Honey (pos=0) + Moon (pos=1)
+  { type:"combine_by_word", prompt:"Elija las imágenes correctas", word:"honeymoon",
+    opts:[
+      {img: LEXT+"Moon.webp?alt=media&token=0bada52f-fd5c-4a03-967e-34da0702fa54",   pos:1},
+      {img: LEXT+"apple.webp?alt=media&token=8d893dca-2f00-47f3-b1f8-93336f630e1f",  pos:null},
+      {img: LEXT+"Chicken.webp?alt=media&token=275e78cb-9fe5-4b9f-9035-44665ce9ee0f",pos:null},
+      {img: LEXT+"Honey.webp?alt=media&token=561eb75c-fc21-4aee-a293-0e55d10ed57b",  pos:0},
+    ] },
+
+  // 9 — word_by_image: produce → PROduce vs proDUCE
+  { type:"word_by_image", prompt:"Elija la pronunciación correcta",
+    img: LEXT+"produce.webp?alt=media&token=87314efb-964c-444b-9c3f-4e9956c2adb0",
+    opts:[{word:"PROduce",correct:true},{word:"proDUCE",correct:false}] },
+
+  // 10 — pos_neg: ambitious
+  { type:"pos_neg", prompt:"¿El significado es positivo o negativo?", word:"ambitious", isPositive:true },
 ];
 
-// ── Card used by images/split/compound ──────────────────────────────────────
-function EmojiCard({ e, label, selected, correct, wrong, onClick }: {
-  e:string; label:string; selected:boolean; correct?:boolean; wrong?:boolean; onClick:()=>void
+// ── Image card used by word_by_image / combine_by_word ───────────────────────
+function ImgCard({ src, label, selected, correct, wrong, onClick }: {
+  src?:string; label?:string; selected:boolean; correct?:boolean; wrong?:boolean; onClick:()=>void
 }) {
   const bg  = wrong ? "rgba(239,68,68,0.18)" : selected||correct ? "rgba(174,234,0,0.18)" : "rgba(255,255,255,0.07)";
   const bdr = wrong ? "2px solid #ef4444"    : selected||correct ? `2px solid ${G}`       : "1.5px solid rgba(255,255,255,0.12)";
@@ -1437,19 +1478,21 @@ function EmojiCard({ e, label, selected, correct, wrong, onClick }: {
     <div onClick={onClick} style={{
       borderRadius:20, background:bg, border:bdr, cursor:"pointer",
       display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-      gap:8, padding:"18px 8px", transition:"all 0.15s",
+      gap:8, padding:"10px 8px", transition:"all 0.15s", overflow:"hidden",
     }}>
-      <span style={{ fontSize:48, lineHeight:1 }}>{e}</span>
-      <span style={{ fontSize:13, fontWeight:600, color:"#ccc", textAlign:"center" }}>{label}</span>
+      {src && <img src={src} alt="" style={{ width:"100%", maxWidth:120, height:100, objectFit:"contain", borderRadius:12 }}/>}
+      {label && <span style={{ fontSize:15, fontWeight:700, color:"#fff", textAlign:"center" }}
+        dangerouslySetInnerHTML={{__html: label.replace(/([A-Z]{2,})/g, m=>`<span style="color:${G};font-size:18px;font-weight:900">${m}</span>`)}}/>}
     </div>
   );
 }
 
 function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
   const [qi,       setQi]       = useState(0);
-  const [picked,   setPicked]   = useState<string|null>(null);   // general answer
-  const [cpA,      setCpA]      = useState<string|null>(null);   // compound part A
-  const [cpB,      setCpB]      = useState<string|null>(null);   // compound part B
+  const [picked,   setPicked]   = useState<string|null>(null);
+  // combine_by_word: track which images selected (by index)
+  const [selA,     setSelA]     = useState<number|null>(null);   // first picked img index
+  const [selB,     setSelB]     = useState<number|null>(null);   // second picked img index
   const [feedback, setFeedback] = useState<"ok"|"err"|null>(null);
   const [secs,     setSecs]     = useState(0);
 
@@ -1464,7 +1507,7 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
   const ss    = String(secs % 60).padStart(2, "0");
 
   function advance() {
-    if (qi < total - 1) { setQi(i => i + 1); setPicked(null); setCpA(null); setCpB(null); setFeedback(null); }
+    if (qi < total - 1) { setQi(i=>i+1); setPicked(null); setSelA(null); setSelB(null); setFeedback(null); }
     else next();
   }
 
@@ -1475,16 +1518,16 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
     setTimeout(advance, 700);
   }
 
-  // compound: two-step selection
-  function chooseCpA(label: string) {
-    if (cpA !== null) return;
-    setCpA(label);
-  }
-  function chooseCpB(label: string) {
-    if (cpA === null || cpB !== null) return;
-    const q2 = q as Extract<LexQ,{type:"compound"}>;
-    setCpB(label);
-    const ok = cpA === q2.ans.a && label === q2.ans.b;
+  // combine_by_word: tap image A, then image B
+  function pickImg(idx: number) {
+    if (feedback) return;
+    const qc = q as Extract<LexQ,{type:"combine_by_word"}>;
+    if (selA === null) { setSelA(idx); return; }
+    if (selB !== null) return;
+    setSelB(idx);
+    // correct if both have pos values and picked in order (pos=0 first, pos=1 second)
+    const a = qc.opts[selA], b = qc.opts[idx];
+    const ok = a.pos === 0 && b.pos === 1;
     setFeedback(ok ? "ok" : "err");
     setTimeout(advance, 900);
   }
@@ -1499,12 +1542,8 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
 
   return (
     <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:80 }}>
-      <style>{`
-        @keyframes lexBounce{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
-        .lex-bounce{animation:lexBounce 0.3s ease}
-      `}</style>
 
-      {/* Progress bar (dots) */}
+      {/* Progress dots */}
       <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", gap:5 }}>
         {Array.from({length:total},(_,i) => (
           <div key={i} style={{
@@ -1524,71 +1563,110 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
       {/* ─── Question body ─── */}
       <div style={{ width:"100%", maxWidth:480, padding:"20px 20px 0", display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
 
-        {/* IMAGES — 2×2 photo-card grid */}
-        {q.type==="images" && (
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, width:"100%" }}>
-            {q.opts.map(o => {
-              const isP = picked===o.word;
-              const ok  = feedback==="ok" && isP;
-              const err = feedback==="err" && isP;
-              return <EmojiCard key={o.word} e={o.e} label={o.word} selected={isP} correct={ok} wrong={err}
-                onClick={()=>!picked && choose(o.word, o.word===q.ans)}/>;
-            })}
-          </div>
-        )}
-
-        {/* STRESS / BASKET — icon + 2 text buttons */}
-        {(q.type==="stress"||q.type==="basket") && (
+        {/* WORD_BY_IMAGE — big image + 2 word buttons */}
+        {q.type==="word_by_image" && (
           <>
-            <div style={{ fontSize:90, lineHeight:1 }}>{q.icon}</div>
+            <img src={q.img} alt="" style={{ width:"100%", maxWidth:280, height:200, objectFit:"contain", borderRadius:20 }}/>
             <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
               {q.opts.map(o => {
-                const isP = picked===o;
+                const isP = picked===o.word;
                 const ok  = feedback==="ok" && isP;
                 const err = feedback==="err" && isP;
                 return (
-                  <div key={o} onClick={()=>!picked&&choose(o, o===q.ans)}
+                  <div key={o.word} onClick={()=>!picked&&choose(o.word, o.correct)}
                     style={ok ? CARD_OK : err ? CARD_ERR : CARD}
-                    dangerouslySetInnerHTML={{__html: o.replace(/([A-Z]{2,})/g, m=>`<span style="font-size:22px;font-weight:900;color:${G}">${m}</span>`)}}/>
+                    dangerouslySetInnerHTML={{__html: o.word.replace(/([A-Z]{2,})/g, m=>`<span style="color:${G};font-size:22px;font-weight:900">${m}</span>`)}}/>
                 );
               })}
             </div>
           </>
         )}
 
-        {/* FORM — icon + 2 text options */}
-        {q.type==="form" && (
+        {/* COMBINE_BY_IMAGES — show 2 images → pick compound word from 4 options */}
+        {q.type==="combine_by_images" && (
           <>
-            <div style={{ fontSize:90, lineHeight:1 }}>{q.icon}</div>
+            <div style={{ display:"flex", gap:12, marginBottom:4 }}>
+              {q.imgs.map((src,i) => (
+                <img key={i} src={src} alt="" style={{ width:130, height:110, objectFit:"contain", borderRadius:16, background:"rgba(255,255,255,0.06)" }}/>
+              ))}
+            </div>
             <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
               {q.opts.map(o => {
-                const isP = picked===o;
+                const isP = picked===o.word;
                 const ok  = feedback==="ok" && isP;
                 const err = feedback==="err" && isP;
-                return <div key={o} onClick={()=>!picked&&choose(o, o===q.ans)} style={ok?CARD_OK:err?CARD_ERR:CARD}>{o}</div>;
+                return <div key={o.word} onClick={()=>!picked&&choose(o.word, o.correct)} style={ok?CARD_OK:err?CARD_ERR:CARD}>{o.word}</div>;
               })}
             </div>
           </>
         )}
 
-        {/* SYNONYM — icon + word + 4 options */}
+        {/* COMBINE_BY_WORD — show word → tap image A then image B */}
+        {q.type==="combine_by_word" && (() => {
+          const qc = q as Extract<LexQ,{type:"combine_by_word"}>;
+          const aImg = selA !== null ? qc.opts[selA].img : null;
+          const bImg = selB !== null ? qc.opts[selB].img : null;
+          return (
+            <>
+              <div style={{ fontSize:30, fontWeight:900, letterSpacing:1 }}>{qc.word}</div>
+              {/* Slots */}
+              <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:4 }}>
+                <div style={{
+                  width:90, height:80, borderRadius:16, overflow:"hidden",
+                  background: aImg ? "rgba(174,234,0,0.12)" : "rgba(255,255,255,0.08)",
+                  border: aImg ? `2px solid ${G}` : "1.5px dashed rgba(255,255,255,0.25)",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                }}>
+                  {aImg && <img src={aImg} alt="" style={{ width:"100%", height:"100%", objectFit:"contain" }}/>}
+                </div>
+                <span style={{ fontSize:22, color:"#888" }}>+</span>
+                <div style={{
+                  width:90, height:80, borderRadius:16, overflow:"hidden",
+                  background: bImg ? (feedback==="ok"?"rgba(174,234,0,0.12)":"rgba(239,68,68,0.12)") : "rgba(255,255,255,0.08)",
+                  border: bImg ? (feedback==="ok"?`2px solid ${G}`:"2px solid #ef4444") : "1.5px dashed rgba(255,255,255,0.25)",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                }}>
+                  {bImg && <img src={bImg} alt="" style={{ width:"100%", height:"100%", objectFit:"contain" }}/>}
+                </div>
+              </div>
+              <div style={{ fontSize:12, color:"#666", marginBottom:4 }}>
+                {selA === null ? "Toca la primera imagen:" : selB === null ? "Ahora la segunda:" : ""}
+              </div>
+              {/* 2×2 image grid */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, width:"100%" }}>
+                {qc.opts.map((o,i) => {
+                  const isA = selA === i, isB = selB === i;
+                  const bgc = isA||isB ? "rgba(174,234,0,0.12)" : "rgba(255,255,255,0.07)";
+                  const bdc = isA||isB ? `2px solid ${G}` : "1.5px solid rgba(255,255,255,0.12)";
+                  return (
+                    <div key={i} onClick={()=>pickImg(i)} style={{ borderRadius:16, background:bgc, border:bdc, cursor:"pointer", overflow:"hidden", padding:8 }}>
+                      <img src={o.img} alt="" style={{ width:"100%", height:90, objectFit:"contain" }}/>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          );
+        })()}
+
+        {/* SYNONYM — image + word + 4 text options */}
         {q.type==="synonym" && (
           <>
-            <div style={{ fontSize:80, lineHeight:1 }}>{q.icon}</div>
+            <img src={q.img} alt="" style={{ width:160, height:140, objectFit:"contain", borderRadius:16 }}/>
             <div style={{ fontSize:28, fontWeight:900, letterSpacing:1 }}>{q.word}</div>
             <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:10 }}>
               {q.opts.map(o => {
-                const isP = picked===o;
+                const isP = picked===o.word;
                 const ok  = feedback==="ok" && isP;
                 const err = feedback==="err" && isP;
-                return <div key={o} onClick={()=>!picked&&choose(o, o===q.ans)} style={ok?CARD_OK:err?CARD_ERR:CARD}>{o}</div>;
+                return <div key={o.word} onClick={()=>!picked&&choose(o.word, o.correct)} style={ok?CARD_OK:err?CARD_ERR:CARD}>{o.word}</div>;
               })}
             </div>
           </>
         )}
 
-        {/* SENTIMENT — word + thumbs up/down */}
-        {q.type==="sentiment" && (
+        {/* POS_NEG — word + thumbs up/down */}
+        {q.type==="pos_neg" && (
           <>
             <div style={{ fontSize:44, fontWeight:900, letterSpacing:2, marginBottom:8 }}>{q.word}</div>
             <div style={{ width:"100%", display:"flex", gap:12 }}>
@@ -1596,97 +1674,22 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
                 const isP = picked===v;
                 const ok  = feedback==="ok" && isP;
                 const err = feedback==="err" && isP;
-                const color = v==="pos" ? G : "#ef4444";
+                const isPos = v==="pos";
                 return (
-                  <div key={v} onClick={()=>!picked&&choose(v, v===q.ans)} style={{
+                  <div key={v} onClick={()=>!picked&&choose(v, isPos===(q as Extract<LexQ,{type:"pos_neg"}>).isPositive)} style={{
                     flex:1, borderRadius:20, padding:"28px 12px",
                     background: (ok||err) ? (ok?"rgba(174,234,0,0.18)":"rgba(239,68,68,0.18)") : "rgba(255,255,255,0.07)",
                     border: (ok||err) ? `2px solid ${ok?G:"#ef4444"}` : "1.5px solid rgba(255,255,255,0.12)",
                     cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:10,
                   }}>
-                    <span style={{ fontSize:52 }}>{v==="pos"?"👍":"👎"}</span>
-                    <span style={{ fontSize:16, fontWeight:700, color }}>{v==="pos"?"Positivo":"Negativo"}</span>
+                    <span style={{ fontSize:52 }}>{isPos?"👍":"👎"}</span>
+                    <span style={{ fontSize:16, fontWeight:700, color:isPos?G:"#ef4444" }}>{isPos?"Positivo":"Negativo"}</span>
                   </div>
                 );
               })}
             </div>
           </>
         )}
-
-        {/* SPLIT — word = partA + ? → pick correct image for partB */}
-        {q.type==="split" && (
-          <>
-            {/* Combination display */}
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
-              <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"12px 18px", fontSize:18, fontWeight:700 }}>{q.partA}</div>
-              <span style={{ fontSize:24, color:"#888" }}>+</span>
-              <div style={{ width:64, height:52, borderRadius:12, background:picked?"rgba(174,234,0,0.15)":"rgba(255,255,255,0.08)",
-                border:picked?`2px solid ${G}`:"1.5px dashed rgba(255,255,255,0.2)",
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:30 }}>
-                {picked ? q.opts.find(o=>o.e===picked)?.e ?? "?" : "?"}
-              </div>
-              <span style={{ fontSize:22, color:"#888" }}>=</span>
-              <div style={{ background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"12px 18px", fontSize:18, fontWeight:700 }}>{q.word}</div>
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, width:"100%" }}>
-              {q.opts.map(o => {
-                const isP = picked===o.e;
-                const ok  = feedback==="ok" && isP;
-                const err = feedback==="err" && isP;
-                return <EmojiCard key={o.e} e={o.e} label={o.label} selected={isP} correct={ok} wrong={err}
-                  onClick={()=>!picked&&choose(o.e, o.e===q.ans)}/>;
-              })}
-            </div>
-          </>
-        )}
-
-        {/* COMPOUND — two-step: tap part A → tap part B → combine */}
-        {q.type==="compound" && (() => {
-          const q2 = q as Extract<LexQ,{type:"compound"}>;
-          return (
-            <>
-              {/* Combined word display */}
-              <div style={{ fontSize:22, fontWeight:900, marginBottom:4, textAlign:"center", letterSpacing:1 }}>{q2.word}</div>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
-                <div style={{
-                  width:72, height:72, borderRadius:16, fontSize:38, display:"flex", alignItems:"center", justifyContent:"center",
-                  background: cpA ? "rgba(174,234,0,0.15)" : "rgba(255,255,255,0.08)",
-                  border: cpA ? `2px solid ${G}` : "1.5px dashed rgba(255,255,255,0.2)",
-                }}>{cpA ? q2.partsA.find(p=>p.label===cpA)?.e ?? "?" : "?"}</div>
-                <span style={{ fontSize:24, color:"#888" }}>+</span>
-                <div style={{
-                  width:72, height:72, borderRadius:16, fontSize:38, display:"flex", alignItems:"center", justifyContent:"center",
-                  background: cpB ? (feedback==="ok"?"rgba(174,234,0,0.15)":"rgba(239,68,68,0.15)") : "rgba(255,255,255,0.08)",
-                  border: cpB ? (feedback==="ok"?`2px solid ${G}`:"2px solid #ef4444") : "1.5px dashed rgba(255,255,255,0.2)",
-                }}>{cpB ? q2.partsB.find(p=>p.label===cpB)?.e ?? "?" : "?"}</div>
-              </div>
-
-              {/* Part A grid (shown when no A selected yet) */}
-              {!cpA && (
-                <>
-                  <div style={{ fontSize:13, color:"#888", marginBottom:4 }}>Seleccione la primera parte:</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
-                    {q2.partsA.map(p=>(
-                      <EmojiCard key={p.label} e={p.e} label={p.label} selected={false} onClick={()=>chooseCpA(p.label)}/>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {/* Part B grid (shown after A selected) */}
-              {cpA && !cpB && (
-                <>
-                  <div style={{ fontSize:13, color:"#888", marginBottom:4 }}>Ahora la segunda parte:</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%" }}>
-                    {q2.partsB.map(p=>(
-                      <EmojiCard key={p.label} e={p.e} label={p.label} selected={false} onClick={()=>chooseCpB(p.label)}/>
-                    ))}
-                  </div>
-                </>
-              )}
-            </>
-          );
-        })()}
 
       </div>
 
@@ -1815,44 +1818,58 @@ function SCreatProgram({ next, iso }: { next:()=>void; iso:string }) {
     else setSi(i => i + 1);
   }
 
+  // Titles for each step
+  const INFO_TITLES: Record<number,string> = {
+    0:"Analizando su nivel",
+    1:"Creando diálogos de la vida real",
+    2:"Añadiendo práctica de conversación con IA",
+    3:"Seleccionando vocabulario para su nivel",
+    4:"Configurando entrenamiento de pronunciación",
+    5:"Trazando su ruta de aprendizaje",
+  };
+  const title = phase==="info" ? INFO_TITLES[stepIdx] : (step.question ?? "");
+
   return (
-    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 0 100px" }}>
-      {/* Top progress bar */}
-      <div style={{ width:"100%", height:4, background:"rgba(255,255,255,0.08)", overflow:"hidden" }}>
-        <div style={{ height:"100%", background:G, width:`${dispPct}%`, transition:"width 0.4s ease" }}/>
+    <div style={{ ...BASE, justifyContent:"space-between", padding:"0 20px 24px", background:"#010101" }}>
+
+      {/* Title — always at top, bold, white */}
+      <h2 style={{ fontSize:22, fontWeight:800, textAlign:"center", lineHeight:1.35, margin:"28px 0 0", color:"#fff", width:"100%" }}>
+        {title}
+      </h2>
+
+      {/* Image — contained, centered, fixed height */}
+      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%", padding:"24px 0" }}>
+        <img key={imgSrc} src={imgSrc} alt="" style={{
+          maxHeight:260, maxWidth:"100%", objectFit:"contain",
+          borderRadius:16, transition:"opacity 0.3s",
+        }}/>
       </div>
 
-      {/* Image fills most of screen */}
-      <div style={{ flex:1, width:"100%", overflow:"hidden", display:"flex", alignItems:"stretch" }}>
-        <img key={imgSrc} src={imgSrc} alt="" style={{ width:"100%", objectFit:"cover", objectPosition:"top", transition:"opacity 0.3s" }}/>
+      {/* Percentage */}
+      <div style={{ textAlign:"center", fontSize:16, color:G, fontWeight:700, marginBottom:20 }}>
+        {Math.round(dispPct)}%
       </div>
 
-      {/* Bottom controls */}
-      <div style={{ padding:"16px 20px 0", width:"100%", maxWidth:480, alignSelf:"center" }}>
-        {/* Pct indicator */}
-        <div style={{ textAlign:"center", fontSize:14, color:G, fontWeight:700, marginBottom:12 }}>{Math.round(dispPct)}%</div>
-
-        {phase === "info" ? (
-          <button onClick={advance} disabled={!btnOk} style={{
-            width:"100%", height:56, borderRadius:999, border:"none",
-            background: btnOk ? G : "rgba(255,255,255,0.12)",
-            color: btnOk ? "#000" : "#666", fontSize:17, fontWeight:700, cursor: btnOk?"pointer":"default",
-            transition:"all 0.3s",
-          }}>{tr(iso,"next")}</button>
-        ) : (
-          <>
-            {step.question && <p style={{ textAlign:"center", fontSize:16, fontWeight:600, marginBottom:14, lineHeight:1.4 }}>{step.question}</p>}
-            <div style={{ display:"flex", gap:12 }}>
-              {["Sí","No"].map(v=>(
-                <button key={v} onClick={advance} style={{
-                  flex:1, height:56, borderRadius:999, border:"1.5px solid rgba(255,255,255,0.2)",
-                  background:"rgba(255,255,255,0.07)", color:"#fff", fontSize:18, fontWeight:700, cursor:"pointer",
-                }}>{v}</button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+      {/* Buttons */}
+      {phase === "info" ? (
+        <button onClick={advance} disabled={!btnOk} style={{
+          width:"100%", maxWidth:480, height:56, borderRadius:999, border:"none",
+          background: btnOk ? G : "rgba(255,255,255,0.1)",
+          color: btnOk ? "#000" : "#555", fontSize:17, fontWeight:700,
+          cursor: btnOk ? "pointer" : "default", transition:"all 0.3s",
+        }}>{tr(iso,"next")}</button>
+      ) : (
+        <div style={{ width:"100%", maxWidth:480, display:"flex", gap:12 }}>
+          {["Sí","No"].map(v=>(
+            <button key={v} onClick={advance} style={{
+              flex:1, height:56, borderRadius:999,
+              border:"1.5px solid rgba(255,255,255,0.18)",
+              background:"rgba(255,255,255,0.06)", color:"#fff",
+              fontSize:18, fontWeight:700, cursor:"pointer",
+            }}>{v}</button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1953,6 +1970,20 @@ type Screen = "start"|"gender"|"ageRange"|"language"|"video"|"name"|"personalPla
 
 const FLOW: Screen[] = ["start","gender","ageRange","language","name","personalPlan","level","how","brainFocus","why","goodHands1","struggles","brainStudy","topics","appBenefits","program","goodHands2","goalChart","goal","askTest","vocabTest","vocabResults","grammarTest","grammarResults","lexTest","lexTestResults","creatProgram","email","summary","building","expect1","expect4","expect12","expect12m","levelUp","video","choosePlan"];
 
+function SAccess() {
+  return (
+    <div style={{ ...BASE, justifyContent:"center", alignItems:"center", padding:32, textAlign:"center" }}>
+      <div style={{ fontSize:56, marginBottom:24 }}>🎉</div>
+      <h1 style={{ fontSize:26, fontWeight:900, marginBottom:12 }}>¡Acceso activado!</h1>
+      <p style={{ color:"#8899aa", fontSize:16, marginBottom:32 }}>Tu suscripción está activa. El acceso completo a la app está disponible.</p>
+      <div style={{ width:"100%", maxWidth:360, background:"rgba(174,234,0,0.08)", border:`1.5px solid ${G}`, borderRadius:20, padding:24 }}>
+        <p style={{ color:G, fontWeight:700, fontSize:15 }}>✓ Acceso completo activo</p>
+        <p style={{ color:"#8899aa", fontSize:13, marginTop:8 }}>La app de práctica estará disponible en la próxima actualización.</p>
+      </div>
+    </div>
+  );
+}
+
 export default function IolaQuiz() {
   const [step,   setStep]   = useState(0);
   const [langId, setLangId] = useState(71);
@@ -1964,6 +1995,27 @@ export default function IolaQuiz() {
   const [strugs, setStrugs] = useState<number[]>([]);
   const [topics, setTopics] = useState<number[]>([]);
   const [goal,   setGoal]   = useState<number|null>(null);
+  const [hasAccess, setHasAccess] = useState<boolean|null>(null);
+
+  useEffect(()=>{
+    supabase.auth.getUser().then(async({ data })=>{
+      if (data.user) {
+        const sub = await getActiveSubscription(data.user.id);
+        setHasAccess(!!sub);
+      } else {
+        setHasAccess(false);
+      }
+    });
+  },[]);
+
+  if (hasAccess === null) {
+    return <div style={{ ...BASE, justifyContent:"center", alignItems:"center" }}>
+      <div style={{ width:40, height:40, borderRadius:"50%", border:`3px solid ${G}`, borderTopColor:"transparent", animation:"spin 0.8s linear infinite" }}/>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>;
+  }
+
+  if (hasAccess) return <SAccess />;
 
   const next = () => setStep(s=>Math.min(s+1,FLOW.length-1));
   const iso  = LANGUAGES.find(l=>l.id===langId)?.iso ?? "es";
