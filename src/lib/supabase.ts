@@ -1,9 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Plan = "week" | "month" | "quarter";
 export type SubStatus = "active" | "expired" | "cancelled";
@@ -29,5 +25,5 @@ export async function getActiveSubscription(
     .order("expires_at", { ascending: false })
     .limit(1)
     .single();
-  return data ?? null;
+  return (data as Subscription | null) ?? null;
 }
