@@ -1994,7 +1994,7 @@ function SAccess() {
   );
 }
 
-export default function IolaQuiz() {
+function IolaQuiz() {
   const [step,   setStep]   = useState(0);
   const [langId, setLangId] = useState(71);
   const [name,   setName]   = useState("");
