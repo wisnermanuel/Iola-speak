@@ -25,5 +25,5 @@ export async function getActiveSubscription(
     .order("expires_at", { ascending: false })
     .limit(1)
     .single();
-  return data ?? null;
+  return (data as Subscription | null) ?? null;
 }
