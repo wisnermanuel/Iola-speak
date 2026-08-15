@@ -2007,16 +2007,27 @@ function IolaQuiz() {
   const [goal,   setGoal]   = useState<number|null>(null);
   const [hasAccess, setHasAccess] = useState<boolean|null>(null);
 
-  useEffect(()=>{
-    supabase.auth.getUser().then(async({ data })=>{
-      if (data.user) {
-        const sub = await getActiveSubscription(data.user.id);
-        setHasAccess(!!sub);
-      } else {
-        setHasAccess(false);
+  useEffect(() => {
+    let active = true;
+
+    const checkAccess = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        const subscription = data.user
+          ? await getActiveSubscription(data.user.id)
+          : null;
+        if (active) setHasAccess(Boolean(subscription));
+      } catch (error) {
+        console.warn("No se pudo comprobar la suscripción; mostrando el quiz.", error);
+        if (active) setHasAccess(false);
       }
-    });
-  },[]);
+    };
+
+    void checkAccess();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (hasAccess === null) {
     return <div style={{ ...BASE, justifyContent:"center", alignItems:"center" }}>
