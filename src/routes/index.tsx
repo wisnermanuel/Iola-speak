@@ -1052,7 +1052,14 @@ function SChoosePlan({ iso }: { iso:string }) {
           <div style={{ marginTop:12, textAlign:"center", fontSize:12, color:"#888", display:"flex", alignItems:"center", justifyContent:"center", gap:6, marginBottom:12 }}>
             <span>🔒</span> Your payment is secured
           </div>
-          <button onClick={()=>alert("Redirigiendo al pago...")} style={{
+          <button onClick={()=>{
+            const urls:Record<string,string>={
+              week:"https://buy.stripe.com/9B63cxge99YZdyg2Zf4AU0J",
+              month:"https://buy.stripe.com/5kQ3cx1jf4EFcuc0R74AU0K",
+              quarter:"https://buy.stripe.com/bJe14p7HD7QRdygczP4AU0L"
+            };
+            window.location.href=urls[selPlan]||urls.month;
+          }} style={{
             width:"100%", height:56, background:G, border:"none", borderRadius:14,
             fontSize:18, fontWeight:800, color:"#000", cursor:"pointer", marginBottom:8,
           }}>Obtenga mi plan</button>
