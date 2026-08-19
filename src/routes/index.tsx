@@ -1088,21 +1088,50 @@ function SChoosePlan({ iso }: { iso:string }) {
 
 // ─── Mini S-curve shared by test result screens ────────────────────────────────
 function MiniCurve({ label1, val1, label2, val2 }: { label1:string; val1:string; label2:string; val2:string }) {
+  const [phase, setPhase] = useState<"p1"|"pause"|"p2">("p1");
   const [prog, setProg] = useState(0);
-  const [done, setDone] = useState(false);
-  useEffect(()=>{
-    let t0: number|null = null;
-    const dur = 1800;
-    function frame(ts:number){ if(!t0)t0=ts; const p=Math.min((ts-t0)/dur,1); setProg(p); if(p<1)requestAnimationFrame(frame); else setDone(true); }
-    requestAnimationFrame(frame);
-  },[]);
+  const STOP1 = 0.45, STOP2 = 0.60;
   const W=320, H=200, N=100;
   const fullPts = Array.from({length:N+1},(_,i)=>{ const f=i/N,x=W*.05+f*W*.9,e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2; return {x,y:H*.92-e*H*.78}; });
-  const stop = 0.45;
-  const greenPts = fullPts.slice(0, Math.floor(prog*stop*N)+1);
+
+  useEffect(()=>{
+    // Phase 1: animate 0 → STOP1 in 1600ms
+    let t0: number|null = null;
+    const dur1 = 1600;
+    function frame1(ts:number){
+      if(!t0) t0=ts;
+      const p = Math.min((ts-t0)/dur1, 1);
+      setProg(p * STOP1);
+      if(p < 1) requestAnimationFrame(frame1);
+      else {
+        setPhase("pause");
+        // Pause 1 second then animate phase 2
+        setTimeout(()=>{
+          setPhase("p2");
+          let t1: number|null = null;
+          const dur2 = 900;
+          function frame2(ts2:number){
+            if(!t1) t1=ts2;
+            const p2 = Math.min((ts2-t1)/dur2, 1);
+            setProg(STOP1 + p2*(STOP2-STOP1));
+            if(p2 < 1) requestAnimationFrame(frame2);
+          }
+          requestAnimationFrame(frame2);
+        }, 1000);
+      }
+    }
+    requestAnimationFrame(frame1);
+  },[]);
+
+  const endIdx = Math.floor(prog * N);
+  const greenPts = fullPts.slice(0, Math.min(endIdx+1, N+1));
   const cur = greenPts[greenPts.length-1];
+  const stop1Pt = fullPts[Math.floor(STOP1*N)];
+  const stop2Pt = fullPts[Math.floor(STOP2*N)];
   const dFull = fullPts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
   const dGreen = greenPts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const atStop1 = prog >= STOP1 - 0.01;
+  const atStop2 = prog >= STOP2 - 0.01;
   return (
     <div style={{ width:"100%", maxWidth:420, margin:"0 auto" }}>
       <div style={{ display:"flex", justifyContent:"space-around", marginBottom:8 }}>
@@ -1112,19 +1141,24 @@ function MiniCurve({ label1, val1, label2, val2 }: { label1:string; val1:string;
         </div>
         <div style={{ textAlign:"center" }}>
           <div style={{ fontSize:11, color:"#8899aa" }}>{label2}</div>
-          <div style={{ fontSize:28, fontWeight:900, color:"#334" }}>{val2}</div>
+          <div style={{ fontSize:28, fontWeight:900, color:"#556677" }}>{val2}</div>
         </div>
       </div>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display:"block" }}>
         <path d={dFull} fill="none" stroke="rgba(180,180,180,0.2)" strokeWidth={2} strokeLinecap="round"/>
         {greenPts.length>1 && <path d={dGreen} fill="none" stroke={G} strokeWidth={3} strokeLinecap="round"/>}
-        {cur && prog>.01 && <circle cx={cur.x} cy={cur.y} r={8} fill={G}/>}
-        {done && cur && <text x={cur.x-4} y={cur.y+4} fill="#000" fontSize={10} fontWeight="900">✓</text>}
-        {/* X-axis labels */}
+        {/* Stop 1 dot — green when reached */}
+        {atStop1 && <circle cx={stop1Pt.x} cy={stop1Pt.y} r={9} fill={G}/>}
+        {atStop1 && <text x={stop1Pt.x} y={stop1Pt.y+4} fill="#000" fontSize={10} fontWeight="900" textAnchor="middle">✓</text>}
+        {/* Animated dot when between stops */}
+        {cur && prog > 0.01 && !atStop1 && <circle cx={cur.x} cy={cur.y} r={8} fill={G}/>}
+        {cur && phase==="p2" && !atStop2 && <circle cx={cur.x} cy={cur.y} r={8} fill={G}/>}
+        {/* Stop 2 dot — outline until reached, green when reached */}
+        {!atStop2 && <circle cx={stop2Pt.x} cy={stop2Pt.y} r={7} fill="none" stroke="rgba(180,180,180,0.5)" strokeWidth={2}/>}
+        {atStop2 && <circle cx={stop2Pt.x} cy={stop2Pt.y} r={9} fill={G}/>}
+        {atStop2 && <text x={stop2Pt.x} y={stop2Pt.y+4} fill="#000" fontSize={10} fontWeight="900" textAnchor="middle">✓</text>}
         <text x={W*.05} y={H} fill="#556677" fontSize={10} textAnchor="middle">Hoy</text>
         <text x={W*.95} y={H} fill="#556677" fontSize={10} textAnchor="middle">1 mes</text>
-        {/* Next milestone dot */}
-        <circle cx={fullPts[Math.floor(N*0.6)].x} cy={fullPts[Math.floor(N*0.6)].y} r={6} fill="none" stroke="#334" strokeWidth={2}/>
       </svg>
     </div>
   );
