@@ -268,7 +268,7 @@ function SName({ next, name, setName, iso }: { next:()=>void; name:string; setNa
         <h1 style={{ fontSize:24, fontWeight:800, textAlign:"center", margin:"0 0 28px" }}>{tr(iso,"nameQ")}</h1>
         <div style={{ width:"100%", display:"flex", alignItems:"center", background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:14, padding:"14px 16px", gap:12 }}>
           <span style={{ fontSize:18, opacity:0.5 }}>👤</span>
-          <input value={name} onChange={e=>setName(e.target.value)} placeholder="María"
+          <input value={name} onChange={e=>setName(e.target.value)} placeholder=""
             style={{ flex:1, background:"none", border:"none", outline:"none", color:"#fff", fontSize:17, fontWeight:500 }} autoFocus />
         </div>
         <button onClick={next} style={{ marginTop:28, background:"none", border:"none", color:"#556677", fontSize:15, cursor:"pointer" }}>{tr(iso,"skip")}</button>
@@ -458,12 +458,20 @@ function SStruggles({ next, sel, setSel, iso, langId }: { next:()=>void; sel:num
 function SBrainStudy({ next, iso }: { next:()=>void; iso:string }) {
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"0 24px 100px", textAlign:"center" }}>
-      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <img src={CDN+"watch.webp"} alt="" style={{ width:"55vw", maxWidth:220, objectFit:"contain" }}/>
+      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:32 }}>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10 }}>
+          <div style={{ fontSize:64, opacity:0.35, filter:"grayscale(0.6)" }}>💡</div>
+          <span style={{ fontSize:13, color:"#8899aa", fontWeight:600, maxWidth:80, lineHeight:1.3 }}>Estudio regular</span>
+        </div>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10 }}>
+          <div style={{ fontSize:110, filter:"drop-shadow(0 0 24px rgba(255,200,0,0.7)) drop-shadow(0 0 48px rgba(255,160,0,0.4))", animation:"glowPulse 2.5s ease-in-out infinite" }}>💡</div>
+          <span style={{ fontSize:13, color:"#fff", fontWeight:700, maxWidth:90, lineHeight:1.3 }}>Repetición espaciada</span>
+        </div>
       </div>
       <div style={{ width:"100%", maxWidth:400 }}>
-        <h2 style={{ fontSize:22, fontWeight:800, margin:"0 0 8px" }}>El estudio regular es la clave</h2>
-        <p style={{ color:"#8899aa", lineHeight:1.6, margin:"0 0 20px", maxWidth:340, marginInline:"auto" }}>Practicar incluso 5 minutos al día puede acelerar tu aprendizaje de manera significativa</p>
+        <div style={{ fontSize:36, fontWeight:900, color:G, marginBottom:4 }}>2x</div>
+        <h2 style={{ fontSize:20, fontWeight:800, margin:"0 0 8px" }}>Retención a largo plazo</h2>
+        <p style={{ color:"#8899aa", lineHeight:1.6, margin:"0 0 20px", maxWidth:340, marginInline:"auto", fontSize:14 }}>Practicar incluso 5 minutos al día puede acelerar tu aprendizaje de manera significativa</p>
         <div style={{ display:"flex", gap:14, width:"100%" }}>
           {[["Retención","3x más"],["Confianza","+60%"]].map(([l,v])=>(
             <div key={l} style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:16, padding:"22px 12px" }}>
