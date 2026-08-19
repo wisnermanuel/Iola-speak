@@ -1316,6 +1316,7 @@ function SVocabTest({ next, iso }: { next:()=>void; iso:string }) {
         </div>
       </div>
       <NextBtn onClick={advance}>{tr(iso,"next")}</NextBtn>
+      <button onClick={advance} style={{ background:"none", border:"none", color:"#556677", fontSize:14, cursor:"pointer", padding:"8px 0" }}>{tr(iso,"skip")}</button>
     </div>
   );
 }
