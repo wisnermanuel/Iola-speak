@@ -1451,7 +1451,7 @@ function SGrammarResults({ next, iso }: { next:()=>void; iso:string }) {
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px", textAlign:"center" }}>
       <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>{TITLE[iso]??TITLE.es}</h1>
-      <MiniCurve label1={LVL[iso]??LVL.es} val1="A1" label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="A2"/>
+      <MiniCurve label1={LVL[iso]??LVL.es} val1="B1" label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="B2"/>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
