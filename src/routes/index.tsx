@@ -1374,7 +1374,7 @@ function SGrammarTest({ next, iso }: { next:()=>void; iso:string }) {
     setTimeout(()=>{
       if(qi < GRAMMAR_QS.length-1){ setQi(i=>i+1); setPicked(null); }
       else next();
-    }, 400);
+    }, 700);
   };
 
   return (
@@ -1407,7 +1407,11 @@ function SGrammarTest({ next, iso }: { next:()=>void; iso:string }) {
               {q.sentence.split("___").map((part,i,arr)=>(
                 <span key={i}>
                   {part}
-                  {i<arr.length-1 && <span style={{ display:"inline-block", width:100, height:22, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:4, verticalAlign:"middle", margin:"0 4px" }}/>}
+                  {i<arr.length-1 && (
+                    picked
+                      ? <span style={{ display:"inline-block", padding:"2px 12px", background:"rgba(174,234,0,0.18)", border:`1.5px solid ${G}`, borderRadius:6, verticalAlign:"middle", margin:"0 4px", color:G, fontWeight:700, fontSize:17, transition:"all 0.2s" }}>{picked}</span>
+                      : <span style={{ display:"inline-block", width:100, height:22, background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:4, verticalAlign:"middle", margin:"0 4px" }}/>
+                  )}
                 </span>
               ))}
             </p>
