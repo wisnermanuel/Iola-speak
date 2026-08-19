@@ -59,23 +59,23 @@ const STRUGGLES: Item[] = [
 ];
 
 const TOPICS = [
-  { id:1,  title:"Adventure",  image:GCS+"Adventure_icon.webp" },
-  { id:2,  title:"Art",        image:GCS+"Art.webp" },
-  { id:3,  title:"Beauty",     image:GCS+"Beauty.webp" },
-  { id:4,  title:"Business",   image:GCS+"Business.webp" },
-  { id:5,  title:"Career",     image:GCS+"Career_icon.webp" },
-  { id:7,  title:"Daily Life", image:GCS+"Daily.webp" },
-  { id:8,  title:"Doctor",     image:GCS+"Doctor.webp" },
-  { id:10, title:"Embassy",    image:GCS+"Embassy.webp" },
-  { id:11, title:"Food",       image:GCS+"Food.webp" },
-  { id:12, title:"Gym",        image:GCS+"Gym.webp" },
-  { id:13, title:"Party",      image:GCS+"Party.webp" },
-  { id:14, title:"Politics",   image:GCS+"Politics.webp" },
-  { id:15, title:"Restaurant", image:GCS+"Restaurant.webp" },
-  { id:16, title:"Romance",    image:GCS+"Romance_romance.webp" },
-  { id:17, title:"Shopping",   image:GCS+"Shopping.webp" },
-  { id:18, title:"Tech",       image:GCS+"Tech.webp" },
-  { id:19, title:"Travel",     image:GCS+"Travel_icon.webp" },
+  { id:1,  image:GCS+"Adventure_icon.webp",  labels:{en:"Adventure",es:"Aventura",de:"Abenteuer",fr:"Aventure",it:"Avventura",pt:"Aventura",ru:"Приключения",uk:"Пригоди",bg:"Приключение",zh:"冒险",cs:"Dobrodružství",fi:"Seikkailu",el:"Περιπέτεια",id:"Petualangan",ja:"冒険",ko:"모험",pl:"Przygoda",sv:"Äventyr",tr:"Macera"} },
+  { id:2,  image:GCS+"Art.webp",             labels:{en:"Art",es:"Arte",de:"Kunst",fr:"Art",it:"Arte",pt:"Arte",ru:"Искусство",uk:"Мистецтво",bg:"Изкуство",zh:"艺术",cs:"Umění",fi:"Taide",el:"Τέχνη",id:"Seni",ja:"芸術",ko:"예술",pl:"Sztuka",sv:"Konst",tr:"Sanat"} },
+  { id:3,  image:GCS+"Beauty.webp",          labels:{en:"Beauty",es:"Belleza",de:"Schönheit",fr:"Beauté",it:"Bellezza",pt:"Beleza",ru:"Красота",uk:"Краса",bg:"Красота",zh:"美容",cs:"Krása",fi:"Kauneus",el:"Ομορφιά",id:"Kecantikan",ja:"美容",ko:"미용",pl:"Uroda",sv:"Skönhet",tr:"Güzellik"} },
+  { id:4,  image:GCS+"Business.webp",        labels:{en:"Business",es:"Negocios",de:"Business",fr:"Affaires",it:"Affari",pt:"Negócios",ru:"Бизнес",uk:"Бізнес",bg:"Бизнес",zh:"商业",cs:"Byznys",fi:"Bisnes",el:"Επιχείρηση",id:"Bisnis",ja:"ビジネス",ko:"비즈니스",pl:"Biznes",sv:"Affärer",tr:"İş"} },
+  { id:5,  image:GCS+"Career_icon.webp",     labels:{en:"Career",es:"Carrera",de:"Karriere",fr:"Carrière",it:"Carriera",pt:"Carreira",ru:"Карьера",uk:"Кар'єра",bg:"Кариера",zh:"职业",cs:"Kariéra",fi:"Ura",el:"Καριέρα",id:"Karier",ja:"キャリア",ko:"커리어",pl:"Kariera",sv:"Karriär",tr:"Kariyer"} },
+  { id:7,  image:GCS+"Daily.webp",           labels:{en:"Daily Life",es:"Vida diaria",de:"Alltag",fr:"Vie quotidienne",it:"Vita quotidiana",pt:"Vida diária",ru:"Повседневная жизнь",uk:"Повсякденне життя",bg:"Ежедневие",zh:"日常生活",cs:"Každodenní život",fi:"Arki",el:"Καθημερινή ζωή",id:"Kehidupan sehari-hari",ja:"日常生活",ko:"일상생활",pl:"Życie codzienne",sv:"Vardagsliv",tr:"Günlük hayat"} },
+  { id:8,  image:GCS+"Doctor.webp",          labels:{en:"Doctor",es:"Médico",de:"Arzt",fr:"Médecin",it:"Dottore",pt:"Médico",ru:"Врач",uk:"Лікар",bg:"Лекар",zh:"医生",cs:"Doktor",fi:"Lääkäri",el:"Γιατρός",id:"Dokter",ja:"医者",ko:"의사",pl:"Lekarz",sv:"Läkare",tr:"Doktor"} },
+  { id:10, image:GCS+"Embassy.webp",         labels:{en:"Embassy",es:"Embajada",de:"Botschaft",fr:"Ambassade",it:"Ambasciata",pt:"Embaixada",ru:"Посольство",uk:"Посольство",bg:"Посолство",zh:"大使馆",cs:"Velvyslanectví",fi:"Suurlähetystö",el:"Πρεσβεία",id:"Kedutaan",ja:"大使館",ko:"대사관",pl:"Ambasada",sv:"Ambassad",tr:"Büyükelçilik"} },
+  { id:11, image:GCS+"Food.webp",            labels:{en:"Food",es:"Comida",de:"Essen",fr:"Nourriture",it:"Cibo",pt:"Comida",ru:"Еда",uk:"Їжа",bg:"Храна",zh:"食物",cs:"Jídlo",fi:"Ruoka",el:"Φαγητό",id:"Makanan",ja:"食べ物",ko:"음식",pl:"Jedzenie",sv:"Mat",tr:"Yemek"} },
+  { id:12, image:GCS+"Gym.webp",             labels:{en:"Gym",es:"Gimnasio",de:"Fitnessstudio",fr:"Salle de sport",it:"Palestra",pt:"Academia",ru:"Спортзал",uk:"Спортзал",bg:"Фитнес",zh:"健身房",cs:"Posilovna",fi:"Kuntosali",el:"Γυμναστήριο",id:"Gym",ja:"ジム",ko:"헬스장",pl:"Siłownia",sv:"Gym",tr:"Spor salonu"} },
+  { id:13, image:GCS+"Party.webp",           labels:{en:"Party",es:"Fiesta",de:"Party",fr:"Fête",it:"Festa",pt:"Festa",ru:"Вечеринка",uk:"Вечірка",bg:"Парти",zh:"派对",cs:"Párty",fi:"Juhlat",el:"Πάρτι",id:"Pesta",ja:"パーティー",ko:"파티",pl:"Impreza",sv:"Fest",tr:"Parti"} },
+  { id:14, image:GCS+"Politics.webp",        labels:{en:"Politics",es:"Política",de:"Politik",fr:"Politique",it:"Politica",pt:"Política",ru:"Политика",uk:"Політика",bg:"Политика",zh:"政治",cs:"Politika",fi:"Politiikka",el:"Πολιτική",id:"Politik",ja:"政治",ko:"정치",pl:"Polityka",sv:"Politik",tr:"Siyaset"} },
+  { id:15, image:GCS+"Restaurant.webp",      labels:{en:"Restaurant",es:"Restaurante",de:"Restaurant",fr:"Restaurant",it:"Ristorante",pt:"Restaurante",ru:"Ресторан",uk:"Ресторан",bg:"Ресторант",zh:"餐厅",cs:"Restaurace",fi:"Ravintola",el:"Εστιατόριο",id:"Restoran",ja:"レストラン",ko:"레스토랑",pl:"Restauracja",sv:"Restaurang",tr:"Restoran"} },
+  { id:16, image:GCS+"Romance_romance.webp", labels:{en:"Romance",es:"Romance",de:"Romantik",fr:"Romance",it:"Romanticismo",pt:"Romance",ru:"Романтика",uk:"Романтика",bg:"Романтика",zh:"浪漫",cs:"Romantika",fi:"Romantiikka",el:"Ρομάντζο",id:"Romansa",ja:"ロマンス",ko:"로맨스",pl:"Romans",sv:"Romans",tr:"Romantizm"} },
+  { id:17, image:GCS+"Shopping.webp",        labels:{en:"Shopping",es:"Compras",de:"Einkaufen",fr:"Shopping",it:"Shopping",pt:"Compras",ru:"Шопинг",uk:"Шопінг",bg:"Пазаруване",zh:"购物",cs:"Nakupování",fi:"Ostokset",el:"Ψώνια",id:"Belanja",ja:"ショッピング",ko:"쇼핑",pl:"Zakupy",sv:"Shopping",tr:"Alışveriş"} },
+  { id:18, image:GCS+"Tech.webp",            labels:{en:"Tech",es:"Tecnología",de:"Technik",fr:"Technologie",it:"Tecnologia",pt:"Tecnologia",ru:"Технологии",uk:"Технології",bg:"Технологии",zh:"科技",cs:"Technologie",fi:"Teknologia",el:"Τεχνολογία",id:"Teknologi",ja:"テクノロジー",ko:"기술",pl:"Technologia",sv:"Teknik",tr:"Teknoloji"} },
+  { id:19, image:GCS+"Travel_icon.webp",     labels:{en:"Travel",es:"Viajes",de:"Reisen",fr:"Voyage",it:"Viaggi",pt:"Viagens",ru:"Путешествия",uk:"Подорожі",bg:"Пътуване",zh:"旅行",cs:"Cestování",fi:"Matkailu",el:"Ταξίδι",id:"Perjalanan",ja:"旅行",ko:"여행",pl:"Podróże",sv:"Resor",tr:"Seyahat"} },
 ];
 
 const PLANS = [
@@ -501,8 +501,8 @@ function STopics({ next, sel, setSel, iso }: { next:()=>void; sel:number[]; setS
               display:"flex", flexDirection:"column", alignItems:"center", gap:8,
               cursor:"pointer", transition:"all 0.2s",
             }}>
-              <img src={tp.image} alt={tp.title} style={{ width:44, height:44, objectFit:"contain" }}/>
-              <span style={{ fontSize:11, textAlign:"center", color:on?G:"#bbb", fontWeight:on?700:400 }}>{tp.title}</span>
+              <img src={tp.image} alt={(tp.labels as Record<string,string>)[iso] ?? tp.labels.en} style={{ width:44, height:44, objectFit:"contain" }}/>
+              <span style={{ fontSize:11, textAlign:"center", color:on?G:"#bbb", fontWeight:on?700:400 }}>{(tp.labels as Record<string,string>)[iso] ?? tp.labels.en}</span>
             </div>
           );})}
         </div>
