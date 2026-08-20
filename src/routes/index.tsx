@@ -1124,7 +1124,7 @@ function MiniCurve({ label1, val1, label2, val2, iso="es" }: { label1:string; va
   const [phase, setPhase] = useState<"p1"|"pause"|"p2">("p1");
   const [prog, setProg] = useState(0);
   const STOP1 = 0.45, STOP2 = 0.60;
-  const W=320, H=200, N=100;
+  const W=320, H=185, N=100;
   const fullPts = Array.from({length:N+1},(_,i)=>{ const f=i/N,x=W*.05+f*W*.9,e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2; return {x,y:H*.92-e*H*.78}; });
 
   useEffect(()=>{
@@ -1177,7 +1177,7 @@ function MiniCurve({ label1, val1, label2, val2, iso="es" }: { label1:string; va
           <div style={{ fontSize:28, fontWeight:900, color:"#556677" }}>{val2}</div>
         </div>
       </div>
-      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display:"block" }}>
+      <svg width="100%" viewBox={`0 0 ${W} ${H+30}`} style={{ display:"block" }}>
         <path d={dFull} fill="none" stroke="rgba(180,180,180,0.2)" strokeWidth={2} strokeLinecap="round"/>
         {greenPts.length>1 && <path d={dGreen} fill="none" stroke={G} strokeWidth={3} strokeLinecap="round"/>}
         {/* Stop 1 dot — green when reached */}
@@ -1229,7 +1229,7 @@ function SGoalChart({ next, iso }: { next:()=>void; iso:string }) {
     <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px" }}>
       <h1 style={{ fontSize:20, fontWeight:800, textAlign:"center", margin:0, lineHeight:1.3 }}>{GOAL_Q[iso]??GOAL_Q.es}</h1>
       <div style={{ position:"relative", width:"100%", maxWidth:380 }}>
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display:"block" }}>
+        <svg width="100%" viewBox={`0 0 ${W} ${H+20}`} style={{ display:"block" }}>
           {[1,2,3].map(i=><line key={i} x1={W*.04} x2={W*.96} y1={H*i/4} y2={H*i/4} stroke="rgba(255,255,255,0.05)" strokeWidth={1}/>)}
           {LINES.map((line,li)=>{
             const allPts = makePts(line.height);
