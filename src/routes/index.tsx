@@ -1360,7 +1360,7 @@ const GRAMMAR_QS: GrammarQ[] = [
   { type:"text",  sentence:"Hardly ___ left the house when the storm broke.", blank:"___", options:["I had","had I","I have","have I"], answer:"had I" },
 ];
 
-function SGrammarTest({ next, iso }: { next:()=>void; iso:string }) {
+function SGrammarTest({ next, iso, setScore }: { next:()=>void; iso:string; setScore:(n:number)=>void }) {
   const [qi, setQi] = useState(0);
   const [picked, setPicked] = useState<string|null>(null);
   const q = GRAMMAR_QS[qi];
@@ -1370,11 +1370,16 @@ function SGrammarTest({ next, iso }: { next:()=>void; iso:string }) {
     ru:"Выберите правильный вариант",uk:"Виберіть правильний варіант",
   };
 
+  const [correct, setCorrect] = useState(0);
+
   const choose = (opt:string) => {
+    const hit = opt === q.answer ? 1 : 0;
+    const newCorrect = correct + hit;
     setPicked(opt);
+    setCorrect(newCorrect);
     setTimeout(()=>{
       if(qi < GRAMMAR_QS.length-1){ setQi(i=>i+1); setPicked(null); }
-      else next();
+      else { setScore(newCorrect); next(); }
     }, 700);
   };
 
@@ -1438,7 +1443,8 @@ function SGrammarTest({ next, iso }: { next:()=>void; iso:string }) {
 }
 
 // ─── Grammar results ────────────────────────────────────────────────────────────
-function SGrammarResults({ next, iso }: { next:()=>void; iso:string }) {
+function SGrammarResults({ next, iso, score }: { next:()=>void; iso:string; score:number }) {
+  const curLevel = score >= 8 ? "B1" : score >= 5 ? "A2" : "A1";
   const TITLE: Record<string,string> = {
     es:"¡Prueba de gramática completada!",en:"Grammar test completed!",de:"Grammatiktest abgeschlossen!",
     fr:"Test de grammaire terminé!",it:"Test di grammatica completato!",pt:"Teste de gramática concluído!",
@@ -1452,7 +1458,7 @@ function SGrammarResults({ next, iso }: { next:()=>void; iso:string }) {
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px", textAlign:"center" }}>
       <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>{TITLE[iso]??TITLE.es}</h1>
-      <MiniCurve label1={LVL[iso]??LVL.es} val1="B1" label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="B2"/>
+      <MiniCurve label1={LVL[iso]??LVL.es} val1={curLevel} label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="B2"/>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
@@ -2066,6 +2072,7 @@ function IolaQuiz() {
   const [strugs, setStrugs] = useState<number[]>([]);
   const [topics, setTopics] = useState<number[]>([]);
   const [goal,   setGoal]   = useState<number|null>(null);
+  const [grammarScore, setGrammarScore] = useState(0);
   const [hasAccess, setHasAccess] = useState<boolean|null>(null);
 
   useEffect(() => {
@@ -2128,8 +2135,8 @@ function IolaQuiz() {
       {sc==="askTest"      && <SAskTest      next={next} iso={iso} />}
       {sc==="vocabTest"    && <SVocabTest    next={next} iso={iso} />}
       {sc==="vocabResults" && <SVocabResults next={next} iso={iso} />}
-      {sc==="grammarTest"  && <SGrammarTest  next={next} iso={iso} />}
-      {sc==="grammarResults" && <SGrammarResults next={next} iso={iso} />}
+      {sc==="grammarTest"  && <SGrammarTest  next={next} iso={iso} setScore={setGrammarScore} />}
+      {sc==="grammarResults" && <SGrammarResults next={next} iso={iso} score={grammarScore} />}
       {sc==="lexTest"       && <SLexTest       next={next} iso={iso} />}
       {sc==="lexTestResults"&& <SLexTestResults next={next} iso={iso} />}
       {sc==="creatProgram"  && <SCreatProgram  next={next} iso={iso} />}
