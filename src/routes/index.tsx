@@ -814,7 +814,7 @@ function SExpect({ next, week, iso }: { next:()=>void; week:1|4|12|"12m"; iso:st
       <div style={{ width:"100%", maxWidth:480, height:340, overflow:"hidden", flexShrink:0 }}>
         <img src={D.img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }}/>
       </div>
-      <div style={{ width:"100%", maxWidth:480, padding:"24px 20px 120px", flex:1 }}>
+      <div style={{ width:"100%", maxWidth:480, padding:"24px 20px 100px", flex:1, overflowY:"auto" }}>
         <h2 style={{ fontSize:24, fontWeight:800, margin:"0 0 6px" }}>{D.title}</h2>
         <p style={{ color:"#8899aa", marginBottom:24, fontSize:15 }}>{D.sub}</p>
         {D.bullets.map(b=>(
@@ -1126,7 +1126,7 @@ function MiniCurve({ label1, val1, label2, val2, iso="es" }: { label1:string; va
   })();
   const [phase, setPhase] = useState<"p1"|"pause"|"p2">("p1");
   const [prog, setProg] = useState(0);
-  const STOP1 = 0.45, STOP2 = 0.60;
+  const STOP1 = 0.42, STOP2 = 0.72;
   const W=320, H=185, N=100;
   const fullPts = Array.from({length:N+1},(_,i)=>{ const f=i/N,x=W*.05+f*W*.9,e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2; return {x,y:H*.92-e*H*.78}; });
 
@@ -1645,18 +1645,18 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
   const CARD_ERR: React.CSSProperties = { ...CARD, background:"rgba(239,68,68,0.18)", border:"2px solid #ef4444" };
 
   return (
-    <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:80 }}>
+    <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:0, overflow:"hidden" }}>
 
       <TestProgressBar current={qi} total={total}/>
 
       {/* Timer + prompt */}
-      <div style={{ textAlign:"center", padding:"20px 20px 0" }}>
+      <div style={{ textAlign:"center", padding:"20px 20px 0", flexShrink:0 }}>
         <div style={{ fontSize:36, fontWeight:700, fontFamily:"monospace", letterSpacing:3 }}>{mm}:{ss}</div>
         <div style={{ fontSize:15, color:"#ccc", marginTop:8, lineHeight:1.4 }}>{q.prompt}</div>
       </div>
 
       {/* ─── Question body ─── */}
-      <div style={{ width:"100%", maxWidth:480, padding:"20px 20px 0", display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
+      <div style={{ width:"100%", maxWidth:480, padding:"20px 20px 80px", display:"flex", flexDirection:"column", alignItems:"center", gap:16, overflowY:"auto", flex:1 }}>
 
         {/* WORD_BY_IMAGE — big image + 2 word buttons */}
         {q.type==="word_by_image" && (
