@@ -1054,10 +1054,20 @@ function SChoosePlan({ iso }: { iso:string }) {
 
         {/* ── Guarantee ── */}
         <div style={{ marginTop:28, textAlign:"center" }}>
-          <div style={{ width:80, height:80, borderRadius:"50%", border:"4px solid #f90", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", margin:"0 auto 16px", fontSize:10, fontWeight:800, color:"#f90", lineHeight:1.2 }}>
-            <div style={{ fontSize:18 }}>14</div>
-            <div>DAYS</div>
-            <div>GUARANTEE</div>
+          <div style={{ position:"relative", width:110, height:110, margin:"0 auto 20px" }}>
+            {/* Outer glow ring */}
+            <div style={{ position:"absolute", inset:-4, borderRadius:"50%", background:"conic-gradient(from 0deg,#f90,#ffcc00,#f90,#ff6600,#f90)", padding:3, borderRadius:"50%" }}>
+              <div style={{ width:"100%", height:"100%", borderRadius:"50%", background:"#0a0a0a" }}/>
+            </div>
+            {/* Inner circle */}
+            <div style={{ position:"absolute", inset:6, borderRadius:"50%", background:"radial-gradient(circle at 35% 35%,#1a1200,#0a0800)", border:"2px solid rgba(255,165,0,0.4)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:1 }}>
+              {/* Shield icon */}
+              <svg viewBox="0 0 20 22" style={{ width:16, height:16, fill:"#f90", marginBottom:1 }}>
+                <path d="M10 0L0 4v6c0 5.5 4.3 10.7 10 12 5.7-1.3 10-6.5 10-12V4L10 0z"/>
+              </svg>
+              <div style={{ fontSize:22, fontWeight:900, color:"#fff", lineHeight:1, fontFamily:"sans-serif" }}>14</div>
+              <div style={{ fontSize:7.5, fontWeight:800, color:"#f90", letterSpacing:1.5, lineHeight:1.2, textAlign:"center" }}>DAYS<br/>GUARANTEE</div>
+            </div>
           </div>
           <h3 style={{ color:"#00d4ff", fontSize:18, fontWeight:800, marginBottom:10 }}>Garantía de devolución del dinero</h3>
           <p style={{ fontSize:14, color:"#aaa", lineHeight:1.7 }}>
