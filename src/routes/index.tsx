@@ -156,6 +156,34 @@ function Card({ on, onClick, children }: { on:boolean; onClick:()=>void; childre
 
 const PROG = ["language","name","level","how","why","struggles","topics","goal","email"];
 
+function TestProgressBar({ current, total }: { current:number; total:number }) {
+  return (
+    <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", alignItems:"center", gap:0 }}>
+      {Array.from({length:total},(_,i)=>{
+        const done = i < current;
+        const active = i === current;
+        return (
+          <div key={i} style={{ display:"flex", alignItems:"center", flex:1 }}>
+            <div style={{
+              width:22, height:22, borderRadius:"50%", flexShrink:0,
+              background: done ? "#4C9FFF" : active ? "#4C9FFF" : "rgba(255,255,255,0.12)",
+              border: active ? "2px solid #4C9FFF" : "none",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              transition:"all 0.3s",
+            }}>
+              {done && <span style={{ color:"#fff", fontSize:11, fontWeight:900 }}>✓</span>}
+              {active && <div style={{ width:8, height:8, borderRadius:"50%", background:"#fff" }}/>}
+            </div>
+            {i < total-1 && (
+              <div style={{ flex:1, height:3, background: done ? "#4C9FFF" : "rgba(255,255,255,0.12)", transition:"background 0.3s" }}/>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ProgressBar({ screen }: { screen:string }) {
   const idx = PROG.indexOf(screen);
   if (idx < 0) return null;
@@ -1300,7 +1328,7 @@ function SVocabTest({ next, iso }: { next:()=>void; iso:string }) {
   const lvlLabels = LVL_LABEL[iso] ?? LVL_LABEL.es;
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px" }}>
-      <ProgressBar screen="level"/>
+      <TestProgressBar current={lvl} total={VOCAB_LEVELS.length}/>
       <div style={{ width:"100%", maxWidth:480, flex:1, display:"flex", flexDirection:"column" }}>
         <h1 style={{ fontSize:20, fontWeight:800, textAlign:"center", margin:"12px 0 6px", lineHeight:1.3 }}>{TITLE[iso]??TITLE.es}</h1>
         <p style={{ color:"#8899aa", textAlign:"center", fontSize:13, margin:"0 0 16px" }}>{lvlLabels[lvl]}</p>
@@ -1392,7 +1420,7 @@ function SGrammarTest({ next, iso, setScore }: { next:()=>void; iso:string; setS
 
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px" }}>
-      <ProgressBar screen="level"/>
+      <TestProgressBar current={qi} total={GRAMMAR_QS.length}/>
       <div style={{ width:"100%", maxWidth:480, flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
         {q.type==="image" ? (
           <>
@@ -1617,16 +1645,7 @@ function SLexTest({ next, iso }: { next:()=>void; iso:string }) {
   return (
     <div style={{ ...BASE, justifyContent:"flex-start", paddingBottom:80 }}>
 
-      {/* Progress dots */}
-      <div style={{ width:"100%", maxWidth:480, padding:"16px 20px 0", display:"flex", gap:5 }}>
-        {Array.from({length:total},(_,i) => (
-          <div key={i} style={{
-            flex:1, height:5, borderRadius:999,
-            background: i < qi ? "#2563eb" : i===qi ? G : "rgba(255,255,255,0.12)",
-            transition:"background 0.3s",
-          }}/>
-        ))}
-      </div>
+      <TestProgressBar current={qi} total={total}/>
 
       {/* Timer + prompt */}
       <div style={{ textAlign:"center", padding:"20px 20px 0" }}>
