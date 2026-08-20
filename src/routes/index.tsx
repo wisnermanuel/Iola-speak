@@ -451,10 +451,10 @@ function SGoodHands1({ next, iso }: { next:()=>void; iso:string }) {
       <h1 style={{ fontSize:24, fontWeight:800, margin:0 }}>{tr(iso,"goodHands")}</h1>
       <div style={{ position:"relative", width:"100%", maxWidth:420, margin:"0 auto", aspectRatio:"520/418" }}>
         <div style={{ width:"100%", height:"100%", backgroundImage:`url(https://cdn-eu.lolaenglish.com/web-images%2Fhands.webp)`, backgroundSize:"contain", backgroundRepeat:"no-repeat", backgroundPosition:"center" }}/>
-        {/* Claude logo overlaid where ChatGPT appears — bottom-left circle ~22% from left, 68% from top */}
-        <div style={{ position:"absolute", left:"22%", top:"68%", transform:"translate(-50%,-50%)", width:"10%", aspectRatio:"1", borderRadius:"50%", background:"#D97A4F", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.5)" }}>
-          <svg viewBox="0 0 24 24" style={{ width:"60%", height:"60%", fill:"#fff" }} xmlns="http://www.w3.org/2000/svg">
-            <path d="M17.45 9.52c-.37-1.02-1.02-1.9-1.87-2.53a5.14 5.14 0 0 0-2.96-.93c-.7 0-1.38.14-2.01.41L9.3 7.05a5.2 5.2 0 0 0-2.53 2.53 5.14 5.14 0 0 0-.41 2.01c0 1.05.3 2.07.87 2.95l.41.66-.41 1.52 1.57-.41.66.4c.88.57 1.9.87 2.95.87.7 0 1.38-.14 2.01-.41l1.31-.58a5.2 5.2 0 0 0 2.53-2.53c.27-.63.41-1.31.41-2.01 0-1.05-.3-2.07-.87-2.95l.19-.58zm-1.66 4.67a3.77 3.77 0 0 1-1.83 1.83l-1.31.58c-.46.2-.95.3-1.45.3-.75 0-1.48-.2-2.12-.59l-1.3-.81-1.22.32.32-1.22-.81-1.3a3.73 3.73 0 0 1-.59-2.12c0-.5.1-.99.3-1.45l.58-1.31a3.77 3.77 0 0 1 1.83-1.83l1.31-.58c.46-.2.95-.3 1.45-.3.75 0 1.48.2 2.12.59l.13.08c.55.36.99.86 1.28 1.46l.29.67c.2.46.3.95.3 1.45 0 .5-.1.99-.3 1.45l-.19.47z"/>
+        {/* Claude spark logo */}
+        <div style={{ position:"absolute", left:"22%", top:"68%", transform:"translate(-50%,-50%)", width:"10%", aspectRatio:"1", borderRadius:"50%", background:"#E8622A", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 10px rgba(0,0,0,0.5)" }}>
+          <svg viewBox="0 0 24 24" style={{ width:"65%", height:"65%", fill:"#fff" }} xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 12 2.5ZM12 16.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75ZM2.5 12a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5A.75.75 0 0 1 2.5 12ZM16.5 12a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM5.4 5.4a.75.75 0 0 1 1.06 0l2.47 2.47a.75.75 0 0 1-1.06 1.06L5.4 6.46A.75.75 0 0 1 5.4 5.4ZM15.07 15.07a.75.75 0 0 1 1.06 0l2.47 2.47a.75.75 0 0 1-1.06 1.06l-2.47-2.47a.75.75 0 0 1 0-1.06ZM18.6 5.4a.75.75 0 0 1 0 1.06l-2.47 2.47a.75.75 0 0 1-1.06-1.06L17.54 5.4a.75.75 0 0 1 1.06 0ZM8.93 15.07a.75.75 0 0 1 0 1.06L6.46 18.6A.75.75 0 0 1 5.4 17.54l2.47-2.47a.75.75 0 0 1 1.06 0Z"/>
           </svg>
         </div>
       </div>
