@@ -299,7 +299,6 @@ function SName({ next, name, setName, iso }: { next:()=>void; name:string; setNa
           <input value={name} onChange={e=>setName(e.target.value)} placeholder=""
             style={{ flex:1, background:"none", border:"none", outline:"none", color:"#fff", fontSize:17, fontWeight:500 }} autoFocus />
         </div>
-        <button onClick={next} style={{ marginTop:28, background:"none", border:"none", color:"#556677", fontSize:15, cursor:"pointer" }}>{tr(iso,"skip")}</button>
       </div>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
