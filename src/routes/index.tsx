@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase, getActiveSubscription } from "../lib/supabase";
 
 const CDN = "https://cdn-eu.lolaenglish.com/web-images%2F";
@@ -809,9 +809,12 @@ function SExpect({ next, week, iso }: { next:()=>void; week:1|4|12|"12m"; iso:st
     "12m":{ img:CDN+"month12.webp",title:"12 meses",  sub:"Dominio avanzado del inglés",            bullets:["Nivel B2-C1 sólido","Inglés fluido y natural","Listo para el mundo"] },
   }[week];
   return (
-    <div style={{ ...BASE, padding:"0 20px 100px" }}>
-      <div style={{ width:"100%", maxWidth:480, paddingTop:28 }}>
-        <img src={D.img} alt="" style={{ width:"100%", borderRadius:20, marginBottom:24, objectFit:"cover", maxHeight:220 }}/>
+    <div style={{ ...BASE, padding:0, justifyContent:"flex-start" }}>
+      {/* Hero image — full width, tall, no side margins */}
+      <div style={{ width:"100%", maxWidth:480, height:340, overflow:"hidden", flexShrink:0 }}>
+        <img src={D.img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }}/>
+      </div>
+      <div style={{ width:"100%", maxWidth:480, padding:"24px 20px 120px", flex:1 }}>
         <h2 style={{ fontSize:24, fontWeight:800, margin:"0 0 6px" }}>{D.title}</h2>
         <p style={{ color:"#8899aa", marginBottom:24, fontSize:15 }}>{D.sub}</p>
         {D.bullets.map(b=>(
@@ -1929,12 +1932,55 @@ function SCreatProgram({ next, iso }: { next:()=>void; iso:string }) {
         {title}
       </h2>
 
-      {/* Image — contained, centered, fixed height */}
-      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%", padding:"24px 0" }}>
-        <img key={imgSrc} src={imgSrc} alt="" style={{
-          maxHeight:260, maxWidth:"100%", objectFit:"contain",
-          borderRadius:16, transition:"opacity 0.3s",
-        }}/>
+      {/* Image with animated bars (step 0) or shimmer border (other steps) */}
+      <style>{`
+        @keyframes bar{0%,100%{transform:scaleY(0.3)}50%{transform:scaleY(1)}}
+        @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+      `}</style>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", width:"100%", padding:"16px 0", gap:12 }}>
+        {/* Audio bars (only step 0 — "Analizando") */}
+        {stepIdx === 0 && (
+          <div style={{ display:"flex", alignItems:"flex-end", gap:4, height:36, marginBottom:4 }}>
+            {[0.4,0.7,1,0.6,0.9,0.5,0.8,0.45,0.75,0.55,1,0.65].map((h,i)=>(
+              <div key={i} style={{
+                width:5, height:36, borderRadius:3,
+                background:`linear-gradient(to top,#4C9FFF,#aef)`,
+                transformOrigin:"bottom",
+                animation:`bar ${0.5+i*0.07}s ease-in-out ${i*0.06}s infinite`,
+              }}/>
+            ))}
+          </div>
+        )}
+        {/* Image with shimmer border */}
+        <div style={{ position:"relative", borderRadius:20, overflow:"hidden",
+          boxShadow: stepIdx===0 ? "none" : "0 0 0 2px rgba(180,200,255,0.25)",
+          maxWidth: stepIdx===0 ? 200 : "85%",
+        }}>
+          <img key={imgSrc} src={imgSrc} alt="" style={{
+            maxHeight:240, maxWidth:"100%", objectFit:"contain",
+            borderRadius:16, display:"block",
+          }}/>
+          {/* Shimmer sweep on non-first steps */}
+          {stepIdx !== 0 && (
+            <div style={{
+              position:"absolute", inset:0, pointerEvents:"none",
+              background:"linear-gradient(105deg,transparent 40%,rgba(200,220,255,0.35) 50%,transparent 60%)",
+              animation:"shimmer 2.2s linear infinite",
+            }}/>
+          )}
+        </div>
+        {/* Audio bars bottom (last step) */}
+        {stepIdx === 5 && (
+          <div style={{ display:"flex", alignItems:"flex-end", gap:4, height:28 }}>
+            {[0.6,1,0.5,0.8,0.4,0.9,0.55,0.75,0.65,1].map((h,i)=>(
+              <div key={i} style={{
+                width:5, height:28, borderRadius:3,
+                background:"#4C9FFF", transformOrigin:"bottom",
+                animation:`bar ${0.45+i*0.07}s ease-in-out ${i*0.08}s infinite`,
+              }}/>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Percentage */}
@@ -1974,17 +2020,42 @@ const SUMMARY_MSGS = [
   { bold:"Conversación con IA.",        text:" Practica diálogos reales con nuestra IA y gana confianza para hablar en cualquier situación." },
 ];
 
+function TypingMsg({ bold, text }: { bold:string; text:string }) {
+  const full = (bold ? bold + text : text);
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    if (shown >= full.length) return;
+    const id = setTimeout(() => setShown(s => s + 1), 18);
+    return () => clearTimeout(id);
+  }, [shown, full.length]);
+  const rendered = full.slice(0, shown);
+  const boldEnd = bold.length;
+  return (
+    <span>
+      {bold && <span style={{ color:G, fontWeight:700 }}>{rendered.slice(0, Math.min(boldEnd, shown))}</span>}
+      {shown > boldEnd && rendered.slice(boldEnd)}
+    </span>
+  );
+}
+
 function SSummary({ next, iso }: { next:()=>void; iso:string }) {
-  const [visible, setVisible] = useState(1);   // how many msgs shown
-  const [loading, setLoading] = useState(false); // show "..." bubble
+  const [visible, setVisible] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (visible >= SUMMARY_MSGS.length) return;
+    const full = SUMMARY_MSGS[visible - 1].bold + SUMMARY_MSGS[visible - 1].text;
+    const typingTime = full.length * 18 + 400;
     setLoading(true);
-    const t1 = setTimeout(() => setLoading(false), 1800);
-    const t2 = setTimeout(() => setVisible(v => v + 1), 2400);
+    const t1 = setTimeout(() => setLoading(false), typingTime + 800);
+    const t2 = setTimeout(() => setVisible(v => v + 1), typingTime + 1400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [visible]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [visible, loading]);
 
   const done = visible >= SUMMARY_MSGS.length && !loading;
 
@@ -2009,7 +2080,7 @@ function SSummary({ next, iso }: { next:()=>void; iso:string }) {
       <h1 style={{ fontSize:24, fontWeight:800, margin:"24px 20px 16px", width:"100%", maxWidth:480 }}>Toques finales</h1>
 
       {/* Chat messages */}
-      <div style={{ width:"100%", maxWidth:480, padding:"0 20px", display:"flex", flexDirection:"column", gap:16, overflowY:"auto", flex:1 }}>
+      <div ref={scrollRef} style={{ width:"100%", maxWidth:480, padding:"0 20px", display:"flex", flexDirection:"column", gap:16, overflowY:"auto", flex:1 }}>
         {SUMMARY_MSGS.slice(0, visible).map((msg, i) => (
           <div key={i} style={{ display:"flex", flexDirection:"column", gap:6 }}>
             <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -2022,8 +2093,10 @@ function SSummary({ next, iso }: { next:()=>void; iso:string }) {
               padding:"12px 14px", fontSize:15, lineHeight:1.55, color:"#e8f0e8",
               marginLeft:40,
             }}>
-              {msg.bold && <span style={{ color:G, fontWeight:700 }}>{msg.bold}</span>}
-              {msg.text}
+              {i === visible - 1
+                ? <TypingMsg bold={msg.bold} text={msg.text}/>
+                : <><span style={{ color:G, fontWeight:700 }}>{msg.bold}</span>{msg.text}</>
+              }
             </div>
           </div>
         ))}
