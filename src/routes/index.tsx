@@ -957,6 +957,10 @@ function SChoosePlan({ iso }: { iso:string }) {
               month:"https://buy.stripe.com/5kQ3cx1jf4EFcuc0R74AU0K",
               quarter:"https://buy.stripe.com/bJe14p7HD7QRdygczP4AU0L"
             };
+            const prices:Record<string,number>={week:9.99,month:19.99,quarter:14.99};
+            if(typeof window!=="undefined"&&(window as any).fbq){
+              (window as any).fbq('track','InitiateCheckout',{currency:'USD',value:prices[selPlan]||19.99,content_name:selPlan});
+            }
             window.location.href=urls[selPlan]||urls.month;
           }} style={{
             width:"100%", height:56, background:G, border:"none", borderRadius:14,
@@ -1106,6 +1110,10 @@ function SChoosePlan({ iso }: { iso:string }) {
               month:"https://buy.stripe.com/5kQ3cx1jf4EFcuc0R74AU0K",
               quarter:"https://buy.stripe.com/bJe14p7HD7QRdygczP4AU0L"
             };
+            const prices:Record<string,number>={week:9.99,month:19.99,quarter:14.99};
+            if(typeof window!=="undefined"&&(window as any).fbq){
+              (window as any).fbq('track','InitiateCheckout',{currency:'USD',value:prices[selPlan]||19.99,content_name:selPlan});
+            }
             window.location.href=urls[selPlan]||urls.month;
           }} style={{
             width:"100%", height:56, background:G, border:"none", borderRadius:14,
