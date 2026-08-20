@@ -1087,7 +1087,13 @@ function SChoosePlan({ iso }: { iso:string }) {
 }
 
 // ─── Mini S-curve shared by test result screens ────────────────────────────────
-function MiniCurve({ label1, val1, label2, val2 }: { label1:string; val1:string; label2:string; val2:string }) {
+function MiniCurve({ label1, val1, label2, val2, iso="es" }: { label1:string; val1:string; label2:string; val2:string; iso?:string }) {
+  const nextMonth = (() => {
+    const d = new Date(); d.setMonth(d.getMonth()+1);
+    const day = d.getDate();
+    const month = d.toLocaleDateString(iso==="zh"?"zh-CN":iso==="uk"?"uk":iso, {month:"long"});
+    return { day, month };
+  })();
   const [phase, setPhase] = useState<"p1"|"pause"|"p2">("p1");
   const [prog, setProg] = useState(0);
   const STOP1 = 0.45, STOP2 = 0.60;
@@ -1158,7 +1164,8 @@ function MiniCurve({ label1, val1, label2, val2 }: { label1:string; val1:string;
         {atStop2 && <circle cx={stop2Pt.x} cy={stop2Pt.y} r={9} fill={G}/>}
         {atStop2 && <text x={stop2Pt.x} y={stop2Pt.y+4} fill="#000" fontSize={10} fontWeight="900" textAnchor="middle">✓</text>}
         <text x={W*.05} y={H} fill="#556677" fontSize={10} textAnchor="middle">Hoy</text>
-        <text x={W*.95} y={H} fill="#556677" fontSize={10} textAnchor="middle">1 mes</text>
+        <text x={stop2Pt.x} y={H} fill="#aeea00" fontSize={12} fontWeight="700" textAnchor="middle">{nextMonth.day}</text>
+        <text x={stop2Pt.x} y={H+13} fill="#8899aa" fontSize={10} textAnchor="middle">{nextMonth.month}</text>
       </svg>
     </div>
   );
@@ -1336,7 +1343,7 @@ function SVocabResults({ next, iso }: { next:()=>void; iso:string }) {
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px", textAlign:"center" }}>
       <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>{TITLE[iso]??TITLE.es}</h1>
-      <MiniCurve label1={EST[iso]??EST.es} val1="3500 palabras" label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="3750 palabras"/>
+      <MiniCurve label1={EST[iso]??EST.es} val1="3500 palabras" label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="3750 palabras" iso={iso}/>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
@@ -1458,7 +1465,7 @@ function SGrammarResults({ next, iso, score }: { next:()=>void; iso:string; scor
   return (
     <div style={{ ...BASE, justifyContent:"space-between", padding:"28px 20px 100px", textAlign:"center" }}>
       <h1 style={{ fontSize:22, fontWeight:800, margin:0 }}>{TITLE[iso]??TITLE.es}</h1>
-      <MiniCurve label1={LVL[iso]??LVL.es} val1={curLevel} label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="B2"/>
+      <MiniCurve label1={LVL[iso]??LVL.es} val1={curLevel} label2={NEXT_HIT[iso]??NEXT_HIT.es} val2="B2" iso={iso}/>
       <NextBtn onClick={next}>{tr(iso,"next")}</NextBtn>
     </div>
   );
