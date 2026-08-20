@@ -453,8 +453,8 @@ function SGoodHands1({ next, iso }: { next:()=>void; iso:string }) {
         <div style={{ width:"100%", height:"100%", backgroundImage:`url(https://cdn-eu.lolaenglish.com/web-images%2Fhands.webp)`, backgroundSize:"contain", backgroundRepeat:"no-repeat", backgroundPosition:"center" }}/>
         {/* Claude spark logo */}
         <div style={{ position:"absolute", left:"22%", top:"68%", transform:"translate(-50%,-50%)", width:"10%", aspectRatio:"1", borderRadius:"50%", background:"#E8622A", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 10px rgba(0,0,0,0.5)" }}>
-          <svg viewBox="0 0 24 24" style={{ width:"65%", height:"65%", fill:"#fff" }} xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 12 2.5ZM12 16.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75ZM2.5 12a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5A.75.75 0 0 1 2.5 12ZM16.5 12a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM5.4 5.4a.75.75 0 0 1 1.06 0l2.47 2.47a.75.75 0 0 1-1.06 1.06L5.4 6.46A.75.75 0 0 1 5.4 5.4ZM15.07 15.07a.75.75 0 0 1 1.06 0l2.47 2.47a.75.75 0 0 1-1.06 1.06l-2.47-2.47a.75.75 0 0 1 0-1.06ZM18.6 5.4a.75.75 0 0 1 0 1.06l-2.47 2.47a.75.75 0 0 1-1.06-1.06L17.54 5.4a.75.75 0 0 1 1.06 0ZM8.93 15.07a.75.75 0 0 1 0 1.06L6.46 18.6A.75.75 0 0 1 5.4 17.54l2.47-2.47a.75.75 0 0 1 1.06 0Z"/>
+          <svg viewBox="0 0 100 100" style={{ width:"65%", height:"65%", fill:"none", stroke:"#fff", strokeWidth:7, strokeLinecap:"round" }} xmlns="http://www.w3.org/2000/svg">
+            {Array.from({length:12},(_,i)=>{const a=(i*30-90)*Math.PI/180;const x1=50+18*Math.cos(a);const y1=50+18*Math.sin(a);const x2=50+44*Math.cos(a);const y2=50+44*Math.sin(a);return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}/>;})}
           </svg>
         </div>
       </div>
