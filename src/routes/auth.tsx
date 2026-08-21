@@ -38,9 +38,12 @@ function PasswordInput({ placeholder, value, onChange, autoComplete }: {
   );
 }
 
+const BG = "linear-gradient(160deg,#09090F 0%,#0b1a2e 60%,#0d0f1a 100%)";
+const G = "#AEEA00";
+
 function IolaLogo() {
   return (
-    <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg,#4C9FFF,#9b6cff)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+    <div style={{ width:64, height:64, borderRadius:'50%', background:'linear-gradient(135deg,#4C9FFF 0%,#9b6cff 100%)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 32px rgba(76,159,255,0.4)' }}>
       <svg viewBox="0 0 100 100" style={{ width:'65%', height:'65%', fill:'none', stroke:'#fff', strokeWidth:7, strokeLinecap:'round' }}>
         {Array.from({length:12},(_,i)=>{const a=(i*30-90)*Math.PI/180;const x1=50+18*Math.cos(a);const y1=50+18*Math.sin(a);const x2=50+44*Math.cos(a);const y2=50+44*Math.sin(a);return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}/>;})}
       </svg>
@@ -50,13 +53,18 @@ function IolaLogo() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 bg-transparent flex items-center justify-center p-5">
-      <div className="w-full max-w-sm">
+    <div style={{ position:'fixed', inset:0, background:BG, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+      {/* glow */}
+      <div style={{ position:'absolute', top:'15%', left:'50%', transform:'translateX(-50%)', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle,rgba(76,159,255,0.12) 0%,transparent 70%)', pointerEvents:'none' }}/>
+      <div className="w-full max-w-sm" style={{ position:'relative' }}>
         <div className="text-center mb-8 flex flex-col items-center">
           <IolaLogo />
-          <p className="text-white/25 text-xs mt-2 tracking-widest uppercase">Iola Speak</p>
+          <p style={{ color:'rgba(174,234,0,0.7)', fontSize:11, marginTop:10, letterSpacing:'0.2em', textTransform:'uppercase', fontWeight:600 }}>Iola Speak</p>
+          <p style={{ color:'rgba(255,255,255,0.3)', fontSize:12, marginTop:4 }}>Tu entrenador de inglés con IA</p>
         </div>
-        <div className="bg-[#111] border border-white/8 rounded-2xl p-6">{children}</div>
+        <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:24, backdropFilter:'blur(20px)' }}>
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -179,13 +187,15 @@ export default function AuthPage() {
   );
 
   return (
-    <div className="fixed inset-0 bg-transparent flex flex-col items-center justify-center p-5">
-      <div className="w-full max-w-sm">
+    <div style={{ position:'fixed', inset:0, background:BG, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:20 }}>
+      <div style={{ position:'absolute', top:'15%', left:'50%', transform:'translateX(-50%)', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle,rgba(76,159,255,0.12) 0%,transparent 70%)', pointerEvents:'none' }}/>
+      <div className="w-full max-w-sm" style={{ position:'relative' }}>
         <div className="text-center mb-10 flex flex-col items-center">
           <IolaLogo />
-          <p className="text-white/25 text-[11px] tracking-widest uppercase mt-2">Iola Speak</p>
+          <p style={{ color:'rgba(174,234,0,0.7)', fontSize:11, marginTop:10, letterSpacing:'0.2em', textTransform:'uppercase', fontWeight:600 }}>Iola Speak</p>
+          <p style={{ color:'rgba(255,255,255,0.3)', fontSize:12, marginTop:4 }}>Tu entrenador de inglés con IA</p>
         </div>
-        <div className="bg-[#111] border border-white/8 rounded-2xl p-6">
+        <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:24, backdropFilter:'blur(20px)' }}>
           {notice && <p className="text-green-400 text-xs mb-4">{notice}</p>}
           <form onSubmit={onSubmit} className="space-y-3">
             <input className={field} type="email" autoComplete="email" placeholder="tu@email.com"
@@ -238,4 +248,5 @@ export default function AuthPage() {
       <style>{`@keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }`}</style>
     </div>
   );
+  void G;
 }
