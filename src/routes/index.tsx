@@ -954,11 +954,11 @@ function SChoosePlan({ iso }: { iso:string }) {
           </div>
           <button onClick={()=>{
             const urls:Record<string,string>={
-              week:"https://buy.stripe.com/9B63cxge99YZdyg2Zf4AU0J",
-              month:"https://buy.stripe.com/5kQ3cx1jf4EFcuc0R74AU0K",
-              quarter:"https://buy.stripe.com/bJe14p7HD7QRdygczP4AU0L"
+              week:"https://buy.stripe.com/dRm8wRge9fjj3XGdDT4AU00",
+              month:"https://buy.stripe.com/5kQ7sN2nj5IJeCk8jz4AU0N",
+              quarter:"https://buy.stripe.com/fZu3cx7HD0op9i0bvL4AU0M"
             };
-            const prices:Record<string,number>={week:9.99,month:19.99,quarter:14.99};
+            const prices:Record<string,number>={week:7.99,month:12.99,quarter:29.99};
             if(typeof window!=="undefined"&&(window as any).fbq){
               (window as any).fbq('track','InitiateCheckout',{currency:'USD',value:prices[selPlan]||19.99,content_name:selPlan});
             }
@@ -1107,11 +1107,11 @@ function SChoosePlan({ iso }: { iso:string }) {
           </div>
           <button onClick={()=>{
             const urls:Record<string,string>={
-              week:"https://buy.stripe.com/9B63cxge99YZdyg2Zf4AU0J",
-              month:"https://buy.stripe.com/5kQ3cx1jf4EFcuc0R74AU0K",
-              quarter:"https://buy.stripe.com/bJe14p7HD7QRdygczP4AU0L"
+              week:"https://buy.stripe.com/dRm8wRge9fjj3XGdDT4AU00",
+              month:"https://buy.stripe.com/5kQ7sN2nj5IJeCk8jz4AU0N",
+              quarter:"https://buy.stripe.com/fZu3cx7HD0op9i0bvL4AU0M"
             };
-            const prices:Record<string,number>={week:9.99,month:19.99,quarter:14.99};
+            const prices:Record<string,number>={week:7.99,month:12.99,quarter:29.99};
             if(typeof window!=="undefined"&&(window as any).fbq){
               (window as any).fbq('track','InitiateCheckout',{currency:'USD',value:prices[selPlan]||19.99,content_name:selPlan});
             }
