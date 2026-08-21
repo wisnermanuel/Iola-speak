@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "@/lib/auth";
 import { supabase, getActiveSubscription } from "../lib/supabase";
 
 const CDN = "https://cdn-eu.lolaenglish.com/web-images%2F";
